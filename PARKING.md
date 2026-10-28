@@ -34,3 +34,6 @@ If the dongle emits misleading disconnects during a drive, use manual parking se
 ## Short-distance testing
 
 20/30 m are minimum separation estimates, not guaranteed physical lock points. GPS uncertainty is added to the threshold and walking during the five-second dwell, scheduling delays and Hyundai response time add distance. Keep the phone beside the car until Parking saved is shown. If a 5 m accuracy fix is unavailable, the short-distance session waits instead of guessing. Test outdoors with your key available. Confirm one lock attempt at departure, no return reminder while continuing away, and one reminder after actually approaching the car again.
+
+
+Find My Car (0.7.8) retains the last successfully marked parking spot, accuracy and save time on this phone, associated with the selected vehicle. Stopping monitoring does not clear that fallback. Use Find My Car → Clear saved to delete it. Disconnect, account change or vehicle selection also clears saved locations. A map opens only after your tap and shares the selected coordinates with Google.

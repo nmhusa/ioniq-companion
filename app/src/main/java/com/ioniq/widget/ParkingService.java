@@ -88,6 +88,7 @@ public class ParkingService extends Service implements LocationListener {
  private void arm(Location l){
   canSend=false;getSharedPreferences("parking",0).edit().putBoolean("attempted",false).apply();
   session=++generation;anchor=new Location(l);rules=new ParkingRules(ParkingStart.radius(this),SystemClock.elapsedRealtime());awaitingFix=false;
+  CarLocations.saveParking(this,l);
   notifications.cancel(RETURN_NOTICE);setStatus("Parking saved on phone. Walk beyond "+rules.radius+" m plus GPS uncertainty to begin the "+(rules.countdownMillis()/1000)+"-second lock countdown.");
  }
  @Override public void onLocationChanged(Location l){

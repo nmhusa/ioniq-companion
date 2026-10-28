@@ -38,7 +38,7 @@ Account-change and erase actions sit in a yellow/black caution section, with exp
 
 ## Updating an existing working Windows project
 
-Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq-companion-v077.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq-companion-v078.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
 
 The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.
 
@@ -71,3 +71,7 @@ Tap the defrost/steering-heat preset button below the temperature slider. Save f
 One Climate presets control opens Winter/Summer/Custom selection and editing. One Charge limits control opens reported AC/DC targets and a confirmation-protected editor. No new main-screen sliders or explanatory paragraphs. Existing settings migrate to Custom. The updater backs up the local API and inserts only the known payload/case changes; credentials and signing configuration stay intact.
 
 US charge-limit protocol verified against Hyundai-Kia-Connect/hyundai_kia_connect_api, HyundaiBlueLinkApiUSA.py: `evc/charge/targetsoc/set`, `targetSOClist`, DC plug type 0 and AC plug type 1. No account was contacted during development. Endpoint/vehicle behavior still requires owner testing.
+
+## Find My Car (0.7.8)
+
+One compact control opens on-demand Hyundai location retrieval, map links and walking directions. A separate saved phone parking fix is retained when parking is marked. Both are tied to the selected vehicle and show source/time. No automatic location requests. See INSTALL.md and the updated privacy page. US endpoint reference: https://github.com/Hyundai-Kia-Connect/hyundai_kia_connect_api/blob/master/hyundai_kia_connect_api/HyundaiBlueLinkApiUSA.py .

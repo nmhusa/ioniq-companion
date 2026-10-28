@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
  private void build(){
   buttons.clear();ScrollView scroll=new ScrollView(this);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(24),dp(24),dp(24),dp(24));page.setBackgroundColor(Color.rgb(11,22,31));scroll.addView(page);setContentView(scroll);
   vehicleTitle=text("IONIQ Companion",38,Color.WHITE);vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
-  carHeader();
+  carHeader();button("⌖  Find my car",()->findCar());
   status=text("No vehicle data yet",12,0xffAFC5D4);status.setMinHeight(dp(48));status.setOnClickListener(v->reportDialog());message=text("",14,0xffAFC5D4);message.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Latest result").setMessage(resultDetails).setPositiveButton("Done",null).setNeutralButton("Dismiss",(d,w)->{showResult("");getSharedPreferences("actions",0).edit().remove("last_result").apply();}).show());showResult("");showStatus();
   walkAway=button("Walk-away lock · "+ParkingStart.radius(this)+" m",()->{if(ParkingService.active)ParkingService.stop(this);else ParkingStart.start(this,true);updateParkingControl();});
   walkAway.setOnClickListener(v->{if(ParkingService.active)ParkingService.stop(this);else if(!busy)ParkingStart.start(this,true);updateParkingControl();});
@@ -81,11 +81,11 @@ public class MainActivity extends Activity {
   text("⚠  ACCOUNT SETTINGS — PROCEED WITH CARE",14,0xffffd54f);
   Button account=button("⚠  Connect / change Bluelink account",()->new AlertDialog.Builder(this).setTitle("Change your Bluelink connection?").setMessage("Continuing opens sign-in. Submitting a new login replaces this phone’s saved account and vehicle selection and stops parking monitoring. You will need your Bluelink email, password and remote-service PIN. Cancelling leaves your current connection unchanged.").setNegativeButton("Keep current account",null).setPositiveButton("Continue to sign-in",(d,w)->loginForm()).show());
   account.setTextColor(0xffffd54f);
-  Button erase=button("⚠  Disconnect and erase local data",()->new AlertDialog.Builder(this).setTitle("Erase this phone’s saved connection?").setMessage("This removes your saved Bluelink login, PIN, selected vehicle, status and command history. Parking monitoring will stop and its settings will be erased. You must sign in again to control the car. This does not delete your Hyundai account. This action cannot be undone.").setNegativeButton("Cancel — keep my data",null).setPositiveButton("Erase and disconnect",(d,w)->{ParkingService.stop(this);run(()->{Vault.clear(this);getSharedPreferences("mileage",0).edit().clear().commit();getSharedPreferences("vehicle_identity",0).edit().clear().commit();getSharedPreferences("parking",0).edit().clear().commit();return "Disconnected. Saved login, status and parking settings removed.";});}).show());
+  Button erase=button("⚠  Disconnect and erase local data",()->new AlertDialog.Builder(this).setTitle("Erase this phone’s saved connection?").setMessage("This removes your saved Bluelink login, PIN, selected vehicle, status and command history. Parking monitoring will stop and its settings will be erased. You must sign in again to control the car. This does not delete your Hyundai account. This action cannot be undone.").setNegativeButton("Cancel — keep my data",null).setPositiveButton("Erase and disconnect",(d,w)->{ParkingService.stop(this);run(()->{Vault.clear(this);CarLocations.clear(this);getSharedPreferences("mileage",0).edit().clear().commit();getSharedPreferences("vehicle_identity",0).edit().clear().commit();getSharedPreferences("parking",0).edit().clear().commit();return "Disconnected. Saved login, status and parking settings removed.";});}).show());
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. The six individual action widgets send commands immediately with one tap. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.7",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.7.8",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -97,6 +97,28 @@ public class MainActivity extends Activity {
   if(carImage!=null&&shownModel!=model){carImage.setImageResource(model==5?R.drawable.car_profile_5:model==6?R.drawable.car_profile:R.drawable.ic_launcher_car);shownModel=model;}
  }
  private void showStatus(){updateVehicleIdentity();try{JSONObject s=new JSONObject(getSharedPreferences("status",0).getString("json","{}"));VehicleMileage.attach(this,s);reportDetails=StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable");status.setText(reportLabel(s.optString("dateTime","")));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}}
+ private void findCar(){
+  java.util.ArrayList<String> sources=new java.util.ArrayList<>(),labels=new java.util.ArrayList<>();
+  for(String source:new String[]{CarLocations.VEHICLE,CarLocations.PARKING}){JSONObject data=CarLocations.read(this,source);if(data!=null){sources.add(source);labels.add(CarLocations.description(data,source));}}
+  AlertDialog.Builder dialog=new AlertDialog.Builder(this).setTitle("Find my car");
+  if(sources.isEmpty())dialog.setMessage("No saved location for this vehicle. Request one from Hyundai, or mark parking with Walk-away lock beside your car.");
+  else dialog.setItems(labels.toArray(new String[0]),(d,n)->locationDetails(sources.get(n)));
+  dialog.setPositiveButton("Update from Hyundai",(d,w)->run(()->{
+   String selected=CarLocations.vin(this);JSONObject location=new HyundaiApi(this).findCar();
+   try{CarLocations.saveVehicle(this,selected,location);}catch(Exception e){throw new Exception("Hyundai returned no usable location, or the selected vehicle changed. Saved locations were kept.");}
+   runOnUiThread(()->{if(!isFinishing()&&!isDestroyed())findCar();});return "Location retrieved. Check its vehicle timestamp.";
+  })).setNegativeButton("Close",null);
+  if(!sources.isEmpty())dialog.setNeutralButton("Clear saved",(d,w)->new AlertDialog.Builder(this).setTitle("Clear saved locations?").setMessage("Remove the saved car and parking coordinates from this phone? Active walk-away monitoring will continue.").setNegativeButton("Cancel",null).setPositiveButton("Clear",(x,y)->{CarLocations.clear(this);findCar();}).show());
+  dialog.show();
+ }
+ private void locationDetails(String source){
+  JSONObject data=CarLocations.read(this,source);if(data==null){findCar();return;}
+  try{GeoPoint point=CarLocations.point(data);new AlertDialog.Builder(this).setTitle(source.equals(CarLocations.PARKING)?"Saved parking spot":"Hyundai location").setMessage(CarLocations.description(data,source)+"\n\nOpen the map or walking directions in Google Maps. This shares the selected coordinates with Google.")
+   .setPositiveButton("Open map",(d,w)->openLocation(point.mapUrl()))
+   .setNeutralButton("Walk here",(d,w)->openLocation(point.walkUrl())).setNegativeButton("Back",(d,w)->findCar()).show();
+  }catch(Exception e){showResult("Saved location is invalid. Request an updated location.");}
+ }
+ private void openLocation(String url){try{startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse(url)));}catch(ActivityNotFoundException e){showResult("Install a map app or browser to open this location.");}}
  private interface Task{String go()throws Exception;}
  private void run(Task task){if(busy)return;busy=true;for(Button b:buttons)b.setEnabled(false);updateParkingControl();showResult("Working…");RefreshJob.QUEUE.execute(()->{String result;try{result=task.go();}catch(Exception e){result=(e instanceof java.net.SocketTimeoutException)?"Network timeout. Command outcome may be unknown; check the official app before retrying.":e.getMessage();if(result==null)result="Request failed. Check your connection and the official app.";}final String answer=result;CarWidget.render(this);runOnUiThread(()->{busy=false;if(isDestroyed())return;for(Button b:buttons)b.setEnabled(true);showResult(answer);showStatus();});});}
  private void refresh(boolean force){run(()->{VehicleMileage.refresh(this,force);RefreshJob.schedule(this);return "Status refreshed";});}
@@ -133,7 +155,7 @@ public class MainActivity extends Activity {
   EditText pin=field(box,"Remote-service PIN",InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_VARIATION_PASSWORD);
   AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Hyundai US sign-in").setView(box).setPositiveButton("Connect",null).setNegativeButton("Cancel",null).create();
   dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{String e=email.getText().toString().trim(),p=pass.getText().toString(),n=pin.getText().toString();if(e.isEmpty()||p.isEmpty()||n.isEmpty()){email.setError("Fill in all three fields");return;}dialog.dismiss();ParkingService.stop(this);run(()->{
-   JSONObject data=new JSONObject().put("email",e).put("password",p).put("pin",n);Vault.save(this,data);getSharedPreferences("mileage",0).edit().clear().commit();getSharedPreferences("vehicle_identity",0).edit().clear().commit();getSharedPreferences("status",0).edit().clear().commit();
+   JSONObject data=new JSONObject().put("email",e).put("password",p).put("pin",n);Vault.save(this,data);CarLocations.clear(this);getSharedPreferences("mileage",0).edit().clear().commit();getSharedPreferences("vehicle_identity",0).edit().clear().commit();getSharedPreferences("status",0).edit().clear().commit();
    HyundaiApi api=new HyundaiApi(this);JSONArray list=api.vehicles();if(list.length()==0)return "No enrolled vehicles found.";
    runOnUiThread(()->chooseVehicle(list));return "Signed in. Select your vehicle.";
   });}));dialog.show();
@@ -141,6 +163,6 @@ public class MainActivity extends Activity {
  private void chooseVehicle(JSONArray list){
   if(isFinishing()||isDestroyed())return;
   String[] names=new String[list.length()];try{for(int i=0;i<names.length;i++){JSONObject v=list.getJSONObject(i).getJSONObject("vehicleDetails");String vin=v.getString("vin");names[i]=v.optString("modelYear")+" "+v.optString("modelCode")+" • …"+vin.substring(Math.max(0,vin.length()-6));}}catch(Exception e){showResult("Unexpected vehicle list format.");return;}
-  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->run(()->{ParkingService.stop(this);HyundaiApi api=new HyundaiApi(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";})).show();
+  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->run(()->{ParkingService.stop(this);HyundaiApi api=new HyundaiApi(this);CarLocations.clear(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";})).show();
  }
 }

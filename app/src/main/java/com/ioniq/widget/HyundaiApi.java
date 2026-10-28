@@ -59,6 +59,7 @@ final class HyundaiApi {
   ensureToken(); JSONObject s=request("ac/v2/rcs/rvs/vehicleStatus","GET",null,true,true,headers("refresh",force?"true":"false")).json.getJSONObject("vehicleStatus");
   context.getSharedPreferences("status",0).edit().putString("json",s.toString()).putLong("fetched",System.currentTimeMillis()).remove("error").commit(); return s;
  }
+ JSONObject findCar() throws Exception { requireVehicle();ensureToken();return request("ac/v2/rcs/rfc/findMyCar","GET",null,true,true,headers()).json; }
  String command(String action,int temp) throws Exception {
   requireVehicle();
   ensureToken(); String path; JSONObject body=null;

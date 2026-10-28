@@ -16,7 +16,7 @@ The first switch from a debug-signed preview to the permanent release key requir
 
 ## Verify a download on Windows
 
-Run `Get-FileHash .\ioniq-companion-0.7.7.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
+Run `Get-FileHash .\ioniq-companion-0.7.8.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
 
 ## Help and privacy
 
@@ -31,3 +31,9 @@ The six action widgets default to one home-screen cell with just the colorful ra
 Tap Climate presets to choose Winter, Summer or Custom. Edit presets opens temperature and heater controls. Save & use changes only your saved preset; press Climate on to send it. The climate widget uses the same selection. Your previous settings are retained as Custom.
 
 Charge limits shows last-reported AC/DC targets and their timestamp. Read latest reads Hyundai's cached report; it may be old. Choose both targets, review and confirm to send once. Refresh and check the reported targets afterward; a command-completed response is not an independent reading. Changing a limit during charging can affect when that session ends.
+
+## Find My Car
+
+Tap Find my car below the car image. Update from Hyundai makes one on-demand request; no location polling runs in the background. Tap an available source to see its timestamp, then Open map or Walk here. Maps links share the chosen coordinates with Google. Your map app handles walking directions and any phone-location permission.
+
+Hyundai-reported location may be stale even after an update; retrieval time is not the vehicle's location timestamp. Saved parking spot is the phone GPS fix captured by Walk-away lock, not a car report. The fallback becomes available the next time parking is successfully marked after this update. Both sources are associated with the selected vehicle. Clear saved removes the local caches; it does not stop active parking monitoring.
