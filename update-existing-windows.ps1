@@ -2,7 +2,7 @@ param([string]$ProjectPath = (Get-Location).Path)
 $ErrorActionPreference = 'Stop'
 # Pinned source. Known climate payload and charge-limit case are patched in HyundaiApi.java.
 # Credentials, Vault.java and signing configuration are preserved; API source is never uploaded.
-$revision = 'de46ef42165d61e60d98b209affa6712fe4d9f21'
+$revision = 'e3defc31c390a50b31c72f90d58383fc05595bdf'
 $project = (Resolve-Path $ProjectPath).Path
 $javaRelative = 'app\src\main\java\com\ioniq\widget'
 if (-not (Test-Path (Join-Path $project "$javaRelative\HyundaiApi.java"))) { throw 'Open PowerShell in your existing working IONIQ app project folder, then run this script again.' }
@@ -40,7 +40,7 @@ try {
  Invoke-WebRequest "https://github.com/nmhusa/ioniq-companion/archive/$revision.zip" -OutFile $archive
  Expand-Archive $archive -DestinationPath $work
  $source = Join-Path $work "ioniq-companion-$revision"
- $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.8.md', 'PARKING.md')
+ $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.9.md', 'PARKING.md')
  $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java','Vault.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\res') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
  # Validate the complete download and take backups before replacing any project file.
@@ -60,12 +60,12 @@ try {
   Copy-Item (Join-Path $source $relative) $target -Force
  }
  [IO.File]::WriteAllText($apiPath, $patchedApi, [Text.UTF8Encoding]::new($false))
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 15'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.8'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 16'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.9'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
- Write-Host "Updated app source to 0.7.8. Backup: $backup"
+ Write-Host "Updated app source to 0.7.9. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-windows.ps1'
 } finally { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }
