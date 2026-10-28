@@ -19,3 +19,7 @@ Samsung device, screen-off behavior, dongle events, actual remote commands, visu
 ## 0.7.1 verification
 
 GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40610964444 passed assembleDebug, lintDebug, 18 parking-rule checks and 14 mileage-parsing checks for commit 2d393e12df5eb7f270b4a0a3752b46935a628171. Local Android-35 Java compilation also passed. No real account/vehicle was contacted during these checks. The selected vehicle’s actual odometer display still needs confirmation after installation and a saved-status refresh.
+
+## 0.7.2 verification
+
+Owner confirmed 0.7.1 odometer working after installing the correct APK. GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40681169326 passed assembleDebug, lintDebug, 33 parking-rule checks and 14 mileage checks for commit ba1a9a41e67cb8a27b1e66f8b804be46df436470. The close-distance decision tests include GPS uncertainty, the five-second dwell, countdown cancellation, and preventing an immediate return reminder while walking away. On-phone 20/30 m behavior and Bluetooth sessions remain unverified; thresholds are estimates plus uncertainty and network delays.
