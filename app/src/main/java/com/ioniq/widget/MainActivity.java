@@ -8,6 +8,10 @@ import android.view.*;
 import android.widget.*;
 import org.json.*;
 public class MainActivity extends Activity {
+ private Button walkAway;private TextView parkingStatus;
+ private final android.os.Handler parkingHandler=new android.os.Handler(android.os.Looper.getMainLooper());
+ private final Runnable parkingTick=new Runnable(){public void run(){updateParkingControl();parkingHandler.postDelayed(this,1000);}};
+ private void updateParkingControl(){if(walkAway!=null)walkAway.setText(ParkingService.active?"Stop walk-away lock":"Walk-away lock · "+ParkingStart.radius(this)+" m");if(walkAway!=null)walkAway.setEnabled(!busy||ParkingService.active);if(parkingStatus!=null)parkingStatus.setText((ParkingService.active?"Active · ":"Stopped · ")+getSharedPreferences("parking",0).getString("status","Tap beside your parked car, then wait for Parking saved."));}
  private LinearLayout page;private TextView status,message,heroBattery,heroLock,heroRange,heroMileage,heroCharging;private boolean busy=false;private int temperature=72;
  private final java.util.ArrayList<Button> buttons=new java.util.ArrayList<>();
  private int dp(int x){return (int)(x*getResources().getDisplayMetrics().density);}
@@ -34,9 +38,15 @@ public class MainActivity extends Activity {
  private void handleIntent(Intent i){String a=i.getStringExtra("action");i.removeExtra("action");if("refresh".equals(a))refresh(false);else if("lock".equals(a)||"climate".equals(a))confirm(a);}
  private void build(){
   buttons.clear();ScrollView scroll=new ScrollView(this);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(24),dp(24),dp(24),dp(24));page.setBackgroundColor(Color.rgb(11,22,31));scroll.addView(page);setContentView(scroll);
-  text("YOUR ELECTRIC DRIVE",11,0xff72C9FF);text("IONIQ 6",38,Color.WHITE);text("2023 • HYUNDAI US • PREVIEW 0.7.1",12,Color.rgb(141,227,207));
+  text("YOUR ELECTRIC DRIVE",11,0xff72C9FF);text("IONIQ 6",38,Color.WHITE);text("2023 • HYUNDAI US • PREVIEW 0.7.2",12,Color.rgb(141,227,207));
   carHeader();
   status=text("No vehicle data yet",12,0xffAFC5D4);message=text("Ready when you are. Your car’s report time appears above.",14,0xffAFC5D4);showStatus();
+  walkAway=button("Walk-away lock · "+ParkingStart.radius(this)+" m",()->{if(ParkingService.active)ParkingService.stop(this);else ParkingStart.start(this,true);updateParkingControl();});
+  walkAway.setOnClickListener(v->{if(ParkingService.active)ParkingService.stop(this);else if(!busy)ParkingStart.start(this,true);updateParkingControl();});
+  walkAway.setTextColor(0xffa4edda);
+  parkingStatus=text("",13,0xffAFC5D4);updateParkingControl();
+  text("One tap arms locking here. Wait for Parking saved before walking away. Tap again to cancel.",12,0xffAFC5D4);
+  button("Walk-away distance & automatic Bluetooth settings",()->startActivity(new Intent(this,ParkingActivity.class)));
   text("DOORS",12,0xff53D8B0);controlRow(0,1);
   button("Refresh saved Hyundai status",()->refresh(false));
   button("Request fresh status from car",()->new AlertDialog.Builder(this).setMessage("Contact the car for a new status report?").setPositiveButton("Refresh",(d,w)->refresh(true)).setNegativeButton("Cancel",null).show());
@@ -44,7 +54,7 @@ public class MainActivity extends Activity {
   TextView temp=text(temperature+" °F",24,Color.WHITE);SeekBar seek=new SeekBar(this);seek.setMax(28);seek.setProgress(temperature-62);page.addView(seek);seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int p,boolean user){temperature=62+p;temp.setText(temperature+" °F");getSharedPreferences("ui",0).edit().putInt("temp",temperature).apply();ActionWidget.renderAll(MainActivity.this);}public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){}});
   controlRow(2,3);text("CHARGING",12,0xffD7EB70);controlRow(4,5);
   text("MAKE IT YOURS",12,0xffB49AFF);button("＋  Add a home-screen widget",()->pinWidgets());
-  button("Park & return · Walk-away locking",()->startActivity(new Intent(this,ParkingActivity.class)));
+
   cautionStrip();
   text("⚠  ACCOUNT SETTINGS — PROCEED WITH CARE",14,0xffffd54f);
   text("These actions affect your saved connection. You will be asked to confirm before continuing.",13,0xffffdf8a);
@@ -55,10 +65,11 @@ public class MainActivity extends Activity {
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. The six individual action widgets send commands immediately with one tap. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
  }
- @Override protected void onResume(){super.onResume();if(status!=null)showStatus();String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)message.setText(last);}
+ @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
+ @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)message.setText(last);}
  private void showStatus(){try{JSONObject s=new JSONObject(getSharedPreferences("status",0).getString("json","{}"));VehicleMileage.attach(this,s);status.setText(StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable"));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}}
  private interface Task{String go()throws Exception;}
- private void run(Task task){if(busy)return;busy=true;for(Button b:buttons)b.setEnabled(false);message.setText("Working… Please wait.");RefreshJob.QUEUE.execute(()->{String result;try{result=task.go();}catch(Exception e){result=(e instanceof java.net.SocketTimeoutException)?"Network timeout. Command outcome may be unknown; check the official app before retrying.":e.getMessage();if(result==null)result="Request failed. Check your connection and the official app.";}final String answer=result;CarWidget.render(this);runOnUiThread(()->{busy=false;if(isDestroyed())return;for(Button b:buttons)b.setEnabled(true);message.setText(answer);showStatus();});});}
+ private void run(Task task){if(busy)return;busy=true;for(Button b:buttons)b.setEnabled(false);updateParkingControl();message.setText("Working… Please wait.");RefreshJob.QUEUE.execute(()->{String result;try{result=task.go();}catch(Exception e){result=(e instanceof java.net.SocketTimeoutException)?"Network timeout. Command outcome may be unknown; check the official app before retrying.":e.getMessage();if(result==null)result="Request failed. Check your connection and the official app.";}final String answer=result;CarWidget.render(this);runOnUiThread(()->{busy=false;if(isDestroyed())return;for(Button b:buttons)b.setEnabled(true);message.setText(answer);showStatus();});});}
  private void refresh(boolean force){run(()->{VehicleMileage.refresh(this,force);RefreshJob.schedule(this);return "Status retrieved. Check the vehicle report timestamp.";});}
  private void confirm(String a){String name=a.equals("climate")?"Start climate at "+temperature+" °F":a.replace('_',' ');new AlertDialog.Builder(this).setTitle(name).setMessage("Send this command to your selected Hyundai? Completion can take a minute.").setPositiveButton("Send",(d,w)->{final int chosen=temperature;run(()->new HyundaiApi(this).command(a,chosen));}).setNegativeButton("Cancel",null).show();}
  private EditText field(LinearLayout box,String hint,int type){EditText e=new EditText(this);e.setHint(hint);e.setInputType(type);e.setSingleLine(true);e.setSaveEnabled(false);e.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);box.addView(e);return e;}

@@ -24,6 +24,19 @@ public class ParkingRulesTest {
   expect(ParkingRules.Event.COUNTDOWN,gap.sample(1000,140,20,true,1));gap.interrupt();
   expect(ParkingRules.Event.COUNTDOWN,gap.sample(31000,140,20,true,1));
   expect(ParkingRules.Event.NONE,gap.sample(51000,600,20,true,1));
+  for(int radius:new int[]{20,30}){
+   ParkingRules near=new ParkingRules(radius,0);
+   expect(ParkingRules.Event.NONE,near.sample(1000,radius+3,5,true,1));
+   expect(ParkingRules.Event.COUNTDOWN,near.sample(2000,radius+8,5,true,1));
+   expect(ParkingRules.Event.COUNTDOWN,near.sample(6000,radius+8,5,true,1));
+   expect(ParkingRules.Event.LOCK,near.sample(7000,radius+8,5,true,1));
+   expect(ParkingRules.Event.NONE,near.sample(8000,radius+10,5,true,1));
+   expect(ParkingRules.Event.RETURN,near.sample(9000,2,5,true,1));
+  }
+  ParkingRules closeCancel=new ParkingRules(20,0);
+  expect(ParkingRules.Event.COUNTDOWN,closeCancel.sample(1000,30,5,true,1));
+  expect(ParkingRules.Event.NONE,closeCancel.sample(4000,22,5,true,1));
+  expect(ParkingRules.Event.COUNTDOWN,closeCancel.sample(6000,30,5,true,1));
   System.out.println("Passed "+checked+" parking-rule checks.");
  }
 }

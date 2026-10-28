@@ -18,7 +18,7 @@ public class ParkingService extends Service implements LocationListener {
  private volatile Location latest, anchor;
  private volatile boolean canSend;
  private ParkingRules rules;
- private boolean registered, awaitingFix;
+ private boolean registered, awaitingFix, monitorBluetooth;
  private long startedAt, requestAt;
  private String device="";
  private final Handler handler=new Handler(Looper.getMainLooper());
@@ -35,6 +35,7 @@ public class ParkingService extends Service implements LocationListener {
   handler.postDelayed(this,10000);
  }};
  private final BroadcastReceiver bluetooth=new BroadcastReceiver(){@Override public void onReceive(Context c,Intent i){
+  if(!monitorBluetooth)return;
   String action=i.getAction();
   if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)){
    if(i.getIntExtra(BluetoothAdapter.EXTRA_STATE,BluetoothAdapter.ERROR)!=BluetoothAdapter.STATE_ON){anchor=null;rules=null;awaitingFix=false;setStatus("Bluetooth switched off. Parking cancelled; arm again when parked.");}return;
@@ -52,9 +53,9 @@ public class ParkingService extends Service implements LocationListener {
  }};
  static void stop(Context c){generation++;active=false;c.stopService(new Intent(c,ParkingService.class));NotificationManager n=c.getSystemService(NotificationManager.class);n.cancel(RETURN_NOTICE);c.getSharedPreferences("parking",0).edit().putString("status","Stopped. Pending parking actions cancelled.").apply();}
  private boolean permissionsValid(){
-  return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED && (Build.VERSION.SDK_INT<31 || checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED) && (Build.VERSION.SDK_INT<33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED) && notifications.areNotificationsEnabled() && notifications.getNotificationChannel(CHANNEL).getImportance()!=NotificationManager.IMPORTANCE_NONE && notifications.getNotificationChannel(ALERTS).getImportance()!=NotificationManager.IMPORTANCE_NONE;
+  return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED && (!monitorBluetooth || Build.VERSION.SDK_INT<31 || checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED) && (Build.VERSION.SDK_INT<33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED) && notifications.areNotificationsEnabled() && notifications.getNotificationChannel(CHANNEL).getImportance()!=NotificationManager.IMPORTANCE_NONE && notifications.getNotificationChannel(ALERTS).getImportance()!=NotificationManager.IMPORTANCE_NONE;
  }
- private boolean fresh(Location l){long age=SystemClock.elapsedRealtimeNanos()-l.getElapsedRealtimeNanos();return age>=0 && age<30000000000L && l.hasAccuracy() && l.getAccuracy()<=20 && !l.isFromMockProvider();}
+ private boolean fresh(Location l){long age=SystemClock.elapsedRealtimeNanos()-l.getElapsedRealtimeNanos();return age>=0 && age<30000000000L && l.hasAccuracy() && l.getAccuracy()<=(ParkingStart.radius(this)<=30?5:20) && !l.isFromMockProvider();}
  private PendingIntent open(){return PendingIntent.getActivity(this,710,new Intent(this,ParkingActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);}
  private Notification.Builder base(String channel,String title,String text){return new Notification.Builder(this,channel).setSmallIcon(R.drawable.ic_lock).setContentTitle(title).setContentText(text).setStyle(new Notification.BigTextStyle().bigText(text)).setContentIntent(open()).setVisibility(Notification.VISIBILITY_PRIVATE);}
  private Notification monitor(String text){PendingIntent stop=PendingIntent.getService(this,710,new Intent(this,ParkingService.class).setAction("stop"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);return base(CHANNEL,"IONIQ · Park & return",text).setOngoing(true).setOnlyAlertOnce(true).addAction(new Notification.Action.Builder(null,"Stop / cancel",stop).build()).build();}
@@ -63,13 +64,15 @@ public class ParkingService extends Service implements LocationListener {
  @Override public int onStartCommand(Intent i,int flags,int id){
   if(i==null||"stop".equals(i.getAction())){stop(this);stopSelf();return START_NOT_STICKY;}
   // Called from a visible Activity, so while-in-use location permission is sufficient.
+  monitorBluetooth="monitor".equals(i.getAction());
   active=true;canSend=false;session=++generation;startedAt=SystemClock.elapsedRealtime();anchor=null;rules=null;awaitingFix=false;
   startForeground(NOTICE,monitor("Starting parking monitoring…"));
   if(!permissionsValid()){setStatus("Enable precise location, Nearby devices and both notification channels, then start again.");stopSelf();return START_NOT_STICKY;}
   device=getSharedPreferences("parking",0).getString("device","");notifications.cancel(RETURN_NOTICE);
   try {
    if(!locations.isProviderEnabled(LocationManager.GPS_PROVIDER)){setStatus("Turn on phone location, then start again.");stopSelf();return START_NOT_STICKY;}
-   if(!registered){
+   if(registered && !monitorBluetooth){unregisterReceiver(bluetooth);registered=false;}
+   if(monitorBluetooth && !registered){
     IntentFilter f=new IntentFilter();f.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);f.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);f.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
     // These are protected system broadcasts, including ones sent by the Bluetooth process.
     if(Build.VERSION.SDK_INT>=33)registerReceiver(bluetooth,f,Context.RECEIVER_EXPORTED);else registerReceiver(bluetooth,f);
@@ -84,12 +87,12 @@ public class ParkingService extends Service implements LocationListener {
  }
  private void arm(Location l){
   canSend=false;getSharedPreferences("parking",0).edit().putBoolean("attempted",false).apply();
-  session=++generation;anchor=new Location(l);rules=new ParkingRules(getSharedPreferences("parking",0).getInt("radius",100),SystemClock.elapsedRealtime());awaitingFix=false;
-  notifications.cancel(RETURN_NOTICE);setStatus("Parking saved on phone. Walk beyond "+rules.radius+" m to begin the 20-second lock countdown.");
+  session=++generation;anchor=new Location(l);rules=new ParkingRules(ParkingStart.radius(this),SystemClock.elapsedRealtime());awaitingFix=false;
+  notifications.cancel(RETURN_NOTICE);setStatus("Parking saved on phone. Walk beyond "+rules.radius+" m plus GPS uncertainty to begin the "+(rules.countdownMillis()/1000)+"-second lock countdown.");
  }
  @Override public void onLocationChanged(Location l){
   if(!active)return;
-  if(!fresh(l)){canSend=false;if(rules!=null)rules.interrupt();setStatus("GPS accuracy is insufficient. Locking is paused.");return;}
+  if(!fresh(l)){canSend=false;if(rules!=null)rules.interrupt();setStatus("GPS accuracy is insufficient (need ≤"+(ParkingStart.radius(this)<=30?5:20)+" m). Locking is paused.");return;}
   // Do not accept out-of-order fixes as new countdown samples.
   if(latest!=null && l.getElapsedRealtimeNanos()<=latest.getElapsedRealtimeNanos())return;
   if(latest!=null && l.getElapsedRealtimeNanos()-latest.getElapsedRealtimeNanos()>30000000000L && rules!=null)rules.interrupt();
@@ -99,7 +102,7 @@ public class ParkingService extends Service implements LocationListener {
   double distance=anchor.distanceTo(l), uncertainty=anchor.getAccuracy()+l.getAccuracy();
   canSend=l.hasSpeed() && l.getSpeed()<=2.5f && distance-uncertainty>=rules.radius && distance<=500;
   ParkingRules.Event event=rules.sample(SystemClock.elapsedRealtime(),distance,uncertainty,l.hasSpeed(),l.hasSpeed()?l.getSpeed():99);
-  if(event==ParkingRules.Event.COUNTDOWN)setStatus("Beyond departure distance · 20-second lock countdown. Stop / cancel to prevent locking.");
+  if(event==ParkingRules.Event.COUNTDOWN)setStatus("Beyond departure distance · "+(rules.countdownMillis()/1000)+"-second lock countdown. Stop / cancel to prevent locking.");
   else if(event==ParkingRules.Event.LOCK)sendLock();
   else if(event==ParkingRules.Event.RETURN)showReturn();
   else if(event==ParkingRules.Event.EXPIRED){setStatus("Parking window expired. Start a new session when parked.");stopSelf();}

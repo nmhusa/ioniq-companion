@@ -38,10 +38,14 @@ Account-change and erase actions sit in a yellow/black caution section, with exp
 
 ## Updating an existing working Windows project
 
-Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq6-v071.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq6-v072.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
 
 The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.
 
 ## Odometer fix (0.7.1)
 
 The odometer uses the selected VIN’s enrollment vehicle details, with a numeric status-odometer fallback. Mileage is refreshed with normal status refresh and the hourly background job; its own Hyundai update timestamp appears below the header. A failed/missing mileage response retains the previous reading, marked last known. The public updater keeps existing local Hyundai API and credential files unchanged. Download the updated updater again, rebuild, install over your existing app, then tap **Refresh saved Hyundai status**.
+
+## One-tap walk-away locking (0.7.2)
+
+Tap **Walk-away lock** on the main screen beside your parked car, wait for **Parking saved**, then walk away. Tap the same button to cancel. Android permission prompts are first-use setup only. Choose 20 or 30 m in the distance settings; the old 100 m default becomes 30 m once. Close settings use a five-second dwell and a 5 m GPS-accuracy requirement. Uncertainty and network delay mean the actual locking distance can be larger. Manual arming does not require Bluetooth. Optional Bluetooth-triggered sessions still need monitoring started from the app; key-fob movement and door closure cannot directly arm this implementation.

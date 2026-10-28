@@ -1,3 +1,12 @@
+# 0.7.2
+
+- Main-screen one-tap Walk-away lock control, with active status and one-tap Stop.
+- Added 20/30/50 m settings; old 100 m default migrates to 30 m.
+- Close settings use a five-second dwell and require GPS accuracy within 5 m; uncertainty margin still applies.
+- Manual parking needs no Bluetooth permission and ignores Bluetooth connection changes. Bluetooth-triggered mode remains optional.
+- Smaller return radius prevents departure from immediately producing an Unlock reminder at short distances.
+- Added 15 short-distance decision checks. Real Samsung/car validation remains required.
+
 # 0.7.1
 
 - Read odometer from the selected VIN’s US enrollment vehicle details; numeric status odometer remains a fallback.
