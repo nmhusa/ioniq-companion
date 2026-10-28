@@ -1,7 +1,12 @@
 plugins { id 'com.android.application' }
+def privateConfig = new Properties()
+def privateFile = rootProject.file('local-api.properties')
+if (privateFile.exists()) { privateFile.withInputStream { privateConfig.load(it) } }
+def apiCredential = System.getenv('HYUNDAI_CLIENT_SECRET') ?: privateConfig.getProperty('hyundaiClientSecret', '')
 android {
+ buildFeatures { buildConfig true }
  namespace 'com.ioniq.widget'
  compileSdk 35
- defaultConfig { applicationId 'com.ioniq.widget'; minSdk 26; targetSdk 34; versionCode 6; versionName '0.6.0' }
+ defaultConfig { buildConfigField 'String', 'HYUNDAI_CLIENT_SECRET', groovy.json.JsonOutput.toJson(apiCredential); applicationId 'com.ioniq.widget'; minSdk 26; targetSdk 34; versionCode 6; versionName '0.6.0' }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
