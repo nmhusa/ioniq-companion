@@ -57,3 +57,7 @@ Only visuals, tile sizing and version labels changed from 0.3; widget command be
 
 ## 0.5 screenshot support
 Removed FLAG_SECURE from the activity at user request. Screenshots and screen recording are no longer blocked by this app; Android can also show the app in its recent-app preview. Password and PIN fields remain masked. Device or work-profile policy may independently restrict capture.
+
+## Local API credential required for public source builds
+
+The public repository does not embed the API client secret. Before building, create `local-api.properties` in the repository root with `hyundaiClientSecret=YOUR_VALUE`, or set the HYUNDAI_CLIENT_SECRET environment variable. Use the client credential from your existing working local source configuration. Do not commit this file. Builds without it compile but cannot connect. For GitHub Actions, configure a repository secret named HYUNDAI_CLIENT_SECRET. This is an API application credential, separate from the user's Hyundai password/PIN. Compiled apps necessarily contain the configured client credential; it cannot be treated as confidential once a binary is distributed. Review the upstream API integration's terms before distributing a binary.
