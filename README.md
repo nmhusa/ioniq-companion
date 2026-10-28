@@ -38,7 +38,7 @@ Account-change and erase actions sit in a yellow/black caution section, with exp
 
 ## Updating an existing working Windows project
 
-Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq-companion-v073.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq-companion-v074.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
 
 The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.
 
@@ -53,3 +53,7 @@ Tap **Walk-away lock** on the main screen beside your parked car, wait for **Par
 ## Vehicle-aware header (0.7.3)
 
 The app is named IONIQ Companion. Selected vehicle details determine the IONIQ 5/6 heading, model year, car photo and dashboard widget title. No VIN decoding or nickname guessing is used. Unknown models use generic branding. Existing logins stay intact; on ordinary launch the app refreshes missing model details once per launch until a matched vehicle record is available. Display support for IONIQ 5 does not establish live API compatibility for every trim/year.
+
+## Signed GitHub releases
+
+See [PUBLISH.md](PUBLISH.md) for the local release-signing helper and [INSTALL.md](INSTALL.md) for recipient instructions. The release key stays on the maintainer PC. Public distribution remains pending credential/artwork authorization and signed-build device testing; CI artifacts are not working public releases.

@@ -1,3 +1,4 @@
+param([switch]$PrepareOnly)
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 $jdk17 = Get-ChildItem "$env:ProgramFiles\Eclipse Adoptium" -Directory -Filter 'jdk-17*' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
@@ -21,6 +22,7 @@ if (-not (Test-Path $gradleExe)) {
 }
 & $gradleExe wrapper --gradle-version 8.9 --distribution-type bin
 if ($LASTEXITCODE -ne 0) { throw 'Gradle setup failed.' }
+if ($PrepareOnly) { return }
 & $gradleExe --no-daemon :app:assembleDebug :app:lintDebug
 if ($LASTEXITCODE -ne 0) { throw 'Build or lint failed. Copy the error text back to ChatGPT.' }
 Copy-Item 'app\build\outputs\apk\debug\app-debug.apk' 'app\build\outputs\apk\debug\ioniq-companion-v074.apk' -Force
