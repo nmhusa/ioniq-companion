@@ -2,5 +2,9 @@
  android:id="@+id/action_root" android:layout_width="match_parent" android:layout_height="match_parent"
  android:padding="2dp" android:importantForAccessibility="yes">
  <ImageView android:id="@+id/action_icon" android:layout_width="match_parent" android:layout_height="match_parent"
-  android:scaleType="fitCenter" android:importantForAccessibility="no" android:contentDescription="@null"/>
+  android:layout_marginBottom="15dp" android:scaleType="fitCenter" android:importantForAccessibility="no" android:contentDescription="@null"/>
+ <TextView android:id="@+id/action_result" android:layout_width="match_parent" android:layout_height="15dp"
+  android:layout_gravity="bottom" android:gravity="center" android:maxLines="1" android:includeFontPadding="false"
+  android:textSize="10sp" android:autoSizeTextType="uniform" android:autoSizeMinTextSize="7sp" android:autoSizeMaxTextSize="11sp" android:autoSizeStepGranularity="1sp"
+  android:textColor="#E3EDF3" android:textStyle="bold" android:background="@drawable/widget_feedback_idle"/>
 </FrameLayout>

@@ -75,3 +75,7 @@ US charge-limit protocol verified against Hyundai-Kia-Connect/hyundai_kia_connec
 ## Find My Car (0.7.8)
 
 One compact control opens on-demand Hyundai location retrieval, map links and walking directions. A separate saved phone parking fix is retained when parking is marked. Both are tied to the selected vehicle and show source/time. No automatic location requests. See INSTALL.md and the updated privacy page. US endpoint reference: https://github.com/Hyundai-Kia-Connect/hyundai_kia_connect_api/blob/master/hyundai_kia_connect_api/HyundaiBlueLinkApiUSA.py .
+
+## Compact widget feedback (0.7.10)
+
+Compact widgets now retain a status badge, with amber pending, green last-confirmed and amber attention feedback. Tap the icon to send, or the badge to inspect the full result/timestamp. Other widgets indicate Busy while a widget command is active. A local-only job refreshes interrupted feedback without a network request or command retry. Status is per command, not live vehicle state.

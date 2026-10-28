@@ -39,6 +39,10 @@ jobs:
         run: |
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/GeoPoint.java tests/GeoPointTest.java
           java -cp /tmp/parking-tests com.ioniq.widget.GeoPointTest
+      - name: Test widget feedback and interrupted-command presentation
+        run: |
+          javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/WidgetFeedback.java tests/WidgetFeedbackTest.java
+          java -cp /tmp/parking-tests com.ioniq.widget.WidgetFeedbackTest
       - uses: android-actions/setup-android@v3
         with:
           packages: ''

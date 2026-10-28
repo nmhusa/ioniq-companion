@@ -50,9 +50,20 @@ public class MainActivity extends Activity {
   };tape.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(10));lp.setMargins(0,dp(22),0,dp(12));page.addView(tape,lp);
  }
  private void pinWidgets(){String[] choices={"Vehicle dashboard","Lock doors","Unlock doors","Climate on","Climate off","Start charging","Stop charging"};new AlertDialog.Builder(this).setTitle("Add a home-screen widget").setItems(choices,(dialog,n)->{android.appwidget.AppWidgetManager m=android.appwidget.AppWidgetManager.getInstance(this);Class<?> type=n==0?CarWidget.class:ActionWidget.TYPES[n-1];if(m.isRequestPinAppWidgetSupported())m.requestPinAppWidget(new ComponentName(this,type),null,null);else showResult("Long-press your home screen → Widgets → IONIQ Companion.");}).show();}
- @Override public void onCreate(Bundle b){super.onCreate(b);NamedClimate.initialize(this);temperature=getSharedPreferences("ui",0).getInt("temp",72);build();boolean launchedWithAction=getIntent().hasExtra("action");handleIntent(getIntent());if(!launchedWithAction&&VehicleIdentity.needsLookup(this))refresh(false);if(android.os.Build.VERSION.SDK_INT>=33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS},20);}
+ @Override public void onCreate(Bundle b){super.onCreate(b);NamedClimate.initialize(this);temperature=getSharedPreferences("ui",0).getInt("temp",72);build();boolean launchedWithAction=(getIntent().hasExtra("action")||getIntent().hasExtra("widget_result"));handleIntent(getIntent());if(!launchedWithAction&&VehicleIdentity.needsLookup(this))refresh(false);if(android.os.Build.VERSION.SDK_INT>=33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS},20);}
  @Override protected void onNewIntent(Intent i){super.onNewIntent(i);setIntent(i);handleIntent(i);}
- private void handleIntent(Intent i){String a=i.getStringExtra("action");i.removeExtra("action");if("refresh".equals(a))refresh(false);else if("lock".equals(a)||"climate".equals(a))confirm(a);}
+ private void handleIntent(Intent i){String widget=i.getStringExtra("widget_result");i.removeExtra("widget_result");if(ActionWidget.index(widget)>=0){widgetResult(widget);return;}String a=i.getStringExtra("action");i.removeExtra("action");if("refresh".equals(a))refresh(false);else if("lock".equals(a)||"climate".equals(a))confirm(a);}
+ private void widgetResult(String action){
+  android.content.SharedPreferences p=getSharedPreferences("actions",0);String stored=p.getString(action,"");
+  boolean own=CommandService.running&&action.equals(CommandService.activeAction);
+  WidgetFeedback.State state=WidgetFeedback.state(stored,own,false);
+  String detail=p.getString(action+"_detail",WidgetFeedback.description(state));
+  if(WidgetFeedback.pending(stored)&&!own)detail="The app stopped before confirmation was recorded. The command outcome is unknown. Check the official app before retrying.";
+  long at=p.getLong(action+"_time",0);String time=at>0?"\n\nUpdated: "+java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(at)):"";
+  new AlertDialog.Builder(this).setTitle(ActionWidget.LABELS[ActionWidget.index(action)])
+   .setMessage(detail+time+"\n\nThis is a command result, not live vehicle status.")
+   .setPositiveButton("Done",null).setNeutralButton("Refresh details",(d,w)->widgetResult(action)).show();
+ }
  private void build(){
   buttons.clear();ScrollView scroll=new ScrollView(this);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(24),dp(24),dp(24),dp(24));page.setBackgroundColor(Color.rgb(11,22,31));scroll.addView(page);setContentView(scroll);
   vehicleTitle=text("IONIQ Companion",38,Color.WHITE);vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
@@ -85,10 +96,10 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. The six individual action widgets send commands immediately with one tap. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.9",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.7.10",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
- @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
+ @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
  private void updateVehicleIdentity(){
   JSONObject profile=VehicleIdentity.read(this);int model=profile.optInt("model");
   if(vehicleTitle!=null)vehicleTitle.setText(ModelName.title(model));
