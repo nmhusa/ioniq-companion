@@ -16,7 +16,7 @@ The first switch from a debug-signed preview to the permanent release key requir
 
 ## Verify a download on Windows
 
-Run `Get-FileHash .\ioniq-companion-0.7.8.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
+Run `Get-FileHash .\ioniq-companion-0.7.9.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
 
 ## Help and privacy
 
@@ -34,6 +34,6 @@ Charge limits shows last-reported AC/DC targets and their timestamp. Read latest
 
 ## Find My Car
 
-Tap Find my car below the car image. Update from Hyundai makes one on-demand request; no location polling runs in the background. Tap an available source to see its timestamp, then Open map or Walk here. Maps links share the chosen coordinates with Google. Your map app handles walking directions and any phone-location permission.
+Tap Find my car below the car image to open Google Maps directly at the saved Hyundai coordinates. If no Hyundai location is saved, the app requests it once and then opens the map. Use the adjacent ⋯ button for timestamps, Update & open map, walking directions, the separately labeled phone parking spot, and Clear saved. There is no background location polling. Maps links share the chosen coordinates with Google. Your map app handles walking directions and any phone-location permission.
 
 Hyundai-reported location may be stale even after an update; retrieval time is not the vehicle's location timestamp. Saved parking spot is the phone GPS fix captured by Walk-away lock, not a car report. The fallback becomes available the next time parking is successfully marked after this update. Both sources are associated with the selected vehicle. Clear saved removes the local caches; it does not stop active parking monitoring.

@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
  private void build(){
   buttons.clear();ScrollView scroll=new ScrollView(this);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(24),dp(24),dp(24),dp(24));page.setBackgroundColor(Color.rgb(11,22,31));scroll.addView(page);setContentView(scroll);
   vehicleTitle=text("IONIQ Companion",38,Color.WHITE);vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
-  carHeader();button("⌖  Find my car",()->findCar());
+  carHeader();locationControls();
   status=text("No vehicle data yet",12,0xffAFC5D4);status.setMinHeight(dp(48));status.setOnClickListener(v->reportDialog());message=text("",14,0xffAFC5D4);message.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Latest result").setMessage(resultDetails).setPositiveButton("Done",null).setNeutralButton("Dismiss",(d,w)->{showResult("");getSharedPreferences("actions",0).edit().remove("last_result").apply();}).show());showResult("");showStatus();
   walkAway=button("Walk-away lock · "+ParkingStart.radius(this)+" m",()->{if(ParkingService.active)ParkingService.stop(this);else ParkingStart.start(this,true);updateParkingControl();});
   walkAway.setOnClickListener(v->{if(ParkingService.active)ParkingService.stop(this);else if(!busy)ParkingStart.start(this,true);updateParkingControl();});
@@ -85,7 +85,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. The six individual action widgets send commands immediately with one tap. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.8",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.7.9",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -97,25 +97,37 @@ public class MainActivity extends Activity {
   if(carImage!=null&&shownModel!=model){carImage.setImageResource(model==5?R.drawable.car_profile_5:model==6?R.drawable.car_profile:R.drawable.ic_launcher_car);shownModel=model;}
  }
  private void showStatus(){updateVehicleIdentity();try{JSONObject s=new JSONObject(getSharedPreferences("status",0).getString("json","{}"));VehicleMileage.attach(this,s);reportDetails=StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable");status.setText(reportLabel(s.optString("dateTime","")));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}}
- private void findCar(){
+ private void locationControls(){
+  LinearLayout parent=page,row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);parent.addView(row);page=row;
+  Button find=button("⌖  Find my car",()->findCar());LinearLayout.LayoutParams wide=new LinearLayout.LayoutParams(0,dp(52),1);wide.setMargins(0,dp(5),dp(6),dp(5));find.setLayoutParams(wide);
+  Button details=button("⋯",()->locationOptions());details.setContentDescription("Location details, refresh and saved parking");LinearLayout.LayoutParams small=new LinearLayout.LayoutParams(dp(52),dp(52));small.setMargins(0,dp(5),0,dp(5));details.setLayoutParams(small);page=parent;
+ }
+ private void findCar(){if(CarLocations.read(this,CarLocations.VEHICLE)!=null)openCarMap();else fetchCarMap();}
+ private void openCarMap(){
+  JSONObject data=CarLocations.read(this,CarLocations.VEHICLE);if(data==null){showResult("No saved Hyundai location. Use location details to refresh or open your parking spot.");return;}
+  try{openLocation(CarLocations.point(data).mapUrl());}catch(Exception e){showResult("Saved location is invalid. Use location details to refresh.");}
+ }
+ private void fetchCarMap(){run(()->{
+  String selected=CarLocations.vin(this);
+  try{JSONObject location=new HyundaiApi(this).findCar();CarLocations.saveVehicle(this,selected,location);}
+  catch(Exception e){runOnUiThread(()->{if(isFinishing()||isDestroyed()||!selected.equals(CarLocations.vin(this)))return;JSONObject parking=CarLocations.read(this,CarLocations.PARKING);if(parking!=null)new AlertDialog.Builder(this).setTitle("Use saved parking spot?").setMessage("Hyundai location could not be updated. You can open the separately saved phone parking spot instead.").setNegativeButton("Cancel",null).setPositiveButton("View parking spot",(d,w)->locationDetails(CarLocations.PARKING)).show();});throw e;}
+  runOnUiThread(()->{if(!isFinishing()&&!isDestroyed()&&selected.equals(CarLocations.vin(this)))openCarMap();});return "Location retrieved. Timestamp and refresh are under ⋯.";
+ });}
+ private void locationOptions(){
   java.util.ArrayList<String> sources=new java.util.ArrayList<>(),labels=new java.util.ArrayList<>();
   for(String source:new String[]{CarLocations.VEHICLE,CarLocations.PARKING}){JSONObject data=CarLocations.read(this,source);if(data!=null){sources.add(source);labels.add(CarLocations.description(data,source));}}
   AlertDialog.Builder dialog=new AlertDialog.Builder(this).setTitle("Find my car");
   if(sources.isEmpty())dialog.setMessage("No saved location for this vehicle. Request one from Hyundai, or mark parking with Walk-away lock beside your car.");
   else dialog.setItems(labels.toArray(new String[0]),(d,n)->locationDetails(sources.get(n)));
-  dialog.setPositiveButton("Update from Hyundai",(d,w)->run(()->{
-   String selected=CarLocations.vin(this);JSONObject location=new HyundaiApi(this).findCar();
-   try{CarLocations.saveVehicle(this,selected,location);}catch(Exception e){throw new Exception("Hyundai returned no usable location, or the selected vehicle changed. Saved locations were kept.");}
-   runOnUiThread(()->{if(!isFinishing()&&!isDestroyed())findCar();});return "Location retrieved. Check its vehicle timestamp.";
-  })).setNegativeButton("Close",null);
-  if(!sources.isEmpty())dialog.setNeutralButton("Clear saved",(d,w)->new AlertDialog.Builder(this).setTitle("Clear saved locations?").setMessage("Remove the saved car and parking coordinates from this phone? Active walk-away monitoring will continue.").setNegativeButton("Cancel",null).setPositiveButton("Clear",(x,y)->{CarLocations.clear(this);findCar();}).show());
+  dialog.setPositiveButton("Update & open map",(d,w)->fetchCarMap()).setNegativeButton("Close",null);
+  if(!sources.isEmpty())dialog.setNeutralButton("Clear saved",(d,w)->new AlertDialog.Builder(this).setTitle("Clear saved locations?").setMessage("Remove the saved car and parking coordinates from this phone? Active walk-away monitoring will continue.").setNegativeButton("Cancel",null).setPositiveButton("Clear",(x,y)->{CarLocations.clear(this);locationOptions();}).show());
   dialog.show();
  }
  private void locationDetails(String source){
-  JSONObject data=CarLocations.read(this,source);if(data==null){findCar();return;}
+  JSONObject data=CarLocations.read(this,source);if(data==null){locationOptions();return;}
   try{GeoPoint point=CarLocations.point(data);new AlertDialog.Builder(this).setTitle(source.equals(CarLocations.PARKING)?"Saved parking spot":"Hyundai location").setMessage(CarLocations.description(data,source)+"\n\nOpen the map or walking directions in Google Maps. This shares the selected coordinates with Google.")
    .setPositiveButton("Open map",(d,w)->openLocation(point.mapUrl()))
-   .setNeutralButton("Walk here",(d,w)->openLocation(point.walkUrl())).setNegativeButton("Back",(d,w)->findCar()).show();
+   .setNeutralButton("Walk here",(d,w)->openLocation(point.walkUrl())).setNegativeButton("Back",(d,w)->locationOptions()).show();
   }catch(Exception e){showResult("Saved location is invalid. Request an updated location.");}
  }
  private void openLocation(String url){try{startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse(url)));}catch(ActivityNotFoundException e){showResult("Install a map app or browser to open this location.");}}
