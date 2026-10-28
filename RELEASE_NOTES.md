@@ -1,3 +1,11 @@
+# 0.7.0
+
+- Optional Park & return monitoring, selected Bluetooth disconnect cue, manual parking fallback, departure distance and 20-second dwell.
+- Single lock attempt with a result notification; return reminder with a user-tapped Unlock action.
+- Yellow/black account caution section with confirmations before account change or local-data erasure.
+- Precise location and Nearby devices permissions only for the optional parking feature.
+- Added parking decision tests. Vehicle/device acceptance testing remains required.
+
 IONIQ Companion 0.6.0 — community preview for Hyundai US
 
 - Vehicle status with report timestamp.

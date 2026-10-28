@@ -14,7 +14,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Test parking decisions
+        run: |
+          mkdir -p /tmp/parking-tests
+          javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ParkingRules.java tests/ParkingRulesTest.java
+          java -cp /tmp/parking-tests com.ioniq.widget.ParkingRulesTest
       - uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+          cmdline-tools-version: '13114758' 
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'

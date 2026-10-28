@@ -6,6 +6,7 @@ public class CommandService extends Service {
  @Override public void onCreate(){super.onCreate();((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(new NotificationChannel(CHANNEL,"Vehicle commands",NotificationManager.IMPORTANCE_LOW));}
  @Override public int onStartCommand(Intent intent,int flags,int startId){
   if(intent==null){stopSelf();return START_NOT_STICKY;}String action=intent.getAction();int index=ActionWidget.index(action);
+  if("unlock".equals(action))((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(711);
   if(index<0){if(!running)stopSelf();return START_NOT_STICKY;}
   if(running)return START_NOT_STICKY;
   running=true;startForeground(600,notification("Sending "+ActionWidget.LABELS[index]+"…"));

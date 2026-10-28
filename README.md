@@ -27,3 +27,11 @@ This produces a debug APK for testing, not a public release-signed APK. Use PUBL
 ## Attribution
 
 US API protocol adapted from [andyfase/egmp-bluelink-scriptable](https://github.com/andyfase/egmp-bluelink-scriptable). Original MIT license and copyright preserved in LICENSE. Unaffiliated with Hyundai/Kia; trademarks belong to their owners.
+
+## Preview 0.7: Park & return
+
+Opt-in, user-started parking monitoring for Android. Select the paired car/dongle and start before driving, or tap **I’ve parked here** beside the car. A usable Bluetooth disconnect and a recent slow-moving GPS fix can mark parking. After departure beyond the selected radius plus GPS uncertainty and a 20-second dwell, the app attempts locking once. Return proximity offers a one-tap Unlock notification; it never automatically unlocks.
+
+Phone-only detection is approximate and needs on-device testing. A dongle that uses Wi-Fi or drops Bluetooth during normal Android Auto operation may not supply a usable cue; use manual parking in that case. Force-stop, reboot, revoked permissions and battery restrictions can stop monitoring. Start a new session after that. See [parking setup and tests](PARKING.md).
+
+Account-change and erase actions sit in a yellow/black caution section, with explicit confirmation. Cancelling either warning changes nothing.
