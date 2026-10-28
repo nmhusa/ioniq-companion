@@ -38,6 +38,10 @@ Account-change and erase actions sit in a yellow/black caution section, with exp
 
 ## Updating an existing working Windows project
 
-Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq6-v07.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq6-v071.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
 
 The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.
+
+## Odometer fix (0.7.1)
+
+The odometer uses the selected VIN’s enrollment vehicle details, with a numeric status-odometer fallback. Mileage is refreshed with normal status refresh and the hourly background job; its own Hyundai update timestamp appears below the header. A failed/missing mileage response retains the previous reading, marked last known. The public updater keeps existing local Hyundai API and credential files unchanged. Download the updated updater again, rebuild, install over your existing app, then tap **Refresh saved Hyundai status**.

@@ -15,3 +15,7 @@ Version 0.4: all Java syntax and XML resources/references checked again after st
 GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40609614335 passed `:app:assembleDebug`, `:app:lintDebug` and all 18 ParkingRules checks on source commit 66b6a1bbe23d7b06b1d7a64f3e3011cdefe27e14. Local Java compilation against android-35 also passed. The header PNG has a real alpha channel, with pixel alpha values spanning 0–255. CI uses no Hyundai client credential, contacts no car and produces a test APK that cannot authenticate with Hyundai.
 
 Samsung device, screen-off behavior, dongle events, actual remote commands, visual layout and the Windows updater have not been exercised on hardware here. Follow PARKING.md for device acceptance checks. The updater preserves existing local HyundaiApi/Vault and signing configuration, so the final locally configured APK must be built/linted again by build-windows.ps1.
+
+## 0.7.1 verification
+
+GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40610964444 passed assembleDebug, lintDebug, 18 parking-rule checks and 14 mileage-parsing checks for commit 2d393e12df5eb7f270b4a0a3752b46935a628171. Local Android-35 Java compilation also passed. No real account/vehicle was contacted during these checks. The selected vehicle’s actual odometer display still needs confirmation after installation and a saved-status refresh.

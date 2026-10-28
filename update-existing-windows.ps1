@@ -2,7 +2,7 @@ param([string]$ProjectPath = (Get-Location).Path)
 $ErrorActionPreference = 'Stop'
 # Pinned, reviewed source snapshot. This script never reads or replaces HyundaiApi.java,
 # Vault.java, signing keys, local-api.properties, local.properties or the debug keystore.
-$revision = '66b6a1bbe23d7b06b1d7a64f3e3011cdefe27e14'
+$revision = '2d393e12df5eb7f270b4a0a3752b46935a628171'
 $project = (Resolve-Path $ProjectPath).Path
 $javaRelative = 'app\src\main\java\com\ioniq\widget'
 if (-not (Test-Path (Join-Path $project "$javaRelative\HyundaiApi.java"))) { throw 'Open PowerShell in your existing working IONIQ app project folder, then run this script again.' }
@@ -37,12 +37,12 @@ try {
   New-Item -ItemType Directory -Force (Split-Path $target) | Out-Null
   Copy-Item (Join-Path $source $relative) $target -Force
  }
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 7'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.0'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 8'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.1'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
- Write-Host "Updated app source to 0.7. Backup: $backup"
+ Write-Host "Updated app source to 0.7.1. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-windows.ps1'
 } finally { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }
