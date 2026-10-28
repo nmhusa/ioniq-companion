@@ -1,3 +1,10 @@
+# 0.7.3
+
+- App/launcher name is now IONIQ Companion; existing package identity and login storage are unchanged.
+- Selected VIN’s model details choose the IONIQ 5 or IONIQ 6 heading, model year and transparent car photo. Dashboard widget and command notification titles follow the selected car.
+- Existing installations fetch missing model details on ordinary app launch. Unknown models display generic branding, not an assumed IONIQ 6.
+- Added the supplied silver IONIQ 5 image as a transparent cutout and model-identification tests. IONIQ 5 live connectivity is not verified by these display changes.
+
 # 0.7.2
 
 - Main-screen one-tap Walk-away lock control, with active status and one-tap Stop.

@@ -23,6 +23,10 @@ jobs:
         run: |
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/MileageReading.java tests/MileageReadingTest.java
           java -cp /tmp/parking-tests com.ioniq.widget.MileageReadingTest
+      - name: Test vehicle model identification
+        run: |
+          javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ModelName.java tests/ModelNameTest.java
+          java -cp /tmp/parking-tests com.ioniq.widget.ModelNameTest
       - uses: android-actions/setup-android@v3
         with:
           packages: ''

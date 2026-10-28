@@ -26,6 +26,7 @@ final class VehicleMileage {
    for(int i=0;i<vehicles.length();i++){
     JSONObject item=vehicles.optJSONObject(i);JSONObject details=item==null?null:item.optJSONObject("vehicleDetails");
     if(details==null||!vin.equals(details.optString("vin")))continue;
+    VehicleIdentity.save(c,details);
     MileageReading selected=reading(details);
     if(selected!=null){store(c,vin,selected,false);return status;}
     break;

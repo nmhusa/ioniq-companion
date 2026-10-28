@@ -2,7 +2,7 @@ package com.ioniq.widget;
 import android.app.*;import android.content.*;import android.os.*;
 public class CommandService extends Service {
  private static final String CHANNEL="vehicle_commands";static volatile boolean running;
- private Notification notification(String text){return new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_lock).setContentTitle("IONIQ 6 · Remote control").setContentText(text).setStyle(new Notification.BigTextStyle().bigText(text)).setContentIntent(PendingIntent.getActivity(this,900,new Intent(this,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE)).setOnlyAlertOnce(true).build();}
+ private Notification notification(String text){return new Notification.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_lock).setContentTitle(VehicleIdentity.title(this)+" · Remote control").setContentText(text).setStyle(new Notification.BigTextStyle().bigText(text)).setContentIntent(PendingIntent.getActivity(this,900,new Intent(this,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE)).setOnlyAlertOnce(true).build();}
  @Override public void onCreate(){super.onCreate();((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(new NotificationChannel(CHANNEL,"Vehicle commands",NotificationManager.IMPORTANCE_LOW));}
  @Override public int onStartCommand(Intent intent,int flags,int startId){
   if(intent==null){stopSelf();return START_NOT_STICKY;}String action=intent.getAction();int index=ActionWidget.index(action);
