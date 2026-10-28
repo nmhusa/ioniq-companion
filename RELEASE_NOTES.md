@@ -1,3 +1,10 @@
+# 0.7.1
+
+- Read odometer from the selected VIN’s US enrollment vehicle details; numeric status odometer remains a fallback.
+- Show the separate odometer-update timestamp. Preserve last known mileage with a label when details refresh fails.
+- Normal status refresh remains usable if the mileage request fails. Account erasure clears cached mileage.
+- Existing local HyundaiApi.java and credential configuration remain unchanged by the updater.
+
 # 0.7.0
 
 - Optional Park & return monitoring, selected Bluetooth disconnect cue, manual parking fallback, departure distance and 20-second dwell.

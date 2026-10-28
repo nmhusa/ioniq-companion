@@ -19,6 +19,10 @@ jobs:
           mkdir -p /tmp/parking-tests
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ParkingRules.java tests/ParkingRulesTest.java
           java -cp /tmp/parking-tests com.ioniq.widget.ParkingRulesTest
+      - name: Test mileage parsing
+        run: |
+          javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/MileageReading.java tests/MileageReadingTest.java
+          java -cp /tmp/parking-tests com.ioniq.widget.MileageReadingTest
       - uses: android-actions/setup-android@v3
         with:
           packages: ''
