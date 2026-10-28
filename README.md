@@ -22,7 +22,7 @@ On Windows with Temurin JDK 17, SDK Platform 35 and Build-Tools 34.0.0 installed
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build-windows.ps1
 ```
 
-This produces a debug APK for testing, not a public release-signed APK. Use PUBLISH.md to sign a release. GitHub Actions also builds/lints a debug artifact; its signing key is ephemeral and it does not automatically publish a release.
+This produces a debug APK for testing, not a public release-signed APK. Use PUBLISH.md to sign a release. GitHub Actions also builds/lints a credential-free debug artifact that cannot connect to Hyundai; its signing key is ephemeral and it does not automatically publish a release.
 
 ## Attribution
 
@@ -35,3 +35,9 @@ Opt-in, user-started parking monitoring for Android. Select the paired car/dongl
 Phone-only detection is approximate and needs on-device testing. A dongle that uses Wi-Fi or drops Bluetooth during normal Android Auto operation may not supply a usable cue; use manual parking in that case. Force-stop, reboot, revoked permissions and battery restrictions can stop monitoring. Start a new session after that. See [parking setup and tests](PARKING.md).
 
 Account-change and erase actions sit in a yellow/black caution section, with explicit confirmation. Cancelling either warning changes nothing.
+
+## Updating an existing working Windows project
+
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq6-v07.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
+
+The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.

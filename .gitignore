@@ -12,3 +12,5 @@ signing.properties
 *.apk
 *.aab
 local-api.properties
+
+.update-backups/
