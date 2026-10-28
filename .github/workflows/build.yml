@@ -27,6 +27,10 @@ jobs:
         run: |
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ModelName.java tests/ModelNameTest.java
           java -cp /tmp/parking-tests com.ioniq.widget.ModelNameTest
+      - name: Test climate heat modes
+        run: |
+          javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ClimateHeatMode.java tests/ClimateHeatModeTest.java
+          java -cp /tmp/parking-tests com.ioniq.widget.ClimateHeatModeTest
       - uses: android-actions/setup-android@v3
         with:
           packages: ''

@@ -30,7 +30,7 @@ public abstract class ActionWidget extends AppWidgetProvider {
   RemoteViews v=new RemoteViews(c.getPackageName(),compact?R.layout.action_widget_compact:R.layout.action_widget);
   v.setImageViewResource(R.id.action_icon,ICONS[i]);
   if(!compact){v.setInt(R.id.action_root,"setBackgroundResource",BACKGROUNDS[i]);v.setTextViewText(R.id.action_label,label);v.setTextViewText(R.id.action_result,result);}
-  v.setContentDescription(R.id.action_root,label+". "+result+". Double tap to send command.");
+  v.setContentDescription(R.id.action_root,label+(i==2?". "+ClimatePreset.summary(c):"")+". "+result+". Double tap to send command.");
   v.setOnClickPendingIntent(R.id.action_root,tap);return v;
  }
  @Override public void onAppWidgetOptionsChanged(Context c,AppWidgetManager m,int id,android.os.Bundle options){render(c,index(action()));}

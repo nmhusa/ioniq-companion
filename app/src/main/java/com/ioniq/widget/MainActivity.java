@@ -66,6 +66,7 @@ public class MainActivity extends Activity {
   button("Refresh status",()->refreshOptions());
   text("CLIMATE PRESET",12,Color.rgb(141,227,207));
   TextView temp=text(temperature+" °F",24,Color.WHITE);SeekBar seek=new SeekBar(this);seek.setMax(28);seek.setProgress(temperature-62);page.addView(seek);seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int p,boolean user){temperature=62+p;temp.setText(temperature+" °F");getSharedPreferences("ui",0).edit().putInt("temp",temperature).apply();ActionWidget.renderAll(MainActivity.this);}public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){}});
+  Button heating=button(ClimatePreset.summary(this),()->{});heating.setOnClickListener(v->{if(!busy)climateOptions(heating);});
   controlRow(2,3);text("CHARGING",12,0xffD7EB70);controlRow(4,5);
   LinearLayout dashboard=page;
   LinearLayout settings=new LinearLayout(this);settings.setOrientation(LinearLayout.VERTICAL);settings.setVisibility(View.GONE);
@@ -84,7 +85,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. The six individual action widgets send commands immediately with one tap. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.5",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.7.6",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -99,7 +100,14 @@ public class MainActivity extends Activity {
  private interface Task{String go()throws Exception;}
  private void run(Task task){if(busy)return;busy=true;for(Button b:buttons)b.setEnabled(false);updateParkingControl();showResult("Working…");RefreshJob.QUEUE.execute(()->{String result;try{result=task.go();}catch(Exception e){result=(e instanceof java.net.SocketTimeoutException)?"Network timeout. Command outcome may be unknown; check the official app before retrying.":e.getMessage();if(result==null)result="Request failed. Check your connection and the official app.";}final String answer=result;CarWidget.render(this);runOnUiThread(()->{busy=false;if(isDestroyed())return;for(Button b:buttons)b.setEnabled(true);showResult(answer);showStatus();});});}
  private void refresh(boolean force){run(()->{VehicleMileage.refresh(this,force);RefreshJob.schedule(this);return "Status refreshed";});}
- private void confirm(String a){String name=a.equals("climate")?"Start climate at "+temperature+" °F":a.replace('_',' ');new AlertDialog.Builder(this).setTitle(name).setMessage("Send this command to your selected Hyundai? Completion can take a minute.").setPositiveButton("Send",(d,w)->{final int chosen=temperature;run(()->new HyundaiApi(this).command(a,chosen));}).setNegativeButton("Cancel",null).show();}
+ private void climateOptions(Button button){
+  android.content.SharedPreferences p=getSharedPreferences("ui",0);
+  boolean[] values={p.getBoolean("front_defrost",false),p.getBoolean("rear_defrost",false),p.getBoolean("steering_heat",false)};
+  new AlertDialog.Builder(this).setTitle("With Climate on")
+   .setMultiChoiceItems(new String[]{"Front defrost","Rear defrost","Steering-wheel heater"},values,(d,n,checked)->values[n]=checked)
+   .setNegativeButton("Cancel",null).setPositiveButton("Save",(d,w)->{p.edit().putBoolean("front_defrost",values[0]).putBoolean("rear_defrost",values[1]).putBoolean("steering_heat",values[2]).apply();button.setText(ClimatePreset.summary(this));ActionWidget.renderAll(this);}).show();
+ }
+ private void confirm(String a){String name=a.equals("climate")?"Start climate at "+temperature+" °F":a.replace('_',' ');new AlertDialog.Builder(this).setTitle(name).setMessage((a.equals("climate")?ClimatePreset.summary(this)+"\n\n":"")+"Send this command to your selected Hyundai? Completion can take a minute.").setPositiveButton("Send",(d,w)->{final int chosen=temperature;run(()->new HyundaiApi(this).command(a,chosen));}).setNegativeButton("Cancel",null).show();}
  private EditText field(LinearLayout box,String hint,int type){EditText e=new EditText(this);e.setHint(hint);e.setInputType(type);e.setSingleLine(true);e.setSaveEnabled(false);e.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);box.addView(e);return e;}
  private void loginForm(){
   LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(20),0,dp(20),0);

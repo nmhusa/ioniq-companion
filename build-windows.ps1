@@ -25,6 +25,6 @@ if ($LASTEXITCODE -ne 0) { throw 'Gradle setup failed.' }
 if ($PrepareOnly) { return }
 & $gradleExe --no-daemon :app:assembleDebug :app:lintDebug
 if ($LASTEXITCODE -ne 0) { throw 'Build or lint failed. Copy the error text back to ChatGPT.' }
-Copy-Item 'app\build\outputs\apk\debug\app-debug.apk' 'app\build\outputs\apk\debug\ioniq-companion-v075.apk' -Force
-Write-Host 'APK ready: app\build\outputs\apk\debug\ioniq-companion-v075.apk'
+Copy-Item 'app\build\outputs\apk\debug\app-debug.apk' 'app\build\outputs\apk\debug\ioniq-companion-v076.apk' -Force
+Write-Host 'APK ready: app\build\outputs\apk\debug\ioniq-companion-v076.apk'
 Start-Process explorer.exe -ArgumentList (Join-Path $PSScriptRoot 'app\build\outputs\apk\debug')

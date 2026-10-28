@@ -68,7 +68,7 @@ final class HyundaiApi {
    case "charge_start":path="ac/v2/evc/charge/start";break;
    case "charge_stop":path="ac/v2/evc/charge/stop";break;
    case "climate_stop":path="ac/v2/evc/fatc/stop";break;
-   case "climate":path="ac/v2/evc/fatc/start";body=new JSONObject().put("airCtrl",1).put("defrost",false).put("airTemp",new JSONObject().put("value",String.valueOf(temp)).put("unit",1)).put("heating1",0);break;
+   case "climate":path="ac/v2/evc/fatc/start";body=ClimatePreset.body(context,temp);break;
    default:throw new Exception("Unsupported command");
   }
   if(action.equals("lock")||action.equals("unlock")||action.startsWith("charge_"))body=new JSONObject().put("userName",auth.getString("email")).put("vin",auth.getString("vin"));

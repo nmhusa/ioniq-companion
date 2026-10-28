@@ -16,7 +16,7 @@ The first switch from a debug-signed preview to the permanent release key requir
 
 ## Verify a download on Windows
 
-Run `Get-FileHash .\ioniq-companion-0.7.5.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
+Run `Get-FileHash .\ioniq-companion-0.7.6.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
 
 ## Help and privacy
 
