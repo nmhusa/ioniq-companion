@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
  private final Runnable parkingTick=new Runnable(){public void run(){updateParkingControl();parkingHandler.postDelayed(this,1000);}};
  private void updateParkingControl(){
   if(walkAway!=null){walkAway.setText(ParkingService.active?"Stop walk-away lock":"Walk-away lock · "+ParkingStart.radius(this)+" m");walkAway.setEnabled(!busy||ParkingService.active);}
-  if(parkingStatus!=null){String detail=getSharedPreferences("parking",0).getString("status","");parkingStatus.setText(ParkingService.active?detail:"Off · tap to arm beside your car");}
+  if(parkingStatus!=null){String detail=getSharedPreferences("parking",0).getString("status","");String brief=detail;if(ParkingService.active){if(detail.startsWith("Parking saved"))brief="Parking saved · monitoring · "+ParkingStart.radius(this)+" m";else if(detail.startsWith("Stay beside your parked car"))brief="Stay beside car · finding GPS…";else if(detail.startsWith("Car / dongle connected")||detail.startsWith("Monitoring selected Bluetooth"))brief="Waiting for parking disconnect";}else if(detail.isEmpty()||detail.startsWith("Stopped."))brief="Off · tap to arm beside your car";else brief="Off · "+detail;parkingStatus.setText(brief);}
  }
  private void showResult(String value){
   resultDetails=value==null?"":value;
@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
   walkAway=button("Walk-away lock · "+ParkingStart.radius(this)+" m",()->{if(ParkingService.active)ParkingService.stop(this);else ParkingStart.start(this,true);updateParkingControl();});
   walkAway.setOnClickListener(v->{if(ParkingService.active)ParkingService.stop(this);else if(!busy)ParkingStart.start(this,true);updateParkingControl();});
   walkAway.setTextColor(0xffa4edda);
-  parkingStatus=text("",13,0xffAFC5D4);updateParkingControl();
+  parkingStatus=text("",13,0xffAFC5D4);parkingStatus.setMinHeight(dp(48));parkingStatus.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Walk-away lock").setMessage(getSharedPreferences("parking",0).getString("status","Off")+"\n\nArm beside your parked car and wait for Parking saved before walking away. GPS uncertainty and network delays can increase the locking distance. Tap Stop to cancel.").setPositiveButton("Done",null).setNeutralButton("Settings",(d,w)->startActivity(new Intent(this,ParkingActivity.class))).show());updateParkingControl();
   text("DOORS",12,0xff53D8B0);controlRow(0,1);
   button("Refresh status",()->refreshOptions());
   text("CLIMATE PRESET",12,Color.rgb(141,227,207));
