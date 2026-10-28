@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. The six individual action widgets send commands immediately with one tap. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.4",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.7.5",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}

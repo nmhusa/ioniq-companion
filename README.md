@@ -38,7 +38,7 @@ Account-change and erase actions sit in a yellow/black caution section, with exp
 
 ## Updating an existing working Windows project
 
-Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq-companion-v074.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq-companion-v075.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
 
 The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.
 
@@ -57,3 +57,7 @@ The app is named IONIQ Companion. Selected vehicle details determine the IONIQ 5
 ## Signed GitHub releases
 
 See [PUBLISH.md](PUBLISH.md) for the local release-signing helper and [INSTALL.md](INSTALL.md) for recipient instructions. The release key stays on the maintainer PC. Public distribution remains pending credential/artwork authorization and signed-build device testing; CI artifacts are not working public releases.
+
+## Compact action widgets (0.7.5)
+
+Each action widget defaults to 1×1 and can resize horizontally/vertically. Small sizes show only the raised icon; larger tiles restore labels/results. Android 12+ responsive layouts adapt to launcher-provided sizes, including foldables. Actual grid sizes depend on the launcher. Commands and the larger vehicle dashboard are unchanged.

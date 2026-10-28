@@ -16,8 +16,12 @@ The first switch from a debug-signed preview to the permanent release key requir
 
 ## Verify a download on Windows
 
-Run `Get-FileHash .\ioniq-companion-0.7.4.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
+Run `Get-FileHash .\ioniq-companion-0.7.5.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
 
 ## Help and privacy
 
 Report problems at https://github.com/nmhusa/ioniq-companion/issues. Include app version, phone/Android version and a redacted error. Never post passwords, PINs, tokens, VINs or your location. Read docs/privacy.html in the repository. Personal credentials are entered on each user's device and encrypted locally; requests go to Hyundai. No developer account/server login is needed. Hyundai's service availability and API behavior can change.
+
+## Resize action widgets
+
+The six action widgets default to one home-screen cell with just the colorful raised icon. Touch and hold a widget, then drag its resize handles to enlarge it. Larger tiles show the command label and latest result. The vehicle dashboard remains a larger information widget. Launcher grids control actual sizes; Samsung may need an existing widget removed and added again to pick up the new minimum size. Test folded and unfolded layouts. Compact widgets send the same immediate commands; read completion in the notification or app.
