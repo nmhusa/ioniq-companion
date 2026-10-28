@@ -65,3 +65,12 @@ No real account, vehicle location or map navigation was exercised. Test Hyundai 
 ## 0.7.9 direct map navigation
 
 GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40750654283 passed debug/release assembly and lint, all 135 existing Java/migration checks and script parsing. Source e3defc31c390a50b31c72f90d58383fc05595bdf. Find My Car opens cached Hyundai coordinates directly, or requests them once if absent and then opens the map. Timestamps/refresh and phone-parking fallback remain in the adjacent details menu. Phone/browser handoff and actual address rendering have not been tested on-device; Google Maps controls available address information. No live vehicle requests were sent during validation.
+
+
+## 0.7.10 — compact widget feedback
+
+GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40776216811 passed debug/release assembly and lint, Java regression tests (including 16 widget feedback assertions), Windows script parsing, and updater migration tests. Source: `c589e997a890506a72ae86204e54605f0ba6e7be`.
+
+Widgets display queued/sending/last-confirmed/unknown/error states and open full timestamped details from their badge. Repeated widget taps during an active command do not submit another command. Interrupted pending commands become unknown on redraw; a local-only scheduled job requests a recovery redraw, subject to Android scheduling. Last OK describes the previous command acknowledgement, not live vehicle state.
+
+No real vehicle commands were issued during validation. Samsung launcher rendering, background scheduling, and on-device command transitions still require device testing.
