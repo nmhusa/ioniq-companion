@@ -11,3 +11,4 @@ keystore.properties
 signing.properties
 *.apk
 *.aab
+local-api.properties
