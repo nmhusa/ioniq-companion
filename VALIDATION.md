@@ -41,3 +41,8 @@ On-phone layout and interaction have not been exercised here. After installing, 
 GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40710253457 passed debug and unsigned release assembly/lint, all existing 62 decision/parser checks, and Windows PowerShell syntax parsing for commit c362ae0c5bbafc9dad982b8586e6ca01d4015da3. Resource XML also parses locally. Single-cell action widgets use responsive compact/expanded RemoteViews on Android 12+ and an options-size fallback earlier. Commands remain unchanged. Samsung launcher resizing/folding and TalkBack have not been tested on-device here.
 
 Local release-key generation/signing is prepared but has not been executed on the owner's PC. No permanent key, working signed release APK or public GitHub release was created here. Credential/artwork redistribution and signed-build device validation remain outstanding; CI has no Hyundai credential and sent no commands.
+
+
+## 0.7.6 climate preset verification
+
+GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40711797691 passed debug/release assembly and lint, Windows PowerShell parsing, and 66 checks including all four rear-defrost/steering-heat enum combinations. The updater's narrow payload substitution was checked against the original local adapter and round-tripped without changing other source content. All options default off. No vehicle commands were issued; heater behavior, actual device UI and signed-release installation remain to be verified on the owner's phone/car.
