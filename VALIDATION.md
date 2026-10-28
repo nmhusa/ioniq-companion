@@ -23,3 +23,7 @@ GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/406109
 ## 0.7.2 verification
 
 Owner confirmed 0.7.1 odometer working after installing the correct APK. GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40681169326 passed assembleDebug, lintDebug, 33 parking-rule checks and 14 mileage checks for commit ba1a9a41e67cb8a27b1e66f8b804be46df436470. The close-distance decision tests include GPS uncertainty, the five-second dwell, countdown cancellation, and preventing an immediate return reminder while walking away. On-phone 20/30 m behavior and Bluetooth sessions remain unverified; thresholds are estimates plus uncertainty and network delays.
+
+## 0.7.3 verification
+
+GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40684163161 passed assembleDebug, lintDebug, 33 parking-rule checks, 14 mileage checks and 15 model-identification checks (62 total) for commit 0f949ae628b12c4be10313e373208cfc67805714. The IONIQ 5 PNG is 1448×1086 RGBA, matching the IONIQ 6 asset’s dimensions. Model tests cover spaced/compact/hyphenated names, 5 N, fallback modelName and unknown models. Real IONIQ 5 API connectivity and on-device vehicle switching have not been tested here. Application ID and credential key alias remain unchanged.
