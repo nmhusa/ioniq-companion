@@ -34,3 +34,10 @@ GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/406841
 GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40690710968 passed assembleDebug, lintDebug and the existing 62 parking, mileage and model checks for commit ac40fbd451dc0784e016f5c947b34729eb8de725. Dashboard explanations, widgets and protected account controls are grouped under expandable Settings & help. Report timestamps and full command results are available by tapping their labels; routine successful results are shortened while errors and unconfirmed outcomes retain their full text. Relative report ages are shown only for timestamps with an explicit offset; ambiguous timestamps remain available in details without guessing a timezone. Parking readiness and failure text remain visible, with routine monitoring text shortened.
 
 On-phone layout and interaction have not been exercised here. After installing, check Settings expand/collapse, report/result dialogs, both refresh options, walk-away readiness/cancellation, and account confirmation cancellation. Existing API credentials, application ID and signing configuration are preserved by the Windows updater. No vehicle commands were sent during validation.
+
+
+## 0.7.5 and release tooling
+
+GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40710253457 passed debug and unsigned release assembly/lint, all existing 62 decision/parser checks, and Windows PowerShell syntax parsing for commit c362ae0c5bbafc9dad982b8586e6ca01d4015da3. Resource XML also parses locally. Single-cell action widgets use responsive compact/expanded RemoteViews on Android 12+ and an options-size fallback earlier. Commands remain unchanged. Samsung launcher resizing/folding and TalkBack have not been tested on-device here.
+
+Local release-key generation/signing is prepared but has not been executed on the owner's PC. No permanent key, working signed release APK or public GitHub release was created here. Credential/artwork redistribution and signed-build device validation remain outstanding; CI has no Hyundai credential and sent no commands.
