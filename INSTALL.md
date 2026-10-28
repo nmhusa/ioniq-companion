@@ -16,7 +16,7 @@ The first switch from a debug-signed preview to the permanent release key requir
 
 ## Verify a download on Windows
 
-Run `Get-FileHash .\ioniq-companion-0.7.6.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
+Run `Get-FileHash .\ioniq-companion-0.7.7.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
 
 ## Help and privacy
 
@@ -25,3 +25,9 @@ Report problems at https://github.com/nmhusa/ioniq-companion/issues. Include app
 ## Resize action widgets
 
 The six action widgets default to one home-screen cell with just the colorful raised icon. Touch and hold a widget, then drag its resize handles to enlarge it. Larger tiles show the command label and latest result. The vehicle dashboard remains a larger information widget. Launcher grids control actual sizes; Samsung may need an existing widget removed and added again to pick up the new minimum size. Test folded and unfolded layouts. Compact widgets send the same immediate commands; read completion in the notification or app.
+
+## Presets and charging limits
+
+Tap Climate presets to choose Winter, Summer or Custom. Edit presets opens temperature and heater controls. Save & use changes only your saved preset; press Climate on to send it. The climate widget uses the same selection. Your previous settings are retained as Custom.
+
+Charge limits shows last-reported AC/DC targets and their timestamp. Read latest reads Hyundai's cached report; it may be old. Choose both targets, review and confirm to send once. Refresh and check the reported targets afterward; a command-completed response is not an independent reading. Changing a limit during charging can affect when that session ends.

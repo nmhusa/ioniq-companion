@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
   };tape.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(10));lp.setMargins(0,dp(22),0,dp(12));page.addView(tape,lp);
  }
  private void pinWidgets(){String[] choices={"Vehicle dashboard","Lock doors","Unlock doors","Climate on","Climate off","Start charging","Stop charging"};new AlertDialog.Builder(this).setTitle("Add a home-screen widget").setItems(choices,(dialog,n)->{android.appwidget.AppWidgetManager m=android.appwidget.AppWidgetManager.getInstance(this);Class<?> type=n==0?CarWidget.class:ActionWidget.TYPES[n-1];if(m.isRequestPinAppWidgetSupported())m.requestPinAppWidget(new ComponentName(this,type),null,null);else showResult("Long-press your home screen → Widgets → IONIQ Companion.");}).show();}
- @Override public void onCreate(Bundle b){super.onCreate(b);temperature=getSharedPreferences("ui",0).getInt("temp",72);build();boolean launchedWithAction=getIntent().hasExtra("action");handleIntent(getIntent());if(!launchedWithAction&&VehicleIdentity.needsLookup(this))refresh(false);if(android.os.Build.VERSION.SDK_INT>=33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS},20);}
+ @Override public void onCreate(Bundle b){super.onCreate(b);NamedClimate.initialize(this);temperature=getSharedPreferences("ui",0).getInt("temp",72);build();boolean launchedWithAction=getIntent().hasExtra("action");handleIntent(getIntent());if(!launchedWithAction&&VehicleIdentity.needsLookup(this))refresh(false);if(android.os.Build.VERSION.SDK_INT>=33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)!=android.content.pm.PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS},20);}
  @Override protected void onNewIntent(Intent i){super.onNewIntent(i);setIntent(i);handleIntent(i);}
  private void handleIntent(Intent i){String a=i.getStringExtra("action");i.removeExtra("action");if("refresh".equals(a))refresh(false);else if("lock".equals(a)||"climate".equals(a))confirm(a);}
  private void build(){
@@ -65,9 +65,9 @@ public class MainActivity extends Activity {
   text("DOORS",12,0xff53D8B0);controlRow(0,1);
   button("Refresh status",()->refreshOptions());
   text("CLIMATE PRESET",12,Color.rgb(141,227,207));
-  TextView temp=text(temperature+" °F",24,Color.WHITE);SeekBar seek=new SeekBar(this);seek.setMax(28);seek.setProgress(temperature-62);page.addView(seek);seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int p,boolean user){temperature=62+p;temp.setText(temperature+" °F");getSharedPreferences("ui",0).edit().putInt("temp",temperature).apply();ActionWidget.renderAll(MainActivity.this);}public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){}});
-  Button heating=button(ClimatePreset.summary(this),()->{});heating.setOnClickListener(v->{if(!busy)climateOptions(heating);});
-  controlRow(2,3);text("CHARGING",12,0xffD7EB70);controlRow(4,5);
+  Button presets=button("Climate presets · "+NamedClimate.active(this)+" · "+temperature+" °F",()->{});
+  presets.setOnClickListener(v->{if(!busy)chooseClimate(presets);});
+  controlRow(2,3);text("CHARGING",12,0xffD7EB70);controlRow(4,5);button("Charge limits",()->chargeLimits());
   LinearLayout dashboard=page;
   LinearLayout settings=new LinearLayout(this);settings.setOrientation(LinearLayout.VERTICAL);settings.setVisibility(View.GONE);
   Button settingsToggle=button("Settings & help ▾",()->{});
@@ -85,7 +85,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. The six individual action widgets send commands immediately with one tap. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.6",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.7.7",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();String last=getSharedPreferences("actions",0).getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -100,12 +100,29 @@ public class MainActivity extends Activity {
  private interface Task{String go()throws Exception;}
  private void run(Task task){if(busy)return;busy=true;for(Button b:buttons)b.setEnabled(false);updateParkingControl();showResult("Working…");RefreshJob.QUEUE.execute(()->{String result;try{result=task.go();}catch(Exception e){result=(e instanceof java.net.SocketTimeoutException)?"Network timeout. Command outcome may be unknown; check the official app before retrying.":e.getMessage();if(result==null)result="Request failed. Check your connection and the official app.";}final String answer=result;CarWidget.render(this);runOnUiThread(()->{busy=false;if(isDestroyed())return;for(Button b:buttons)b.setEnabled(true);showResult(answer);showStatus();});});}
  private void refresh(boolean force){run(()->{VehicleMileage.refresh(this,force);RefreshJob.schedule(this);return "Status refreshed";});}
- private void climateOptions(Button button){
-  android.content.SharedPreferences p=getSharedPreferences("ui",0);
-  boolean[] values={p.getBoolean("front_defrost",false),p.getBoolean("rear_defrost",false),p.getBoolean("steering_heat",false)};
-  new AlertDialog.Builder(this).setTitle("With Climate on")
-   .setMultiChoiceItems(new String[]{"Front defrost","Rear defrost","Steering-wheel heater"},values,(d,n,checked)->values[n]=checked)
-   .setNegativeButton("Cancel",null).setPositiveButton("Save",(d,w)->{p.edit().putBoolean("front_defrost",values[0]).putBoolean("rear_defrost",values[1]).putBoolean("steering_heat",values[2]).apply();button.setText(ClimatePreset.summary(this));ActionWidget.renderAll(this);}).show();
+ private void presetApplied(Button button){temperature=getSharedPreferences("ui",0).getInt("temp",72);button.setText("Climate presets · "+NamedClimate.active(this)+" · "+temperature+" °F");ActionWidget.renderAll(this);}
+ private void chooseClimate(Button button){
+  String[] options=new String[4];for(int i=0;i<3;i++)options[i]="Use "+NamedClimate.NAMES[i]+" · "+NamedClimate.temp(this,NamedClimate.NAMES[i])+" °F";options[3]="Edit presets…";
+  new AlertDialog.Builder(this).setTitle("Climate presets").setItems(options,(d,n)->{if(n<3){NamedClimate.use(this,NamedClimate.NAMES[n]);presetApplied(button);}else new AlertDialog.Builder(this).setTitle("Edit preset").setItems(NamedClimate.NAMES,(x,i)->editClimate(button,NamedClimate.NAMES[i])).show();}).setNegativeButton("Cancel",null).show();
+ }
+ private void editClimate(Button button,String name){
+  LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(20),dp(8),dp(20),dp(8));
+  TextView label=new TextView(this);label.setText(NamedClimate.temp(this,name)+" °F");box.addView(label);
+  SeekBar slider=new SeekBar(this);slider.setMax(28);slider.setProgress(NamedClimate.temp(this,name)-62);box.addView(slider);
+  slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int p,boolean user){label.setText((p+62)+" °F");}public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){}});
+  String[] keys={"front_defrost","rear_defrost","steering_heat"},labels={"Front defrost","Rear defrost","Steering-wheel heater"};CheckBox[] checks=new CheckBox[3];
+  for(int i=0;i<3;i++){checks[i]=new CheckBox(this);checks[i].setText(labels[i]);checks[i].setChecked(NamedClimate.flag(this,name,keys[i]));box.addView(checks[i]);}
+  new AlertDialog.Builder(this).setTitle(name+" preset").setView(box).setNegativeButton("Cancel",null).setPositiveButton("Save & use",(d,w)->{NamedClimate.save(this,name,62+slider.getProgress(),checks[0].isChecked(),checks[1].isChecked(),checks[2].isChecked());presetApplied(button);}).show();
+ }
+ private void chargeLimits(){
+  JSONObject saved;try{saved=new JSONObject(getSharedPreferences("status",0).getString("json","{}"));}catch(Exception e){saved=new JSONObject();}
+  int oldAc=ChargeLimits.read(saved,ChargeLimitValues.AC),oldDc=ChargeLimits.read(saved,ChargeLimitValues.DC);
+  LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(20),dp(8),dp(20),dp(8));
+  TextView report=new TextView(this);report.setText("Last report: AC "+ChargeLimits.display(oldAc)+" · DC "+ChargeLimits.display(oldDc)+"\n"+StatusText.time(saved));box.addView(report);
+  String[] choices={"Choose limit","50%","60%","70%","80%","90%","100%"};Spinner[] pickers=new Spinner[2];
+  for(int i=0;i<2;i++){TextView label=new TextView(this);label.setText(i==0?"AC charging":"DC fast charging");box.addView(label);pickers[i]=new Spinner(this);ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,choices);pickers[i].setAdapter(adapter);int current=i==0?oldAc:oldDc;pickers[i].setSelection(current<0?0:(current-50)/10+1);box.addView(pickers[i]);}
+  AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Charge limits").setView(box).setNegativeButton("Cancel",null).setNeutralButton("Read latest",(d,w)->run(()->{new HyundaiApi(this).status(false);runOnUiThread(()->{if(!isFinishing()&&!isDestroyed())chargeLimits();});return "Hyundai report refreshed";})).setPositiveButton("Review",null).create();
+  dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{int ai=pickers[0].getSelectedItemPosition(),di=pickers[1].getSelectedItemPosition();if(ai==0||di==0){report.setText("Choose both AC and DC limits before continuing.");return;}int ac=40+ai*10,dc=40+di*10;dialog.dismiss();new AlertDialog.Builder(this).setTitle("Set charging limits?").setMessage("AC: "+ac+"%\nDC fast charging: "+dc+"%\n\nSend these limits to your selected Hyundai?").setNegativeButton("Cancel",null).setPositiveButton("Send",(d,w)->run(()->new HyundaiApi(this).command("limits",ChargeLimitValues.pack(ac,dc)))).show();}));dialog.show();
  }
  private void confirm(String a){String name=a.equals("climate")?"Start climate at "+temperature+" °F":a.replace('_',' ');new AlertDialog.Builder(this).setTitle(name).setMessage((a.equals("climate")?ClimatePreset.summary(this)+"\n\n":"")+"Send this command to your selected Hyundai? Completion can take a minute.").setPositiveButton("Send",(d,w)->{final int chosen=temperature;run(()->new HyundaiApi(this).command(a,chosen));}).setNegativeButton("Cancel",null).show();}
  private EditText field(LinearLayout box,String hint,int type){EditText e=new EditText(this);e.setHint(hint);e.setInputType(type);e.setSingleLine(true);e.setSaveEnabled(false);e.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);box.addView(e);return e;}

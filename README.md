@@ -38,7 +38,7 @@ Account-change and erase actions sit in a yellow/black caution section, with exp
 
 ## Updating an existing working Windows project
 
-Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq-companion-v076.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up changed UI/resource files, preserves your local HyundaiApi.java, Vault.java, API configuration and signing files, and updates the app version. Then run `powershell -ExecutionPolicy Bypass -File .\build-windows.ps1`. Install the resulting `ioniq-companion-v077.apk` over the existing app using the same signing key; do not uninstall if you want to preserve login data.
 
 The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.
 
@@ -65,3 +65,9 @@ Each action widget defaults to 1×1 and can resize horizontally/vertically. Smal
 ## Climate preset (0.7.6)
 
 Tap the defrost/steering-heat preset button below the temperature slider. Save front defrost, rear defrost and steering-wheel heater choices; all default off. Choices apply with Climate on from the app or widget, not immediately when saved. They describe requests, not verified live heater state. No separate seat heating is implemented. The updater now backs up and narrowly patches the climate payload in the local HyundaiApi.java, preserving credential/configuration content. Unknown payload formats stop the updater before changes. Mapping source: https://github.com/Hacksore/bluelinky/pull/294 . Real car behavior remains to be verified.
+
+## Clean presets and charge limits (0.7.7)
+
+One Climate presets control opens Winter/Summer/Custom selection and editing. One Charge limits control opens reported AC/DC targets and a confirmation-protected editor. No new main-screen sliders or explanatory paragraphs. Existing settings migrate to Custom. The updater backs up the local API and inserts only the known payload/case changes; credentials and signing configuration stay intact.
+
+US charge-limit protocol verified against Hyundai-Kia-Connect/hyundai_kia_connect_api, HyundaiBlueLinkApiUSA.py: `evc/charge/targetsoc/set`, `targetSOClist`, DC plug type 0 and AC plug type 1. No account was contacted during development. Endpoint/vehicle behavior still requires owner testing.

@@ -69,6 +69,7 @@ final class HyundaiApi {
    case "charge_stop":path="ac/v2/evc/charge/stop";break;
    case "climate_stop":path="ac/v2/evc/fatc/stop";break;
    case "climate":path="ac/v2/evc/fatc/start";body=ClimatePreset.body(context,temp);break;
+   case "limits":path="ac/v2/evc/charge/targetsoc/set";body=ChargeLimits.body(temp);break;
    default:throw new Exception("Unsupported command");
   }
   if(action.equals("lock")||action.equals("unlock")||action.startsWith("charge_"))body=new JSONObject().put("userName",auth.getString("email")).put("vin",auth.getString("vin"));

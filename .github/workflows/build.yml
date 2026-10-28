@@ -31,6 +31,10 @@ jobs:
         run: |
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ClimateHeatMode.java tests/ClimateHeatModeTest.java
           java -cp /tmp/parking-tests com.ioniq.widget.ClimateHeatModeTest
+      - name: Test charge-limit validation and AC/DC mapping
+        run: |
+          javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ChargeLimitValues.java tests/ChargeLimitValuesTest.java
+          java -cp /tmp/parking-tests com.ioniq.widget.ChargeLimitValuesTest
       - uses: android-actions/setup-android@v3
         with:
           packages: ''

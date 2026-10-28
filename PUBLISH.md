@@ -30,7 +30,7 @@ Requires the same Java 17 and Android SDK setup as the existing debug build. The
 
 For later builds, omit -CreateKey. If the key is missing, restore the original backup rather than generate a replacement. A different key prevents existing users from installing an update. Do not use your debug key for public distribution.
 
-The helper builds/lints release, rejects a debuggable APK, aligns/signs it, verifies its signature and creates release-output\0.7.6 containing the APK, SHA-256 checksum, public signing-certificate information and installation/release notes. It never uploads files. Existing output directories are not overwritten. Passwords are not stored in source or script arguments.
+The helper builds/lints release, rejects a debuggable APK, aligns/signs it, verifies its signature and creates release-output\0.7.7 containing the APK, SHA-256 checksum, public signing-certificate information and installation/release notes. It never uploads files. Existing output directories are not overwritten. Passwords are not stored in source or script arguments.
 
 ## 3. Test the signed APK
 
@@ -40,7 +40,7 @@ Test login/vehicle selection, cached/fresh refresh, lock/unlock, climate, chargi
 
 ## 4. Upload a draft, then publish
 
-Go to https://github.com/nmhusa/ioniq-companion/releases/new . Tag `v0.7.6`, title `IONIQ Companion 0.7.6 — community preview`. Use RELEASE-0.7.6.md after removing the maintainer checklist and adding actual testing results. Save as a draft while preparing. Attach the signed APK, SHA256SUMS.txt, SIGNING-CERTIFICATE.txt and INSTALL.md only. After readiness checks, publish as a prerelease for early testers.
+Go to https://github.com/nmhusa/ioniq-companion/releases/new . Tag `v0.7.7`, title `IONIQ Companion 0.7.7 — community preview`. Use RELEASE-0.7.7.md after removing the maintainer checklist and adding actual testing results. Save as a draft while preparing. Attach the signed APK, SHA256SUMS.txt, SIGNING-CERTIFICATE.txt and INSTALL.md only. After readiness checks, publish as a prerelease for early testers.
 
 Share https://github.com/nmhusa/ioniq-companion/releases for prereleases. GitHub's /releases/latest link excludes prereleases; use it only after publishing a full release. Each later app update needs a greater versionCode and corresponding versionName, tag and release notes.
 
