@@ -46,3 +46,10 @@ Local release-key generation/signing is prepared but has not been executed on th
 ## 0.7.6 climate preset verification
 
 GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40711797691 passed debug/release assembly and lint, Windows PowerShell parsing, and 66 checks including all four rear-defrost/steering-heat enum combinations. The updater's narrow payload substitution was checked against the original local adapter and round-tripped without changing other source content. All options default off. No vehicle commands were issued; heater behavior, actual device UI and signed-release installation remain to be verified on the owner's phone/car.
+
+
+## 0.7.7 verification
+
+GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40728765351 passed debug/release assembly and lint, 116 Java checks and four Windows updater-migration checks, plus PowerShell parsing. AC/DC validation covers all 36 supported pairs, swapped-channel protection and invalid values. Migration checks cover the original adapter, the 0.7.6 adapter, repeat updates and rejecting unknown formats without writes. No personal credentials or live vehicle were used. Source commit: 5f565f1401c7cd9a27d78bcb69e55dd9507acd85.
+
+Winter/Summer/Custom selection and editing stay in dialogs; existing values migrate to Custom without changing the active climate settings. Charge limits use the US targetsoc/set endpoint and parse last-reported targets from evStatus.reservChargeInfos.targetSOClist. The reported timestamp remains visible inside the editor; missing targets require explicit selection. Live charge-limit support, on-phone dialog appearance and preset/widget operation still need owner testing. The owner previously confirmed the 0.7.6 signed APK installs and connects successfully; preserve that same release key for this update.
