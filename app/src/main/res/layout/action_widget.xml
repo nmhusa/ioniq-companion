@@ -1,0 +1,5 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/action_root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="@drawable/card">
+<ImageView android:id="@+id/action_icon" android:layout_width="52dp" android:layout_height="56dp" android:contentDescription="@null"/>
+<TextView android:id="@+id/action_label" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:paddingTop="4dp"/>
+<TextView android:id="@+id/action_result" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:textColor="#B8CAD6" android:textSize="10sp" android:maxLines="2"/>
+</LinearLayout>
