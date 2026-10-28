@@ -27,3 +27,10 @@ Owner confirmed 0.7.1 odometer working after installing the correct APK. GitHub 
 ## 0.7.3 verification
 
 GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40684163161 passed assembleDebug, lintDebug, 33 parking-rule checks, 14 mileage checks and 15 model-identification checks (62 total) for commit 0f949ae628b12c4be10313e373208cfc67805714. The IONIQ 5 PNG is 1448×1086 RGBA, matching the IONIQ 6 asset’s dimensions. Model tests cover spaced/compact/hyphenated names, 5 N, fallback modelName and unknown models. Real IONIQ 5 API connectivity and on-device vehicle switching have not been tested here. Application ID and credential key alias remain unchanged.
+
+
+## 0.7.4 verification
+
+GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/40690710968 passed assembleDebug, lintDebug and the existing 62 parking, mileage and model checks for commit ac40fbd451dc0784e016f5c947b34729eb8de725. Dashboard explanations, widgets and protected account controls are grouped under expandable Settings & help. Report timestamps and full command results are available by tapping their labels; routine successful results are shortened while errors and unconfirmed outcomes retain their full text. Relative report ages are shown only for timestamps with an explicit offset; ambiguous timestamps remain available in details without guessing a timezone. Parking readiness and failure text remain visible, with routine monitoring text shortened.
+
+On-phone layout and interaction have not been exercised here. After installing, check Settings expand/collapse, report/result dialogs, both refresh options, walk-away readiness/cancellation, and account confirmation cancellation. Existing API credentials, application ID and signing configuration are preserved by the Windows updater. No vehicle commands were sent during validation.
