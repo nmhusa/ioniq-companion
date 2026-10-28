@@ -1,0 +1,24 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ <uses-permission android:name="android.permission.INTERNET"/>
+ <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+ <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+ <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+ <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+ <application android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:label="IONIQ 6 Companion" android:theme="@android:style/Theme.Material.NoActionBar" android:allowBackup="false" android:usesCleartextTraffic="false" android:supportsRtl="true">
+  <activity android:name=".MainActivity" android:exported="true">
+   <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+  </activity>
+  <receiver android:name=".CarWidget" android:exported="false">
+   <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter>
+   <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info"/>
+  </receiver>
+  <service android:name=".RefreshJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true"/>
+ <service android:name=".CommandService" android:exported="false" android:foregroundServiceType="dataSync"/>
+<receiver android:name=".LockWidget" android:label="IONIQ 6 · Lock doors" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/lock_widget"/></receiver>
+<receiver android:name=".UnlockWidget" android:label="IONIQ 6 · Unlock doors" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/unlock_widget"/></receiver>
+<receiver android:name=".ClimateWidget" android:label="IONIQ 6 · Climate on" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/climate_widget"/></receiver>
+<receiver android:name=".ClimateStopWidget" android:label="IONIQ 6 · Climate off" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/climate_stop_widget"/></receiver>
+<receiver android:name=".ChargeStartWidget" android:label="IONIQ 6 · Start charging" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/charge_start_widget"/></receiver>
+<receiver android:name=".ChargeStopWidget" android:label="IONIQ 6 · Stop charging" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/charge_stop_widget"/></receiver>
+ </application>
+</manifest>
