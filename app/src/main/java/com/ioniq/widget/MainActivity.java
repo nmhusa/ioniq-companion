@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.12",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.7.13",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -126,14 +126,21 @@ public class MainActivity extends Activity {
   runOnUiThread(()->{if(!isFinishing()&&!isDestroyed()&&selected.equals(CarLocations.vin(this)))openCarMap();});return "Location retrieved. Timestamp and refresh are under ⋯.";
  });}
  private void locationOptions(){
-  java.util.ArrayList<String> sources=new java.util.ArrayList<>(),labels=new java.util.ArrayList<>();
+  java.util.ArrayList<String> sources=new java.util.ArrayList<>();
+  java.util.ArrayList<CharSequence> labels=new java.util.ArrayList<>();
   for(String source:new String[]{CarLocations.VEHICLE,CarLocations.PARKING}){JSONObject data=CarLocations.read(this,source);if(data!=null){sources.add(source);labels.add(CarLocations.description(data,source));}}
   AlertDialog.Builder dialog=new AlertDialog.Builder(this).setTitle("Find my car");
-  labels.add(0,"Horn & lights");labels.add(0,"Flash lights");
-  dialog.setItems(labels.toArray(new String[0]),(d,n)->{if(n<2)confirmSignal(n==0?"lights":"horn_lights");else locationDetails(sources.get(n-2));});
+  labels.add(0,signalLabel("Horn & lights",0xffff8585));labels.add(0,signalLabel("Flash lights",0xffffcf72));
+  dialog.setItems(labels.toArray(new CharSequence[0]),(d,n)->{if(n<2)confirmSignal(n==0?"lights":"horn_lights");else locationDetails(sources.get(n-2));});
   dialog.setPositiveButton("Update & open map",(d,w)->fetchCarMap()).setNegativeButton("Close",null);
   if(!sources.isEmpty())dialog.setNeutralButton("Clear saved",(d,w)->new AlertDialog.Builder(this).setTitle("Clear saved locations?").setMessage("Remove the saved car and parking coordinates from this phone? Active walk-away monitoring will continue.").setNegativeButton("Cancel",null).setPositiveButton("Clear",(x,y)->{CarLocations.clear(this);locationOptions();}).show());
   dialog.show();
+ }
+ private CharSequence signalLabel(String label,int color){
+  android.text.SpannableString styled=new android.text.SpannableString(label);
+  styled.setSpan(new android.text.style.ForegroundColorSpan(color),0,label.length(),android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+  styled.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),0,label.length(),android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+  return styled;
  }
  private void confirmSignal(String action){
   if(busy||CommandService.running){showResult("Another request is in progress. Wait for its result first.");return;}

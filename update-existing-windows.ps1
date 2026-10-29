@@ -55,7 +55,7 @@ try {
  Invoke-WebRequest "https://github.com/nmhusa/ioniq-companion/archive/$revision.zip" -OutFile $archive
  Expand-Archive $archive -DestinationPath $work
  $source = Join-Path $work "ioniq-companion-$revision"
- $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.12.md', 'PARKING.md')
+ $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.13.md', 'PARKING.md')
  $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\res') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
  # Validate the complete download and take backups before replacing any project file.
@@ -75,12 +75,12 @@ try {
   Copy-Item (Join-Path $source $relative) $target -Force
  }
  [IO.File]::WriteAllText($apiPath, $patchedApi, [Text.UTF8Encoding]::new($false))
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 19'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.12'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 20'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.13'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
- Write-Host "Updated app source to 0.7.12. Backup: $backup"
+ Write-Host "Updated app source to 0.7.13. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1'
 } finally { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }
