@@ -68,9 +68,13 @@ public class MainActivity extends Activity {
   buttons.clear();ScrollView scroll=new ScrollView(this);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(20),dp(16),dp(20),dp(24));page.setBackgroundColor(Color.rgb(11,22,31));scroll.addView(page);setContentView(scroll);
   vehicleTitle=text("IONIQ Companion",30,Color.WHITE);vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
   carHeader();
-  status=text("No vehicle data yet",12,0xffAFC5D4);status.setMinHeight(dp(48));status.setGravity(Gravity.CENTER_VERTICAL);status.setOnClickListener(v->reportDialog());message=text("",13,0xffAFC5D4);message.setMaxLines(1);message.setEllipsize(android.text.TextUtils.TruncateAt.END);message.setMinHeight(dp(48));message.setGravity(Gravity.CENTER_VERTICAL);message.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Latest result").setMessage(resultDetails).setPositiveButton("Done",null).setNeutralButton("Dismiss",(d,w)->{showResult("");SecurePrefs.get(this,"actions").edit().remove("last_result").apply();}).show());showResult("");showStatus();
-  text("DOORS",12,0xff53D8B0);controlRow(0,1);
-  text("CLIMATE",12,Color.rgb(141,227,207));controlRow(2,3);
+  LinearLayout summaryParent=page;LinearLayout summary=new LinearLayout(this);summary.setOrientation(LinearLayout.VERTICAL);summary.setGravity(Gravity.CENTER_VERTICAL);summary.setMinimumHeight(dp(48));summary.setPadding(0,dp(2),0,dp(2));summaryParent.addView(summary);page=summary;
+  status=text("No vehicle data yet",12,0xffAFC5D4);status.setPadding(0,dp(2),0,dp(2));
+  message=text("",13,0xffAFC5D4);message.setPadding(0,dp(2),0,dp(2));message.setMaxLines(1);message.setEllipsize(android.text.TextUtils.TruncateAt.END);
+  summary.setFocusable(true);summary.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Vehicle & command details").setMessage(reportDetails+"\\n\\nThis is Hyundai’s vehicle report time, not the time you tapped Refresh."+(resultDetails.isEmpty()?"":"\\n\\nLatest result:\\n"+resultDetails)).setPositiveButton("Done",null).setNeutralButton("Dismiss result",(d,w)->{showResult("");SecurePrefs.get(this,"actions").edit().remove("last_result").apply();}).show());
+  page=summaryParent;showResult("");showStatus();
+  text("DOORS",12,0xff53D8B0).setPadding(0,dp(2),0,dp(2));controlRow(0,1);
+  text("CLIMATE",12,Color.rgb(141,227,207)).setPadding(0,dp(4),0,dp(2));controlRow(2,3);
   Button presets=button("Climate presets · "+NamedClimate.active(this)+" · "+temperature+" °F",()->{});
   presets.setOnClickListener(v->{if(!busy)chooseClimate(presets);});
   locationControls();
@@ -102,7 +106,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.8.4",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.8.5",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
