@@ -71,6 +71,7 @@ final class HyundaiApi {
    case "climate_stop":path="ac/v2/evc/fatc/stop";break;
    case "climate":path="ac/v2/evc/fatc/start";body=ClimatePreset.body(context,temp);break;
    case "limits":path="ac/v2/evc/charge/targetsoc/set";body=ChargeLimits.body(temp);break;
+   case "lights":case "horn_lights":path=VehicleSignal.path(action);body=new JSONObject().put("userName",auth.getString("email")).put("vin",auth.getString("vin"));break;
    default:throw new Exception("Unsupported command");
   }
   if(action.equals("lock")||action.equals("unlock")||action.startsWith("charge_"))body=new JSONObject().put("userName",auth.getString("email")).put("vin",auth.getString("vin"));
@@ -78,7 +79,7 @@ final class HyundaiApi {
   if(reply.tid==null||reply.tid.isEmpty())return "Request sent; completion is unconfirmed. Check the official app before retrying.";
   for(int i=0;i<12;i++){
    Thread.sleep(2500);
-   JSONObject j=request("ac/v2/rmt/getRunningStatus","GET",null,true,true,headers("tid",reply.tid,"login_id",auth.getString("email"),"service_type","REMOTE_POLL")).json;
+   JSONObject j=request("ac/v2/rmt/getRunningStatus","GET",null,true,true,headers("tid",reply.tid,"login_id",auth.getString("email"),"service_type",VehicleSignal.serviceType(action))).json;
    if("SUCCESS".equals(j.optString("status"))) {try{status(false);}catch(Exception ignored){} return "Hyundai reports command completed. Vehicle status may take time to update.";}
   }
   return "Request sent; confirmation timed out. Check the official app before retrying.";

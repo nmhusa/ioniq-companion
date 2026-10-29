@@ -47,6 +47,11 @@ jobs:
         run: |
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/CacheCipher.java app/src/main/java/com/ioniq/widget/OneShotPermit.java app/src/main/java/com/ioniq/widget/ErrorText.java tests/SecurityTest.java
           java -cp /tmp/parking-tests com.ioniq.widget.SecurityTest
+      - name: Test distinct light/horn endpoints and polling compatibility
+        run: |
+          mkdir -p /tmp/signal-tests
+          javac -d /tmp/signal-tests app/src/main/java/com/ioniq/widget/VehicleSignal.java tests/VehicleSignalTest.java
+          java -cp /tmp/signal-tests com.ioniq.widget.VehicleSignalTest
       - uses: android-actions/setup-android@v3
         with:
           packages: ''

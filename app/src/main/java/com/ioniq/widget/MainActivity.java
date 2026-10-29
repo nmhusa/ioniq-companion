@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.11",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.7.12",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
  private void locationControls(){
   LinearLayout parent=page,row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);parent.addView(row);page=row;
   Button find=button("⌖  Find my car",()->findCar());LinearLayout.LayoutParams wide=new LinearLayout.LayoutParams(0,dp(52),1);wide.setMargins(0,dp(5),dp(6),dp(5));find.setLayoutParams(wide);
-  Button details=button("⋯",()->locationOptions());details.setContentDescription("Location details, refresh and saved parking");LinearLayout.LayoutParams small=new LinearLayout.LayoutParams(dp(52),dp(52));small.setMargins(0,dp(5),0,dp(5));details.setLayoutParams(small);page=parent;
+  Button details=button("⋯",()->locationOptions());details.setContentDescription("Find my car options: lights, horn, location details and saved parking");LinearLayout.LayoutParams small=new LinearLayout.LayoutParams(dp(52),dp(52));small.setMargins(0,dp(5),0,dp(5));details.setLayoutParams(small);page=parent;
  }
  private void findCar(){if(CarLocations.read(this,CarLocations.VEHICLE)!=null)openCarMap();else fetchCarMap();}
  private void openCarMap(){
@@ -129,11 +129,17 @@ public class MainActivity extends Activity {
   java.util.ArrayList<String> sources=new java.util.ArrayList<>(),labels=new java.util.ArrayList<>();
   for(String source:new String[]{CarLocations.VEHICLE,CarLocations.PARKING}){JSONObject data=CarLocations.read(this,source);if(data!=null){sources.add(source);labels.add(CarLocations.description(data,source));}}
   AlertDialog.Builder dialog=new AlertDialog.Builder(this).setTitle("Find my car");
-  if(sources.isEmpty())dialog.setMessage("No saved location for this vehicle. Request one from Hyundai, or mark parking with Walk-away lock beside your car.");
-  else dialog.setItems(labels.toArray(new String[0]),(d,n)->locationDetails(sources.get(n)));
+  labels.add(0,"Horn & lights");labels.add(0,"Flash lights");
+  dialog.setItems(labels.toArray(new String[0]),(d,n)->{if(n<2)confirmSignal(n==0?"lights":"horn_lights");else locationDetails(sources.get(n-2));});
   dialog.setPositiveButton("Update & open map",(d,w)->fetchCarMap()).setNegativeButton("Close",null);
   if(!sources.isEmpty())dialog.setNeutralButton("Clear saved",(d,w)->new AlertDialog.Builder(this).setTitle("Clear saved locations?").setMessage("Remove the saved car and parking coordinates from this phone? Active walk-away monitoring will continue.").setNegativeButton("Cancel",null).setPositiveButton("Clear",(x,y)->{CarLocations.clear(this);locationOptions();}).show());
   dialog.show();
+ }
+ private void confirmSignal(String action){
+  if(busy||CommandService.running){showResult("Another request is in progress. Wait for its result first.");return;}
+  String title=VehicleSignal.title(action);
+  new AlertDialog.Builder(this).setTitle(title+"?").setMessage(("horn_lights".equals(action)?"This will sound the horn and flash the lights on your selected car. Please consider people nearby.":"This will flash the lights on your selected car.")+"\n\nHyundai controls the duration. The request is sent once; there is no automatic retry.")
+   .setNegativeButton("Cancel",null).setPositiveButton("Send",(d,w)->{if(busy||CommandService.running){showResult("Another request is in progress. Nothing else was sent.");return;}run(()->{String result=title+": "+new HyundaiApi(this).command(action,temperature);SecurePrefs.get(this,"actions").edit().putString("last_result",result).apply();return result;});}).show();
  }
  private void locationDetails(String source){
   JSONObject data=CarLocations.read(this,source);if(data==null){locationOptions();return;}

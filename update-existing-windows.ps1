@@ -35,6 +35,18 @@ if (-not $patchedApi.Contains($locationMethod)) {
 }
 # Route the two legacy status-cache accesses through encrypted storage; preserve API credentials.
 $patchedApi = $patchedApi.Replace('context.getSharedPreferences("status",0)', 'SecurePrefs.get(context,"status")')
+# Add explicit US light and horn/light commands, keeping the local API credential intact.
+$signalCase = '   case "lights":case "horn_lights":path=VehicleSignal.path(action);body=new JSONObject().put("userName",auth.getString("email")).put("vin",auth.getString("vin"));break;'
+if (-not $patchedApi.Contains($signalCase)) {
+ if ($patchedApi.Contains('case "lights"') -or $patchedApi.Contains('case "horn_lights"') -or [regex]::Matches($patchedApi, [regex]::Escape($defaultCase)).Count -ne 1) { throw 'Unrecognized signal-command switch; no files changed.' }
+ $patchedApi = $patchedApi.Replace($defaultCase, $signalCase + "`n" + $defaultCase)
+}
+$oldPoll = '"service_type","REMOTE_POLL"'
+$newPoll = '"service_type",VehicleSignal.serviceType(action)'
+if (-not $patchedApi.Contains($newPoll)) {
+ if ([regex]::Matches($patchedApi, [regex]::Escape($oldPoll)).Count -ne 1) { throw 'Unrecognized command confirmation headers; no files changed.' }
+ $patchedApi = $patchedApi.Replace($oldPoll,$newPoll)
+}
 $work = Join-Path ([IO.Path]::GetTempPath()) ('ioniq-update-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $work | Out-Null
 $backup = Join-Path $project ('.update-backups\' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
@@ -43,7 +55,7 @@ try {
  Invoke-WebRequest "https://github.com/nmhusa/ioniq-companion/archive/$revision.zip" -OutFile $archive
  Expand-Archive $archive -DestinationPath $work
  $source = Join-Path $work "ioniq-companion-$revision"
- $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.11.md', 'PARKING.md')
+ $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.12.md', 'PARKING.md')
  $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\res') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
  # Validate the complete download and take backups before replacing any project file.
@@ -63,12 +75,12 @@ try {
   Copy-Item (Join-Path $source $relative) $target -Force
  }
  [IO.File]::WriteAllText($apiPath, $patchedApi, [Text.UTF8Encoding]::new($false))
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 18'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.11'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 19'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.12'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
- Write-Host "Updated app source to 0.7.11. Backup: $backup"
+ Write-Host "Updated app source to 0.7.12. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1'
 } finally { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }
