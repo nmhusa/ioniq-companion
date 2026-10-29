@@ -85,7 +85,8 @@ public class MainActivity extends Activity {
   LinearLayout controls=page;
   LinearLayout charging=new LinearLayout(this);charging.setOrientation(LinearLayout.VERTICAL);charging.setVisibility(View.GONE);
   Button chargingToggle=button("Charging ▾",()->{});
-  chargingToggle.setOnClickListener(v->{boolean open=charging.getVisibility()!=View.VISIBLE;charging.setVisibility(open?View.VISIBLE:View.GONE);chargingToggle.setText(open?"Charging ▴":"Charging ▾");});
+  chargingToggle.setBackground(getDrawable(R.drawable.charging_bar));chargingToggle.setTextColor(0xffEEFFF3);chargingToggle.setTypeface(null,android.graphics.Typeface.BOLD);chargingToggle.setPadding(dp(12),0,dp(12),dp(5));
+  chargingToggle.setOnClickListener(v->{boolean open=charging.getVisibility()!=View.VISIBLE;charging.setVisibility(open?View.VISIBLE:View.GONE);chargingToggle.setSelected(open);chargingToggle.setText(open?"Charging ▴":"Charging ▾");});
   controls.addView(charging);page=charging;controlRow(4,5);button("Charge limits",()->chargeLimits());page=controls;
   LinearLayout dashboard=page;
   LinearLayout settings=new LinearLayout(this);settings.setOrientation(LinearLayout.VERTICAL);settings.setVisibility(View.GONE);
@@ -106,7 +107,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.8.6",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.8.7",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
