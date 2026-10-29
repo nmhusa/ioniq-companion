@@ -204,6 +204,6 @@ public class MainActivity extends Activity {
  private void chooseVehicle(JSONArray list){
   if(isFinishing()||isDestroyed())return;
   String[] names=new String[list.length()];try{for(int i=0;i<names.length;i++){JSONObject v=list.getJSONObject(i).getJSONObject("vehicleDetails");String vin=v.getString("vin");names[i]=v.optString("modelYear")+" "+v.optString("modelCode")+" • …"+vin.substring(Math.max(0,vin.length()-6));}}catch(Exception e){showResult("Unexpected vehicle list format.");return;}
-  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->run(()->{BluetoothLockService.stop(this);HyundaiApi api=new HyundaiApi(this);CarLocations.clear(this);WatchRelay.disable(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";})).show();
+  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->{BluetoothLockService.stop(this);run(()->{HyundaiApi api=new HyundaiApi(this);CarLocations.clear(this);WatchRelay.disable(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";});}).show();
  }
 }
