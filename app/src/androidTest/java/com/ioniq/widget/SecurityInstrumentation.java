@@ -28,6 +28,29 @@ public final class SecurityInstrumentation extends Instrumentation {
   SharedPreferences settings=SecurePrefs.get(c,"security"),actions=SecurePrefs.get(c,"actions");settings.edit().putBoolean("protect_unlock",true).commit();
   Map<String,?> before=actions.getAll();c.startForegroundService(new Intent(c,CommandService.class).setAction("unlock"));android.os.SystemClock.sleep(1000);
   check(!CommandService.running);check(before.equals(actions.getAll()));settings.edit().clear().commit();
+  watchChecks(c);
   result.putString("security_result","PASS: "+checks+" Android storage and component checks");finish(-1,result);
  }catch(Throwable e){result.putString("security_result","FAIL: "+e.getClass().getSimpleName()+" after "+checks+" checks");finish(0,result);}}
+ private org.json.JSONObject request(String session,String action,long now)throws Exception{return new org.json.JSONObject().put("id",java.util.UUID.randomUUID().toString()).put("session",session).put("action",action).put("sent",now);}
+ private void watchChecks(Context c)throws Exception{
+  org.json.JSONObject saved=Vault.read(c);boolean protectedUnlock=UnlockGuard.enabled(c);
+  try{WatchRelay.disable(c);Vault.save(c,new org.json.JSONObject().put("email","test@example.invalid").put("vin","TESTVIN-NOT-A-CAR"));
+   long now=System.currentTimeMillis();check(WatchRelay.claim(c,"test-node",request("","lock",now),now)!=null);
+   check(WatchRelay.enable(c));String session=WatchRelay.session(c);check(com.ioniq.common.WatchProtocol.validId(session));
+   String snapshot=WatchRelay.snapshot(c,java.util.UUID.randomUUID().toString()).toString();check(!snapshot.contains("test@example.invalid")&&!snapshot.contains("TESTVIN-NOT-A-CAR"));
+   check(WatchRelay.claim(c,"test-node",request(session,"erase",now),now)!=null);check(WatchRelay.claim(c,"test-node",request(session,"lock",now-60001),now)!=null);
+   org.json.JSONObject first=request(session,"lock",now);String id=first.getString("id");check(WatchRelay.claim(c,"test-node",first,now)==null);
+   check(WatchRelay.claim(c,"test-node",first,now).getString("state").equals("queued"));check(WatchRelay.claim(c,"test-node",request(session,"unlock",now),now)!=null);
+   check(WatchRelay.result(c,"other-node",id,session).getString("state").equals("unknown"));
+   Intent command=new Intent(c,CommandService.class).setAction("lock").putExtra("watch_id",id).putExtra("watch_session",session).putExtra("watch_node","test-node");
+   check(WatchRelay.mayRun(c,command));check(!WatchRelay.mayRun(c,new Intent(command).setAction("unlock")));check(!WatchRelay.mayRun(c,new Intent(command).putExtra("watch_node","other-node")));
+   WatchRelay.update(c,command,"confirmed","Synthetic test; no vehicle request");check(!WatchRelay.mayRun(c,command));check(WatchRelay.claim(c,"test-node",first,now).getString("state").equals("confirmed"));
+   SecurePrefs.get(c,"security").edit().putBoolean("protect_unlock",true).commit();check(WatchRelay.claim(c,"test-node",request(session,"unlock",now),now).getString("state").equals("blocked"));
+   SecurePrefs.get(c,"security").edit().putBoolean("protect_unlock",false).commit();org.json.JSONObject interrupted=request(session,"lock",now);check(WatchRelay.claim(c,"test-node",interrupted,now)==null);
+   java.lang.reflect.Field active=WatchRelay.class.getDeclaredField("activeId");active.setAccessible(true);active.set(null,"");check(WatchRelay.claim(c,"test-node",interrupted,now).getString("state").equals("unknown"));
+   WatchRelay.disable(c);check(WatchRelay.session(c).isEmpty());check(WatchRelay.enable(c));check(!session.equals(WatchRelay.session(c)));check(WatchRelay.claim(c,"test-node",first,now).getString("state").equals("blocked"));
+   Vault.save(c,new org.json.JSONObject().put("email","test@example.invalid").put("vin","DIFFERENT-VEHICLE"));check(WatchRelay.session(c).isEmpty());
+  }finally{WatchRelay.disable(c);Vault.save(c,saved);SecurePrefs.get(c,"security").edit().putBoolean("protect_unlock",protectedUnlock).commit();}
+ }
+
 }

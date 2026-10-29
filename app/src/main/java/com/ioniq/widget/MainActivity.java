@@ -88,16 +88,17 @@ public class MainActivity extends Activity {
   text("Arm beside your parked car and wait for Parking saved before walking away. Tap Stop to cancel. Short distances require a precise GPS fix; locking may happen later than the selected distance.",13,0xffAFC5D4);
   button("＋  Add a home-screen widget",()->pinWidgets());
 
+  button("Watch controls",()->watchSettings());
   button("Unlock security",()->new AlertDialog.Builder(this).setTitle("Protect car unlocking").setMessage("Currently "+(UnlockGuard.enabled(this)?"ON":"OFF")+". Require a fingerprint or phone screen-lock PIN before unlocking from the app or widget. Locking and climate stay one tap.").setPositiveButton(UnlockGuard.enabled(this)?"Disable protection":"Enable protection",(d,w)->startActivity(new Intent(this,UnlockActivity.class).putExtra("mode",UnlockGuard.enabled(this)?"disable":"enable"))).setNegativeButton("Cancel",null).show());
   cautionStrip();
   text("⚠  ACCOUNT SETTINGS — PROCEED WITH CARE",14,0xffffd54f);
   Button account=button("⚠  Connect / change Bluelink account",()->new AlertDialog.Builder(this).setTitle("Change your Bluelink connection?").setMessage("Continuing opens sign-in. Submitting a new login replaces this phone’s saved account and vehicle selection and stops parking monitoring. You will need your Bluelink email, password and remote-service PIN. Cancelling leaves your current connection unchanged.").setNegativeButton("Keep current account",null).setPositiveButton("Continue to sign-in",(d,w)->loginForm()).show());
   account.setTextColor(0xffffd54f);
-  Button erase=button("⚠  Disconnect and erase local data",()->new AlertDialog.Builder(this).setTitle("Erase this phone’s saved connection?").setMessage("This removes your saved Bluelink login, PIN, selected vehicle, status and command history. Parking monitoring will stop and its settings will be erased. You must sign in again to control the car. This does not delete your Hyundai account. This action cannot be undone.").setNegativeButton("Cancel — keep my data",null).setPositiveButton("Erase and disconnect",(d,w)->{ParkingService.stop(this);run(()->{Vault.clear(this);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"parking").edit().clear().commit();return "Disconnected. Saved login, status and parking settings removed.";});}).show());
+  Button erase=button("⚠  Disconnect and erase local data",()->new AlertDialog.Builder(this).setTitle("Erase this phone’s saved connection?").setMessage("This removes your saved Bluelink login, PIN, selected vehicle, status and command history. Parking monitoring will stop and its settings will be erased. You must sign in again to control the car. This does not delete your Hyundai account. This action cannot be undone.").setNegativeButton("Cancel — keep my data",null).setPositiveButton("Erase and disconnect",(d,w)->{ParkingService.stop(this);run(()->{WatchRelay.disable(this);Vault.clear(this);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"parking").edit().clear().commit();return "Disconnected. Saved login, status and parking settings removed.";});}).show());
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.7.13",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.8.0",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -109,6 +110,11 @@ public class MainActivity extends Activity {
   if(carImage!=null&&shownModel!=model){carImage.setImageResource(model==5?R.drawable.car_profile_5:model==6?R.drawable.car_profile:R.drawable.ic_launcher_car);shownModel=model;}
  }
  private void showStatus(){updateVehicleIdentity();try{JSONObject s=new JSONObject(SecurePrefs.get(this,"status").getString("json","{}"));VehicleMileage.attach(this,s);reportDetails=StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable");status.setText(reportLabel(s.optString("dateTime","")));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}}
+ private void watchSettings(){
+  boolean on=WatchRelay.enabled(this);new AlertDialog.Builder(this).setTitle("Galaxy Watch controls · "+(on?"ON":"OFF"))
+   .setMessage("Allow the matching, signed watch app to send one-tap commands through this phone. Bluelink credentials stay here. Unlock protection, if enabled, requires unlocking from the phone. Turning this off does not cancel a command already sent.")
+   .setNegativeButton("Cancel",null).setPositiveButton(on?"Disable":"Enable",(d,w)->{if(on){WatchRelay.disable(this);showResult("Watch controls disabled.");}else showResult(WatchRelay.enable(this)?"Watch controls enabled. Open IONIQ Companion on your watch.":"Connect and select your vehicle first.");}).show();
+ }
  private void locationControls(){
   LinearLayout parent=page,row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);parent.addView(row);page=row;
   Button find=button("⌖  Find my car",()->findCar());LinearLayout.LayoutParams wide=new LinearLayout.LayoutParams(0,dp(52),1);wide.setMargins(0,dp(5),dp(6),dp(5));find.setLayoutParams(wide);
@@ -192,7 +198,7 @@ public class MainActivity extends Activity {
   EditText pin=field(box,"Remote-service PIN",InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_VARIATION_PASSWORD);
   AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Hyundai US sign-in").setView(box).setPositiveButton("Connect",null).setNegativeButton("Cancel",null).create();
   dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{String e=email.getText().toString().trim(),p=pass.getText().toString(),n=pin.getText().toString();if(e.isEmpty()||p.isEmpty()||n.isEmpty()){email.setError("Fill in all three fields");return;}dialog.dismiss();ParkingService.stop(this);run(()->{
-   JSONObject data=new JSONObject().put("email",e).put("password",p).put("pin",n);Vault.save(this,data);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"status").edit().clear().commit();
+   JSONObject data=new JSONObject().put("email",e).put("password",p).put("pin",n);WatchRelay.disable(this);Vault.save(this,data);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"status").edit().clear().commit();
    HyundaiApi api=new HyundaiApi(this);JSONArray list=api.vehicles();if(list.length()==0)return "No enrolled vehicles found.";
    runOnUiThread(()->chooseVehicle(list));return "Signed in. Select your vehicle.";
   });}));dialog.show();
@@ -200,6 +206,6 @@ public class MainActivity extends Activity {
  private void chooseVehicle(JSONArray list){
   if(isFinishing()||isDestroyed())return;
   String[] names=new String[list.length()];try{for(int i=0;i<names.length;i++){JSONObject v=list.getJSONObject(i).getJSONObject("vehicleDetails");String vin=v.getString("vin");names[i]=v.optString("modelYear")+" "+v.optString("modelCode")+" • …"+vin.substring(Math.max(0,vin.length()-6));}}catch(Exception e){showResult("Unexpected vehicle list format.");return;}
-  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->run(()->{ParkingService.stop(this);HyundaiApi api=new HyundaiApi(this);CarLocations.clear(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";})).show();
+  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->run(()->{ParkingService.stop(this);HyundaiApi api=new HyundaiApi(this);CarLocations.clear(this);WatchRelay.disable(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";})).show();
  }
 }

@@ -31,5 +31,8 @@
 <receiver android:name=".ClimateStopWidget" android:label="IONIQ · Climate off" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/climate_stop_widget"/></receiver>
 <receiver android:name=".ChargeStartWidget" android:label="IONIQ · Start charging" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/charge_start_widget"/></receiver>
 <receiver android:name=".ChargeStopWidget" android:label="IONIQ · Stop charging" android:exported="false"><intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE"/></intent-filter><meta-data android:name="android.appwidget.provider" android:resource="@xml/charge_stop_widget"/></receiver>
+ <service android:name=".WatchListenerService" android:exported="true">
+  <intent-filter><action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED"/><data android:scheme="wear" android:host="*" android:pathPrefix="/ioniq/watch/"/></intent-filter>
+ </service>
  </application>
 </manifest>

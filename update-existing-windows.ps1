@@ -11,6 +11,14 @@ $gradlePath = Join-Path $project 'app\build.gradle'
 if (-not (Test-Path $gradlePath)) { throw 'Expected app\build.gradle in this project.' }
 $gradle = [IO.File]::ReadAllText($gradlePath)
 if ($gradle -notmatch 'versionCode\s+\d+' -or $gradle -notmatch 'versionName\s+[''"][^''"]+[''"]') { throw 'Unrecognized build.gradle format; no files were changed.' }
+# Prepare watch Gradle integration without replacing local API/signing settings.
+$settingsPath = Join-Path $project 'settings.gradle'
+if (-not (Test-Path $settingsPath)) { throw 'Expected settings.gradle; no files changed.' }
+$settings = [IO.File]::ReadAllText($settingsPath)
+foreach ($module in @('shared','wear')) { if (-not $settings.Contains(":" + $module)) { $settings += "`ninclude ':$module'`n" } }
+if (-not $gradle.Contains("implementation project(':shared')")) { $gradle += "`ndependencies { implementation project(':shared') }`n" }
+if (-not $gradle.Contains('com.google.android.gms:play-services-wearable:')) { $gradle += "`ndependencies { implementation 'com.google.android.gms:play-services-wearable:20.0.1' }`n" }
+# End watch Gradle preparation.
 # Validate a narrow local climate-payload migration before changing any files.
 $apiPath = Join-Path $project "$javaRelative\HyundaiApi.java"
 $apiCode = [IO.File]::ReadAllText($apiPath)
@@ -55,13 +63,14 @@ try {
  Invoke-WebRequest "https://github.com/nmhusa/ioniq-companion/archive/$revision.zip" -OutFile $archive
  Expand-Archive $archive -DestinationPath $work
  $source = Join-Path $work "ioniq-companion-$revision"
- $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.13.md', 'PARKING.md')
+ $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'build-watch-windows.ps1', 'WATCH.md', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.8.0.md', 'PARKING.md')
  $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\res') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
+ foreach ($module in @('shared','wear')) { $files += Get-ChildItem (Join-Path $source $module) -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) } }
  # Validate the complete download and take backups before replacing any project file.
  foreach ($relative in $files) { if (-not (Test-Path (Join-Path $source $relative))) { throw "Download is incomplete: $relative" } }
  New-Item -ItemType Directory -Force $backup | Out-Null
- foreach ($relative in ($files + @('app\build.gradle', "$javaRelative\HyundaiApi.java"))) {
+ foreach ($relative in ($files + @('app\build.gradle', 'settings.gradle', "$javaRelative\HyundaiApi.java"))) {
   $target = Join-Path $project $relative
   if (Test-Path $target) {
    $saved = Join-Path $backup $relative
@@ -75,12 +84,14 @@ try {
   Copy-Item (Join-Path $source $relative) $target -Force
  }
  [IO.File]::WriteAllText($apiPath, $patchedApi, [Text.UTF8Encoding]::new($false))
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 20'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.13'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 21'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.8.0'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
+ [IO.File]::WriteAllText($settingsPath, $settings, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
- Write-Host "Updated app source to 0.7.13. Backup: $backup"
+ Write-Host "Updated app source to 0.8.0. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
+ Write-Host 'For the watch APK, also run: powershell -ExecutionPolicy Bypass -File .\build-watch-windows.ps1'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1'
 } finally { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }

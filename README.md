@@ -79,3 +79,8 @@ One compact control opens on-demand Hyundai location retrieval, map links and wa
 ## Compact widget feedback (0.7.10)
 
 Compact widgets now retain a status badge, with amber pending, green last-confirmed and amber attention feedback. Tap the icon to send, or the badge to inspect the full result/timestamp. Other widgets indicate Busy while a widget command is active. A local-only job refreshes interrupted feedback without a network request or command retry. Status is per command, not live vehicle state.
+
+
+## Galaxy Watch companion (0.8.0 preview)
+
+A Wear OS companion provides swipe-up/down pages and large one-tap controls through your paired phone. Enable Watch controls on the phone first. Phone unlock protection is respected. Both apps must be signed with the same existing key. See [WATCH.md](WATCH.md) for building and installing the separate watch APK.
