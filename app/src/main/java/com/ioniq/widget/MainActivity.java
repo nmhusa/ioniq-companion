@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
   LinearLayout summaryParent=page;LinearLayout summary=new LinearLayout(this);summary.setOrientation(LinearLayout.VERTICAL);summary.setGravity(Gravity.CENTER_VERTICAL);summary.setMinimumHeight(dp(48));summary.setPadding(0,dp(2),0,dp(2));summaryParent.addView(summary);page=summary;
   status=text("No vehicle data yet",12,0xffAFC5D4);status.setPadding(0,dp(2),0,dp(2));
   message=text("",13,0xffAFC5D4);message.setPadding(0,dp(2),0,dp(2));message.setMaxLines(1);message.setEllipsize(android.text.TextUtils.TruncateAt.END);
-  summary.setFocusable(true);summary.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Vehicle & command details").setMessage(reportDetails+"\\n\\nThis is Hyundai’s vehicle report time, not the time you tapped Refresh."+(resultDetails.isEmpty()?"":"\\n\\nLatest result:\\n"+resultDetails)).setPositiveButton("Done",null).setNeutralButton("Dismiss result",(d,w)->{showResult("");SecurePrefs.get(this,"actions").edit().remove("last_result").apply();}).show());
+  summary.setFocusable(true);summary.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Vehicle & command details").setMessage(reportDetails+"\n\nThis is Hyundai’s vehicle report time, not the time you tapped Refresh."+(resultDetails.isEmpty()?"":"\n\nLatest result:\n"+resultDetails)).setPositiveButton("Done",null).setNeutralButton("Dismiss result",(d,w)->{showResult("");SecurePrefs.get(this,"actions").edit().remove("last_result").apply();}).show());
   page=summaryParent;showResult("");showStatus();
   text("DOORS",12,0xff53D8B0).setPadding(0,dp(2),0,dp(2));controlRow(0,1);
   text("CLIMATE",12,Color.rgb(141,227,207)).setPadding(0,dp(4),0,dp(2));controlRow(2,3);
