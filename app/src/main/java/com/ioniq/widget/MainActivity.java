@@ -91,7 +91,7 @@ public class MainActivity extends Activity {
   LinearLayout settings=new LinearLayout(this);settings.setOrientation(LinearLayout.VERTICAL);settings.setVisibility(View.GONE);
   Button settingsToggle=button("Settings & help ▾",()->{});
   settingsToggle.setBackground(getDrawable(R.drawable.settings_bar));settingsToggle.setTextColor(0xffF5EEFF);settingsToggle.setTypeface(null,android.graphics.Typeface.BOLD);settingsToggle.setPadding(dp(12),0,dp(12),dp(5));
-  settingsToggle.setOnClickListener(v->{boolean open=settings.getVisibility()!=View.VISIBLE;settings.setVisibility(open?View.VISIBLE:View.GONE);settingsToggle.setText(open?"Settings & help ▴":"Settings & help ▾");});
+  settingsToggle.setOnClickListener(v->{boolean open=settings.getVisibility()!=View.VISIBLE;settings.setVisibility(open?View.VISIBLE:View.GONE);settingsToggle.setSelected(open);settingsToggle.setText(open?"Settings & help ▴":"Settings & help ▾");});
   dashboard.addView(settings);page=settings;
   button("Bluetooth auto-lock settings",()->startActivity(new Intent(this,ParkingActivity.class)));
   button("＋  Add a home-screen widget",()->pinWidgets());
@@ -106,7 +106,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.8.5",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.8.6",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
