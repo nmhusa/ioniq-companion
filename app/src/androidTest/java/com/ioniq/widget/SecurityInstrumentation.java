@@ -29,6 +29,19 @@ public final class SecurityInstrumentation extends Instrumentation {
   Map<String,?> before=actions.getAll();c.startForegroundService(new Intent(c,CommandService.class).setAction("unlock"));android.os.SystemClock.sleep(1000);
   check(!CommandService.running);check(before.equals(actions.getAll()));settings.edit().clear().commit();
   watchChecks(c);
+  check(!pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).exported);
+  check(!pm.getReceiverInfo(new ComponentName(c,BluetoothLockBoot.class),0).exported);
+  check(!pm.getActivityInfo(new ComponentName(c,ParkingActivity.class),0).exported);
+  check((pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).foregroundServiceType & ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)!=0);
+  Intent stale=new Intent(c,CommandService.class).setAction("lock").putExtra("bt_token",123L).putExtra("bt_run","stale");
+  check(!BluetoothLockService.mayRun(c,stale));check(!BluetoothLockService.consume(c,stale));
+  before=actions.getAll();c.startForegroundService(stale);android.os.SystemClock.sleep(1000);
+  check(!CommandService.running);check(before.equals(actions.getAll()));
+  java.util.concurrent.atomic.AtomicReference<Throwable> uiError=new java.util.concurrent.atomic.AtomicReference<>();
+  android.app.Activity setup=startActivitySync(new Intent(c,ParkingActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));waitForIdleSync();
+  runOnMainSync(()->{try{check(setup!=null);setup.finish();}catch(Throwable e){uiError.set(e);}});
+  if(uiError.get()!=null)throw new AssertionError("Bluetooth setup screen failed");
+
   result.putString("security_result","PASS: "+checks+" Android storage and component checks");finish(-1,result);
  }catch(Throwable e){result.putString("security_result","FAIL: "+e.getClass().getSimpleName()+" after "+checks+" checks");finish(0,result);}}
  private org.json.JSONObject request(String session,String action,long now)throws Exception{return new org.json.JSONObject().put("id",java.util.UUID.randomUUID().toString()).put("session",session).put("action",action).put("sent",now);}

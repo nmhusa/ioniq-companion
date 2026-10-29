@@ -14,11 +14,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Test parking decisions
+      - name: Test automatic Bluetooth lock decisions
         run: |
           mkdir -p /tmp/parking-tests
-          javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ParkingRules.java tests/ParkingRulesTest.java
-          java -cp /tmp/parking-tests com.ioniq.widget.ParkingRulesTest
+          javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/BluetoothLockRules.java tests/BluetoothLockRulesTest.java
+          java -cp /tmp/parking-tests com.ioniq.widget.BluetoothLockRulesTest
       - name: Test mileage parsing
         run: |
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/MileageReading.java tests/MileageReadingTest.java

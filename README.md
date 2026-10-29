@@ -28,27 +28,19 @@ This produces a debug APK for testing, not a public release-signed APK. Use PUBL
 
 US API protocol adapted from [andyfase/egmp-bluelink-scriptable](https://github.com/andyfase/egmp-bluelink-scriptable). Original MIT license and copyright preserved in LICENSE. Unaffiliated with Hyundai/Kia; trademarks belong to their owners.
 
-## Preview 0.7: Park & return
+## Automatic Bluetooth lock (0.8.2)
 
-Opt-in, user-started parking monitoring for Android. Select the paired car/dongle and start before driving, or tap **I’ve parked here** beside the car. A usable Bluetooth disconnect and a recent slow-moving GPS fix can mark parking. After departure beyond the selected radius plus GPS uncertainty and a 20-second dwell, the app attempts locking once. Return proximity offers a one-tap Unlock notification; it never automatically unlocks.
-
-Phone-only detection is approximate and needs on-device testing. A dongle that uses Wi-Fi or drops Bluetooth during normal Android Auto operation may not supply a usable cue; use manual parking in that case. Force-stop, reboot, revoked permissions and battery restrictions can stop monitoring. Start a new session after that. See [parking setup and tests](PARKING.md).
-
-Account-change and erase actions sit in a yellow/black caution section, with explicit confirmation. Cancelling either warning changes nothing.
+Open Bluetooth auto-lock, select the car itself (not a dongle), choose 30/60/120 seconds and enable once. No button press each trip. After an observed connection drops, the app attempts one lock following the delay. Reconnection cancels pending work. Monitoring can restart after reboot when Android permits; pending commands never survive a restart. GPS arming, distance settings and return-unlock reminders have been removed. See [setup and limits](PARKING.md).
 
 ## Updating an existing working Windows project
 
-Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up replaced files, preserves local API credentials and signing files, and migrates the app/build configuration. Then run `powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1` with your existing signing key. Install `release-output\0.8.1\ioniq-companion-0.8.1.apk` over your signed phone app. Do not uninstall your working app. For the separate watch APK, follow [WATCH.md](WATCH.md).
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up replaced files, preserves local API credentials and signing files, and migrates the app/build configuration. Then run `powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1` with your existing signing key. Install `release-output\0.8.2\ioniq-companion-0.8.2.apk` over your signed phone app. Do not uninstall your working app. For the separate watch APK, follow [WATCH.md](WATCH.md).
 
 The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.
 
 ## Odometer fix (0.7.1)
 
 The odometer uses the selected VIN’s enrollment vehicle details, with a numeric status-odometer fallback. Mileage is refreshed with normal status refresh and the hourly background job; its own Hyundai update timestamp appears below the header. A failed/missing mileage response retains the previous reading, marked last known. The public updater keeps existing local Hyundai API and credential files unchanged. Download the updated updater again, rebuild, install over your existing app, then tap **Refresh saved Hyundai status**.
-
-## One-tap walk-away locking (0.7.2)
-
-Tap **Walk-away lock** on the main screen beside your parked car, wait for **Parking saved**, then walk away. Tap the same button to cancel. Android permission prompts are first-use setup only. Choose 20 or 30 m in the distance settings; the old 100 m default becomes 30 m once. Close settings use a five-second dwell and a 5 m GPS-accuracy requirement. Uncertainty and network delay mean the actual locking distance can be larger. Manual arming does not require Bluetooth. Optional Bluetooth-triggered sessions still need monitoring started from the app; key-fob movement and door closure cannot directly arm this implementation.
 
 ## Vehicle-aware header (0.7.3)
 

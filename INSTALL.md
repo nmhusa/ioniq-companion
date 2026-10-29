@@ -6,13 +6,13 @@ Unofficial community preview for Hyundai US. Android 8.0 or later. Use your own 
 2. Open it on your Android phone. If prompted, allow installation from the browser/file manager you used. Restore that permission afterward if desired. Do not disable Play Protect to force installation past a security warning.
 3. Open **Settings & help → Connect / change Bluelink account** and sign in with your own email, password and remote-service PIN. Select your vehicle and refresh status.
 4. Add optional widgets from Settings & help. Individual action widgets send immediately, including Unlock; in-app tiles ask for confirmation.
-5. Optional walk-away locking: arm beside the parked car, grant requested permissions, and wait for **Parking saved**. GPS and network delays affect lock distance. Confirm the result; this is not a guaranteed replacement for locking the car yourself. Returning offers a notification to unlock, never automatic unlock.
+5. Optional Bluetooth auto-lock: select the car’s own Bluetooth device in Bluetooth auto-lock, choose the delay and enable once. It runs on subsequent connection/disconnection cycles without trip-by-trip arming. See PARKING.md for cancellation and restart behavior.
 
 ## Updates
 
 Install newer releases from the same publisher over the existing app. Matching package identity and signing key preserve app data. If Android reports an incompatible signature, do not immediately uninstall: ask the maintainer which build you have.
 
-The first switch from a debug-signed preview to the permanent release key requires uninstalling the debug app, which erases its login/settings. Stop parking monitoring and record your preferences first; then sign in again. Do not uninstall a working app just to test a download of unknown provenance.
+The first switch from a debug-signed preview to the permanent release key requires uninstalling the debug app, which erases its login/settings. Turn off Bluetooth auto-lock and record your preferences first; then sign in again. Do not uninstall a working app just to test a download of unknown provenance.
 
 ## Verify a download on Windows
 
@@ -36,7 +36,7 @@ Charge limits shows last-reported AC/DC targets and their timestamp. Read latest
 
 Tap Find my car below the car image to open Google Maps directly at the saved Hyundai coordinates. If no Hyundai location is saved, the app requests it once and then opens the map. Use the adjacent ⋯ button for timestamps, Update & open map, walking directions, the separately labeled phone parking spot, and Clear saved. There is no background location polling. Maps links share the chosen coordinates with Google. Your map app handles walking directions and any phone-location permission.
 
-Hyundai-reported location may be stale even after an update; retrieval time is not the vehicle's location timestamp. Saved parking spot is the phone GPS fix captured by Walk-away lock, not a car report. The fallback becomes available the next time parking is successfully marked after this update. Both sources are associated with the selected vehicle. Clear saved removes the local caches; it does not stop active parking monitoring.
+Hyundai-reported location may be stale even after an update; retrieval time is not the vehicle timestamp. A saved parking spot from an older version may remain available, but Bluetooth auto-lock does not capture phone GPS locations. Clear saved removes local location caches.
 
 ## Widget feedback (0.7.10)
 

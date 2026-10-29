@@ -7,8 +7,10 @@ public class CommandService extends Service {
  @Override public int onStartCommand(Intent intent,int flags,int startId){
   if(intent==null){if(!running)stopSelf();return START_NOT_STICKY;}String action=intent.getAction();int index=ActionWidget.index(action);boolean watch=intent.hasExtra("watch_id");String label=index>=0?ActionWidget.LABELS[index]:VehicleSignal.title(action);
   if(index<0&&!(watch&&VehicleSignal.isSignal(action))){if(!running)stopSelf();return START_NOT_STICKY;}
+  boolean bluetooth=intent.hasExtra("bt_token");
+  if(bluetooth&&!BluetoothLockService.mayRun(this,intent)){BluetoothLockService.result(this,intent,"Cancelled or expired · nothing sent");if(!running)stopSelf();return START_NOT_STICKY;}
   if(watch&&!WatchRelay.mayRun(this,intent)){WatchRelay.update(this,intent,"blocked","Request expired or watch connection changed. Nothing was sent.");if(!running)stopSelf();return START_NOT_STICKY;}
-  if(running){if(watch)WatchRelay.update(this,intent,"blocked","Another command is in progress. Nothing else was sent.");android.widget.Toast.makeText(this,"A command is already in progress. Nothing else was sent.",android.widget.Toast.LENGTH_SHORT).show();ActionWidget.renderAll(this);return START_NOT_STICKY;}
+  if(running){if(bluetooth)BluetoothLockService.result(this,intent,"Another command is in progress · lock not sent; no retry");if(watch)WatchRelay.update(this,intent,"blocked","Another command is in progress. Nothing else was sent.");android.widget.Toast.makeText(this,"A command is already in progress. Nothing else was sent.",android.widget.Toast.LENGTH_SHORT).show();ActionWidget.renderAll(this);return START_NOT_STICKY;}
   if("unlock".equals(action)&&UnlockGuard.enabled(this)&&!UnlockGuard.consume(intent.getStringExtra("unlock_permit"))){if(watch)WatchRelay.update(this,intent,"blocked","Unlock protection is on. Authenticate using Unlock doors on the phone.");startForeground(600,notification("Unlock requires phone authentication. Open the app and tap Unlock doors."));stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();return START_NOT_STICKY;}
   if("unlock".equals(action))((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(711);
   activeAction=action;running=true;startForeground(600,notification("Queued: "+label));
@@ -19,12 +21,14 @@ public class CommandService extends Service {
    new Handler(Looper.getMainLooper()).post(()->{if(running)((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(600,notification("Sending "+label+"…"));});
    String result;String shortResult;
    try{
-    if(watch&&(!WatchRelay.mayRun(this,intent)||("unlock".equals(action)&&UnlockGuard.enabled(this)))){result="Watch request expired, connection changed, or unlock protection was enabled. Nothing was sent.";shortResult="Blocked";}
+    if(bluetooth&&!BluetoothLockService.consume(this,intent)){result="Bluetooth lock cancelled or expired. Nothing was sent.";shortResult="Blocked";}
+    else if(watch&&(!WatchRelay.mayRun(this,intent)||("unlock".equals(action)&&UnlockGuard.enabled(this)))){result="Watch request expired, connection changed, or unlock protection was enabled. Nothing was sent.";shortResult="Blocked";}
     else{if(watch)WatchRelay.update(this,intent,"sending","Sending to Hyundai…");result=new HyundaiApi(this).command(action,temp);shortResult=result.startsWith("Hyundai reports command completed")?"Confirmed":"Unconfirmed";}
    }
    catch(Exception e){result=ErrorText.message(e);shortResult="Check app";}
    SecurePrefs.get(this,"actions").edit().putString(action,shortResult).putString(action+"_detail",result).putString("last_result",label+": "+result).putLong(action+"_time",System.currentTimeMillis()).commit();
    if(watch)WatchRelay.update(this,intent,"Confirmed".equals(shortResult)?"confirmed":"Blocked".equals(shortResult)?"blocked":"Unconfirmed".equals(shortResult)?"unknown":"error",result);
+   if(bluetooth)BluetoothLockService.result(this,intent,result);
    final String answer=result;
    new Handler(Looper.getMainLooper()).post(()->{
     running=false;activeAction="";WidgetFeedbackJob.cancel(this);ActionWidget.renderAll(this);CarWidget.render(this);

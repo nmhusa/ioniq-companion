@@ -13,8 +13,8 @@ public class MainActivity extends Activity {
  private final android.os.Handler parkingHandler=new android.os.Handler(android.os.Looper.getMainLooper());
  private final Runnable parkingTick=new Runnable(){public void run(){updateParkingControl();parkingHandler.postDelayed(this,1000);}};
  private void updateParkingControl(){
-  if(walkAway!=null){walkAway.setText(ParkingService.active?"Stop walk-away lock":"Walk-away lock · "+ParkingStart.radius(this)+" m");walkAway.setEnabled(!busy||ParkingService.active);}
-  if(parkingStatus!=null){String detail=SecurePrefs.get(this,"parking").getString("status","");String brief=detail;if(ParkingService.active){if(detail.startsWith("Parking saved"))brief="Parking saved · monitoring · "+ParkingStart.radius(this)+" m";else if(detail.startsWith("Stay beside your parked car"))brief="Stay beside car · finding GPS…";else if(detail.startsWith("Car / dongle connected")||detail.startsWith("Monitoring selected Bluetooth"))brief="Waiting for parking disconnect";}else if(detail.isEmpty()||detail.startsWith("Stopped."))brief="Off · tap to arm beside your car";else brief="Off · "+detail;parkingStatus.setText(brief);}
+  if(walkAway!=null){walkAway.setText("Bluetooth auto-lock · "+(BluetoothLockService.enabled(this)?"ON":"OFF"));walkAway.setEnabled(!busy);}
+  if(parkingStatus!=null){String detail=SecurePrefs.get(this,"parking").getString("bt_status","Set up once · no button press each trip");parkingStatus.setText(BluetoothLockService.enabled(this)&&BluetoothLockService.instance==null?"Monitoring paused · tap settings to resume":detail);}
  }
  private void showResult(String value){
   resultDetails=value==null?"":value;
@@ -69,10 +69,9 @@ public class MainActivity extends Activity {
   vehicleTitle=text("IONIQ Companion",38,Color.WHITE);vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
   carHeader();locationControls();
   status=text("No vehicle data yet",12,0xffAFC5D4);status.setMinHeight(dp(48));status.setOnClickListener(v->reportDialog());message=text("",14,0xffAFC5D4);message.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Latest result").setMessage(resultDetails).setPositiveButton("Done",null).setNeutralButton("Dismiss",(d,w)->{showResult("");SecurePrefs.get(this,"actions").edit().remove("last_result").apply();}).show());showResult("");showStatus();
-  walkAway=button("Walk-away lock · "+ParkingStart.radius(this)+" m",()->{if(ParkingService.active)ParkingService.stop(this);else ParkingStart.start(this,true);updateParkingControl();});
-  walkAway.setOnClickListener(v->{if(ParkingService.active)ParkingService.stop(this);else if(!busy)ParkingStart.start(this,true);updateParkingControl();});
-  walkAway.setTextColor(0xffa4edda);
-  parkingStatus=text("",13,0xffAFC5D4);parkingStatus.setMinHeight(dp(48));parkingStatus.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Walk-away lock").setMessage(SecurePrefs.get(this,"parking").getString("status","Off")+"\n\nArm beside your parked car and wait for Parking saved before walking away. GPS uncertainty and network delays can increase the locking distance. Tap Stop to cancel.").setPositiveButton("Done",null).setNeutralButton("Settings",(d,w)->startActivity(new Intent(this,ParkingActivity.class))).show());updateParkingControl();
+  walkAway=button("Bluetooth auto-lock",()->startActivity(new Intent(this,ParkingActivity.class)));
+  walkAway.setTextColor(0xff8fe4cb);
+  parkingStatus=text("",13,0xffAFC5D4);parkingStatus.setOnClickListener(v->startActivity(new Intent(this,ParkingActivity.class)));updateParkingControl();
   text("DOORS",12,0xff53D8B0);controlRow(0,1);
   button("Refresh status",()->refreshOptions());
   text("CLIMATE PRESET",12,Color.rgb(141,227,207));
@@ -84,8 +83,7 @@ public class MainActivity extends Activity {
   Button settingsToggle=button("Settings & help ▾",()->{});
   settingsToggle.setOnClickListener(v->{boolean open=settings.getVisibility()!=View.VISIBLE;settings.setVisibility(open?View.VISIBLE:View.GONE);settingsToggle.setText(open?"Settings & help ▴":"Settings & help ▾");});
   dashboard.addView(settings);page=settings;
-  button("Walk-away settings",()->startActivity(new Intent(this,ParkingActivity.class)));
-  text("Arm beside your parked car and wait for Parking saved before walking away. Tap Stop to cancel. Short distances require a precise GPS fix; locking may happen later than the selected distance.",13,0xffAFC5D4);
+  button("Bluetooth auto-lock settings",()->startActivity(new Intent(this,ParkingActivity.class)));
   button("＋  Add a home-screen widget",()->pinWidgets());
 
   button("Watch controls",()->watchSettings());
@@ -94,11 +92,11 @@ public class MainActivity extends Activity {
   text("⚠  ACCOUNT SETTINGS — PROCEED WITH CARE",14,0xffffd54f);
   Button account=button("⚠  Connect / change Bluelink account",()->new AlertDialog.Builder(this).setTitle("Change your Bluelink connection?").setMessage("Continuing opens sign-in. Submitting a new login replaces this phone’s saved account and vehicle selection and stops parking monitoring. You will need your Bluelink email, password and remote-service PIN. Cancelling leaves your current connection unchanged.").setNegativeButton("Keep current account",null).setPositiveButton("Continue to sign-in",(d,w)->loginForm()).show());
   account.setTextColor(0xffffd54f);
-  Button erase=button("⚠  Disconnect and erase local data",()->new AlertDialog.Builder(this).setTitle("Erase this phone’s saved connection?").setMessage("This removes your saved Bluelink login, PIN, selected vehicle, status and command history. Parking monitoring will stop and its settings will be erased. You must sign in again to control the car. This does not delete your Hyundai account. This action cannot be undone.").setNegativeButton("Cancel — keep my data",null).setPositiveButton("Erase and disconnect",(d,w)->{ParkingService.stop(this);run(()->{WatchRelay.disable(this);Vault.clear(this);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"parking").edit().clear().commit();return "Disconnected. Saved login, status and parking settings removed.";});}).show());
+  Button erase=button("⚠  Disconnect and erase local data",()->new AlertDialog.Builder(this).setTitle("Erase this phone’s saved connection?").setMessage("This removes your saved Bluelink login, PIN, selected vehicle, status and command history. Bluetooth auto-lock will stop and its settings will be erased. You must sign in again to control the car. This does not delete your Hyundai account. This action cannot be undone.").setNegativeButton("Cancel — keep my data",null).setPositiveButton("Erase and disconnect",(d,w)->{BluetoothLockService.stop(this);run(()->{WatchRelay.disable(this);Vault.clear(this);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"parking").edit().clear().commit();return "Disconnected. Saved login, status and parking settings removed.";});}).show());
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.8.1",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.8.2",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -197,7 +195,7 @@ public class MainActivity extends Activity {
   EditText pass=field(box,"Bluelink password",InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);
   EditText pin=field(box,"Remote-service PIN",InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_VARIATION_PASSWORD);
   AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Hyundai US sign-in").setView(box).setPositiveButton("Connect",null).setNegativeButton("Cancel",null).create();
-  dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{String e=email.getText().toString().trim(),p=pass.getText().toString(),n=pin.getText().toString();if(e.isEmpty()||p.isEmpty()||n.isEmpty()){email.setError("Fill in all three fields");return;}dialog.dismiss();ParkingService.stop(this);run(()->{
+  dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{String e=email.getText().toString().trim(),p=pass.getText().toString(),n=pin.getText().toString();if(e.isEmpty()||p.isEmpty()||n.isEmpty()){email.setError("Fill in all three fields");return;}dialog.dismiss();BluetoothLockService.stop(this);run(()->{
    JSONObject data=new JSONObject().put("email",e).put("password",p).put("pin",n);WatchRelay.disable(this);Vault.save(this,data);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"status").edit().clear().commit();
    HyundaiApi api=new HyundaiApi(this);JSONArray list=api.vehicles();if(list.length()==0)return "No enrolled vehicles found.";
    runOnUiThread(()->chooseVehicle(list));return "Signed in. Select your vehicle.";
@@ -206,6 +204,6 @@ public class MainActivity extends Activity {
  private void chooseVehicle(JSONArray list){
   if(isFinishing()||isDestroyed())return;
   String[] names=new String[list.length()];try{for(int i=0;i<names.length;i++){JSONObject v=list.getJSONObject(i).getJSONObject("vehicleDetails");String vin=v.getString("vin");names[i]=v.optString("modelYear")+" "+v.optString("modelCode")+" • …"+vin.substring(Math.max(0,vin.length()-6));}}catch(Exception e){showResult("Unexpected vehicle list format.");return;}
-  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->run(()->{ParkingService.stop(this);HyundaiApi api=new HyundaiApi(this);CarLocations.clear(this);WatchRelay.disable(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";})).show();
+  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->run(()->{BluetoothLockService.stop(this);HyundaiApi api=new HyundaiApi(this);CarLocations.clear(this);WatchRelay.disable(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";})).show();
  }
 }
