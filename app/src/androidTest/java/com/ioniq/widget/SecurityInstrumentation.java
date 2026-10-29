@@ -24,6 +24,10 @@ public final class SecurityInstrumentation extends Instrumentation {
   String corrupt=store+"_corrupt";c.getSharedPreferences(corrupt,0).edit().putString("private","DO-NOT-FALL-BACK").commit();c.getSharedPreferences("encrypted_"+corrupt,0).edit().putString("payload","invalid").commit();
   boolean rejected=false;try{SecurePrefs.get(c,corrupt);}catch(IllegalStateException expected){rejected=true;}check(rejected);
   PackageManager pm=c.getPackageManager();check(!pm.getActivityInfo(new ComponentName(c,MainActivity.class),0).exported);check(!pm.getActivityInfo(new ComponentName(c,UnlockActivity.class),0).exported);check(pm.getActivityInfo(new ComponentName(c,LauncherActivity.class),0).exported);check(!pm.getServiceInfo(new ComponentName(c,CommandService.class),0).exported);
+  // A stale widget PendingIntent without a fresh authentication permit must send nothing.
+  SharedPreferences settings=SecurePrefs.get(c,"security"),actions=SecurePrefs.get(c,"actions");settings.edit().putBoolean("protect_unlock",true).commit();
+  Map<String,?> before=actions.getAll();c.startForegroundService(new Intent(c,CommandService.class).setAction("unlock"));android.os.SystemClock.sleep(1000);
+  check(!CommandService.running);check(before.equals(actions.getAll()));settings.edit().clear().commit();
   result.putString("security_result","PASS: "+checks+" Android storage and component checks");finish(-1,result);
  }catch(Throwable e){result.putString("security_result","FAIL: "+e.getClass().getSimpleName()+" after "+checks+" checks");finish(0,result);}}
 }
