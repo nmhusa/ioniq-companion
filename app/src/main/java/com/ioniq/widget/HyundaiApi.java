@@ -22,8 +22,8 @@ final class HyundaiApi {
    int hours=TimeZone.getDefault().getOffset(System.currentTimeMillis())/3600000;
    h.setRequestProperty("offset",String.format(java.util.Locale.US,"%+d",hours));
    h.setRequestProperty("client_id","m66129Bb-em93-SPAHYN-bZ91-am4540zp19920");
-   if(BuildConfig.HYUNDAI_CLIENT_SECRET.isEmpty())throw new Exception("This build has no Hyundai client credential. See BUILD_GUIDE.md for local configuration.");
-   h.setRequestProperty("clientSecret",BuildConfig.HYUNDAI_CLIENT_SECRET);
+   if(BuildConfig.CLIENT_MASKED.length==0)throw new Exception("This build has no Hyundai client credential. See BUILD_GUIDE.md for local configuration.");
+   h.setRequestProperty("clientSecret",ClientCredential.decode(BuildConfig.CLIENT_MASKED,BuildConfig.CLIENT_PAD));
    h.setRequestProperty("username",auth.optString("email")); h.setRequestProperty("blueLinkServicePin",auth.optString("pin"));
    h.setRequestProperty("brandIndicator","H"); h.setRequestProperty("User-Agent","okhttp/3.14.9");
    if(token)h.setRequestProperty("accessToken",auth.getString("access"));

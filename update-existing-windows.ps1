@@ -22,6 +22,7 @@ $propertiesPath = Join-Path $project 'gradle.properties'
 $properties = if (Test-Path $propertiesPath) { [IO.File]::ReadAllText($propertiesPath) } else { '' }
 if ($properties -match '(?m)^\s*android.useAndroidX\s*=') { $properties = $properties -replace '(?m)^\s*android.useAndroidX\s*=.*$', 'android.useAndroidX=true' }
 else { $properties += "`nandroid.useAndroidX=true`n" }
+if (-not $gradle.Contains("apply from: rootProject.file('release-hardening.gradle')")) { $gradle += "`napply from: rootProject.file('release-hardening.gradle')`n" }
 # End watch Gradle preparation.
 # Validate a narrow local climate-payload migration before changing any files.
 $apiPath = Join-Path $project "$javaRelative\HyundaiApi.java"
@@ -59,6 +60,29 @@ if (-not $patchedApi.Contains($newPoll)) {
  if ([regex]::Matches($patchedApi, [regex]::Escape($oldPoll)).Count -ne 1) { throw 'Unrecognized command confirmation headers; no files changed.' }
  $patchedApi = $patchedApi.Replace($oldPoll,$newPoll)
 }
+
+# Prepare credential masking locally; never print the original value.
+$credentialHeader = 'h.setRequestProperty("clientSecret",'
+$literalPattern = 'h\.setRequestProperty\("clientSecret",\s*"([^"\\\r\n]*)"\s*\);'
+$literalMatches = [regex]::Matches($patchedApi,$literalPattern)
+if ($literalMatches.Count -eq 1) {
+ $credentialBytes = [Text.Encoding]::UTF8.GetBytes($literalMatches[0].Groups[1].Value)
+ $padBytes = New-Object byte[] $credentialBytes.Length
+ $rng = [Security.Cryptography.RandomNumberGenerator]::Create()
+ try { $rng.GetBytes($padBytes) } finally { $rng.Dispose() }
+ $maskedValues = @(); $padValues = @()
+ for ($i=0; $i -lt $credentialBytes.Length; $i++) { $maskedValues += ([int]$credentialBytes[$i] -bxor [int]$padBytes[$i]); $padValues += [int]$padBytes[$i] }
+ $replacement = $credentialHeader + 'ClientCredential.decode(new int[]{' + ($maskedValues -join ',') + '},new int[]{' + ($padValues -join ',') + '}));'
+ $patchedApi = $patchedApi.Replace($literalMatches[0].Value,$replacement)
+ [Array]::Clear($credentialBytes,0,$credentialBytes.Length)
+} elseif ($patchedApi.Contains($credentialHeader + 'BuildConfig.HYUNDAI_CLIENT_SECRET);')) {
+ # Repository-based projects can read ignored local-api.properties / environment at build time.
+ $patchedApi = $patchedApi.Replace('BuildConfig.HYUNDAI_CLIENT_SECRET.isEmpty()','BuildConfig.CLIENT_MASKED.length==0')
+ $patchedApi = $patchedApi.Replace($credentialHeader + 'BuildConfig.HYUNDAI_CLIENT_SECRET);',$credentialHeader + 'ClientCredential.decode(BuildConfig.CLIENT_MASKED,BuildConfig.CLIENT_PAD));')
+} elseif (-not $patchedApi.Contains($credentialHeader + 'ClientCredential.decode(')) {
+ throw 'Unrecognized credential declaration; no files changed. Keep HyundaiApi.java private.'
+}
+# End credential masking.
 $work = Join-Path ([IO.Path]::GetTempPath()) ('ioniq-update-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $work | Out-Null
 $backup = Join-Path $project ('.update-backups\' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
@@ -67,7 +91,7 @@ try {
  Invoke-WebRequest "https://github.com/nmhusa/ioniq-companion/archive/$revision.zip" -OutFile $archive
  Expand-Archive $archive -DestinationPath $work
  $source = Join-Path $work "ioniq-companion-$revision"
- $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'build-watch-windows.ps1', 'WATCH.md', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.8.0.md', 'PARKING.md')
+ $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'build-watch-windows.ps1', 'WATCH.md', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.8.1.md', 'PARKING.md', 'release-hardening.gradle', 'release-rules.pro')
  $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\res') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
  foreach ($module in @('shared','wear')) { $files += Get-ChildItem (Join-Path $source $module) -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) } }
@@ -88,14 +112,14 @@ try {
   Copy-Item (Join-Path $source $relative) $target -Force
  }
  [IO.File]::WriteAllText($apiPath, $patchedApi, [Text.UTF8Encoding]::new($false))
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 21'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.8.0'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 22'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.8.1'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  [IO.File]::WriteAllText($settingsPath, $settings, [Text.UTF8Encoding]::new($false))
  [IO.File]::WriteAllText($propertiesPath, $properties, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
- Write-Host "Updated app source to 0.8.0. Backup: $backup"
+ Write-Host "Updated app source to 0.8.1. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'For the watch APK, also run: powershell -ExecutionPolicy Bypass -File .\build-watch-windows.ps1'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1'

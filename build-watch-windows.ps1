@@ -39,6 +39,9 @@ try {
  "$digest  $apkName" | Set-Content (Join-Path $out 'SHA256SUMS.txt') -Encoding ASCII
  Copy-Item (Join-Path $PSScriptRoot 'WATCH.md') $out
  Copy-Item (Join-Path $PSScriptRoot "RELEASE-$version.md") (Join-Path $out 'RELEASE-NOTES.md')
+ $mappingDir = Join-Path $PSScriptRoot "private-build-maps\$version\wear"
+ New-Item -ItemType Directory -Force $mappingDir | Out-Null
+ Copy-Item (Join-Path $PSScriptRoot 'wear\build\outputs\mapping\release\mapping.txt') (Join-Path $mappingDir ($digest + '-mapping.txt'))
  Remove-Item $aligned
  Write-Host "Signed package ready for LOCAL TESTING: $out"
  Write-Host 'Back up your keystore and password separately. Never upload either.'

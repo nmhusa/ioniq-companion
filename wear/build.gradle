@@ -2,7 +2,9 @@ plugins { id 'com.android.application' }
 android {
  namespace 'com.ioniq.watch'
  compileSdk 35
- defaultConfig { applicationId 'com.ioniq.widget'; minSdk 30; targetSdk 34; versionCode 21; versionName '0.8.0'; testInstrumentationRunner 'com.ioniq.watch.WatchInstrumentation' }
+ defaultConfig { applicationId 'com.ioniq.widget'; minSdk 30; targetSdk 34; versionCode 22; versionName '0.8.1'; testInstrumentationRunner 'com.ioniq.watch.WatchInstrumentation' }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 dependencies { implementation project(':shared'); implementation 'com.google.android.gms:play-services-wearable:20.0.1' }
+
+apply from: rootProject.file('release-hardening.gradle')

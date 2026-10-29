@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $source = [IO.File]::ReadAllText((Join-Path $PSScriptRoot '..\update-existing-windows.ps1'))
 $start = $source.IndexOf('# Validate a narrow local climate-payload migration')
-$end = $source.IndexOf('$work = Join-Path', $start)
+$end = $source.IndexOf('# Prepare credential masking locally', $start)
 if ($start -lt 0 -or $end -lt 0) { throw 'Migration section missing' }
 $migration = $source.Substring($start, $end-$start)
 $project = Join-Path ([IO.Path]::GetTempPath()) ('ioniq-migration-test-' + [guid]::NewGuid())

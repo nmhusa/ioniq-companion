@@ -1,0 +1,21 @@
+// Applied after local Android configuration, for phone and watch.
+android {
+ buildTypes {
+  release {
+   minifyEnabled true
+   shrinkResources true
+   proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), rootProject.file('release-rules.pro')
+  }
+ }
+}
+
+def existingCredential = android.defaultConfig.buildConfigFields.get('HYUNDAI_CLIENT_SECRET')
+if (existingCredential != null) {
+ def raw = new groovy.json.JsonSlurper().parseText(existingCredential.value).getBytes('UTF-8')
+ def salt = new byte[raw.length]
+ new java.security.SecureRandom().nextBytes(salt)
+ def masked = (0..<raw.length).collect { i -> (raw[i] & 255) ^ (salt[i] & 255) }
+ android.defaultConfig.buildConfigFields.remove('HYUNDAI_CLIENT_SECRET')
+ android.defaultConfig.buildConfigField 'int[]', 'CLIENT_MASKED', 'new int[]{' + masked.join(',') + '}'
+ android.defaultConfig.buildConfigField 'int[]', 'CLIENT_PAD', 'new int[]{' + salt.collect { it & 255 }.join(',') + '}'
+}

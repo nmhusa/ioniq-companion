@@ -18,3 +18,5 @@ local-api.properties
 release-output/
 
 watch-release-output/
+
+private-build-maps/

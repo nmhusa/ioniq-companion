@@ -57,6 +57,11 @@ jobs:
           mkdir -p /tmp/watch-tests
           javac -d /tmp/watch-tests shared/src/main/java/com/ioniq/common/WatchProtocol.java tests/WatchProtocolTest.java
           java -cp /tmp/watch-tests com.ioniq.common.WatchProtocolTest
+      - name: Test credential decoder
+        run: |
+          mkdir -p /tmp/credential-tests
+          javac -d /tmp/credential-tests app/src/main/java/com/ioniq/widget/ClientCredential.java tests/ClientCredentialTest.java
+          java -cp /tmp/credential-tests com.ioniq.widget.ClientCredentialTest
       - uses: android-actions/setup-android@v3
         with:
           packages: ''
@@ -66,6 +71,10 @@ jobs:
           gradle-version: '8.9'
       - run: sdkmanager 'platforms;android-35' 'build-tools;34.0.0'
       - run: gradle --no-daemon :app:assembleDebug :app:lintDebug :app:assembleRelease :app:lintRelease :wear:assembleDebug :wear:lintDebug :wear:assembleRelease :wear:lintRelease
+        env:
+          HYUNDAI_CLIENT_SECRET: CI_SYNTHETIC_CREDENTIAL_DO_NOT_USE_081
+      - name: Verify release obfuscation and no plaintext sentinel
+        run: python tests/check_release_obfuscation.py
       - uses: actions/upload-artifact@v4
         with:
           name: IONIQ6-Android-APK
@@ -94,6 +103,7 @@ jobs:
         run: |
           .\tests\UpdateMigrationTest.ps1
           .\tests\WatchBuildMigrationTest.ps1
+          .\tests\CredentialMigrationTest.ps1
 
   android-security:
     runs-on: ubuntu-latest
@@ -114,7 +124,11 @@ jobs:
       - name: Enable emulator acceleration
         run: sudo chmod 666 /dev/kvm
       - name: Build instrumented security checks
-        run: gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :wear:assembleDebug :wear:assembleDebugAndroidTest
+        run: gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :wear:assembleDebug :wear:assembleDebugAndroidTest :app:assembleRelease :wear:assembleRelease
+      - name: Sign obfuscated APKs with disposable CI debug key for smoke tests
+        run: |
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android --out /tmp/phone-release.apk app/build/outputs/apk/release/app-release-unsigned.apk
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android --out /tmp/watch-release.apk wear/build/outputs/apk/release/wear-release-unsigned.apk
       - name: Exercise encrypted migration on Android
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -134,3 +148,14 @@ jobs:
             adb install -r wear/build/outputs/apk/androidTest/debug/wear-debug-androidTest.apk
             adb shell am instrument -w com.ioniq.widget.test/com.ioniq.watch.WatchInstrumentation | tee /tmp/watch-instrumentation.txt
             grep -q 'watch_result=PASS:' /tmp/watch-instrumentation.txt
+            adb uninstall com.ioniq.widget.test
+            adb uninstall com.ioniq.widget
+            adb install /tmp/phone-release.apk
+            adb shell am start -W -n com.ioniq.widget/.LauncherActivity
+            sleep 3
+            adb shell pidof com.ioniq.widget
+            adb uninstall com.ioniq.widget
+            adb install /tmp/watch-release.apk
+            adb shell am start -W -n com.ioniq.widget/com.ioniq.watch.WatchActivity
+            sleep 3
+            adb shell pidof com.ioniq.widget

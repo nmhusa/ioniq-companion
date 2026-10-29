@@ -3,12 +3,19 @@ def privateConfig = new Properties()
 def privateFile = rootProject.file('local-api.properties')
 if (privateFile.exists()) { privateFile.withInputStream { privateConfig.load(it) } }
 def apiCredential = System.getenv('HYUNDAI_CLIENT_SECRET') ?: privateConfig.getProperty('hyundaiClientSecret', '')
+def credentialBytes = apiCredential.getBytes('UTF-8')
+def credentialPad = new byte[credentialBytes.length]
+new java.security.SecureRandom().nextBytes(credentialPad)
+def masked = (0..<credentialBytes.length).collect { i -> (credentialBytes[i] & 255) ^ (credentialPad[i] & 255) }
+def pad = credentialPad.collect { it & 255 }
 android {
  buildFeatures { buildConfig true }
  namespace 'com.ioniq.widget'
  compileSdk 35
- defaultConfig { testInstrumentationRunner 'com.ioniq.widget.SecurityInstrumentation'; buildConfigField 'String', 'HYUNDAI_CLIENT_SECRET', groovy.json.JsonOutput.toJson(apiCredential); applicationId 'com.ioniq.widget'; minSdk 26; targetSdk 34; versionCode 21; versionName '0.8.0' }
+ defaultConfig { testInstrumentationRunner 'com.ioniq.widget.SecurityInstrumentation'; buildConfigField 'int[]', 'CLIENT_MASKED', 'new int[]{' + masked.join(',') + '}'; buildConfigField 'int[]', 'CLIENT_PAD', 'new int[]{' + pad.join(',') + '}'; applicationId 'com.ioniq.widget'; minSdk 26; targetSdk 34; versionCode 22; versionName '0.8.1' }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 
 dependencies { implementation project(':shared'); implementation 'com.google.android.gms:play-services-wearable:20.0.1' }
+
+apply from: rootProject.file('release-hardening.gradle')
