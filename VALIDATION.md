@@ -90,3 +90,8 @@ Remaining device checks: Samsung biometric/PIN prompt success and cancellation, 
 Source `1a13fa0245cddf720ee07a27301980ee35aaf9f9`. GitHub Actions https://github.com/nmhusa/ioniq-companion/actions/runs/40887206259 passed debug/release builds and lint, Windows updater syntax/migration tests, 13 new command-route/polling checks, existing regressions and Android security instrumentation. Requests and payload names were checked against Hyundai-Kia-Connect/hyundai_kia_connect_api's US implementation. Flash lights uses rcs/rhl/light and LIGHTS_ONLY; horn and lights uses rcs/rhl/hnl and HORN_AND_LIGHTS. Existing commands retain REMOTE_POLL.
 
 The Find my car main button retains direct-map behavior. Its adjacent menu contains the two signal actions, each with Send/Cancel confirmation. The app does not implement horn-only, signal duration configuration or a stop-horn action. No live requests were made to a vehicle; real-car behavior and Samsung UI verification remain user device checks.
+
+
+## 0.7.13 — signal menu styling
+
+Source `cc135d9b73a43f8086a42d2fa7bd141d2ed35a3a`; workflow https://github.com/nmhusa/ioniq-companion/actions/runs/40891299898 passed debug/release builds and lint, Windows updater checks, existing regression tests and Android security instrumentation. Flash lights is bold amber; Horn & lights is bold red, using native styled menu text. No command or authentication behavior changed. Samsung visual appearance remains an on-device check.
