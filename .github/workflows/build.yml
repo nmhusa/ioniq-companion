@@ -127,10 +127,11 @@ jobs:
         run: sudo chmod 666 /dev/kvm
       - name: Build instrumented security checks
         run: gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :wear:assembleDebug :wear:assembleDebugAndroidTest :app:assembleRelease :wear:assembleRelease
-      - name: Sign obfuscated APKs with disposable CI debug key for smoke tests
+      - name: Sign obfuscated APKs with disposable CI key for smoke tests
         run: |
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android --out /tmp/phone-release.apk app/build/outputs/apk/release/app-release-unsigned.apk
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks "$HOME/.android/debug.keystore" --ks-pass pass:android --key-pass pass:android --out /tmp/watch-release.apk wear/build/outputs/apk/release/wear-release-unsigned.apk
+          keytool -genkeypair -keystore /tmp/ci-smoke.p12 -storepass android -keypass android -alias ci -keyalg RSA -keysize 2048 -validity 2 -dname 'CN=Disposable CI Test'
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks /tmp/ci-smoke.p12 --ks-pass pass:android --key-pass pass:android --out /tmp/phone-release.apk app/build/outputs/apk/release/app-release-unsigned.apk
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign --ks /tmp/ci-smoke.p12 --ks-pass pass:android --key-pass pass:android --out /tmp/watch-release.apk wear/build/outputs/apk/release/wear-release-unsigned.apk
       - name: Exercise encrypted migration on Android
         uses: reactivecircus/android-emulator-runner@v2
         with:
