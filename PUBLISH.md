@@ -36,7 +36,7 @@ The helper builds/lints release, rejects a debuggable APK, aligns/signs it, veri
 
 A new release key cannot update the current debug-signed app. Prefer a spare Android device for first testing. On the existing phone, switching requires uninstall/re-login and loses local settings; stop parking monitoring first. Future release updates keep the same key/package identity.
 
-Test login/vehicle selection, cached/fresh refresh, lock/unlock, climate, charging, widgets, permission denial, offline errors, Settings collapse/expand and account-warning cancellation. Confirm walk-away readiness, cancellation and result on the phone; never infer success from a build. Check certificate fingerprint against your retained known-good copy before each publication. Record actual device results in release notes.
+Test login/vehicle selection, cached/fresh refresh, lock/unlock, climate, charging, widgets, permission denial, offline errors, Settings collapse/expand and account-warning cancellation. Confirm Bluetooth connection detection, countdown, reconnection cancellation, reboot behavior and result on the phone; never infer success from a build. Check certificate fingerprint against your retained known-good copy before each publication. Record actual device results in release notes.
 
 ## 4. Upload a draft, then publish
 

@@ -39,7 +39,7 @@ In-app control tiles still ask for confirmation; individual home-screen action w
 
 Credentials remain AES-GCM encrypted with an Android Keystore key; no analytics or third-party proxy. API traffic goes directly to api.telematics.hyundaiusa.com. Backups and cleartext HTTP are disabled. Widget command service and receivers are not exported. Its explicit immutable PendingIntents authorize only the defined six actions. Status and command results remain in app-private storage and may be displayed by your launcher or notification panel.
 
-Foreground service uses the dataSync type for phone-to-cloud requests; it starts only after a user tap, does not run continuously and does not restart commands automatically. Android battery policies and Hyundai network latency still apply. Park & return uses a separate user-started location foreground service; see PARKING.md. Automatic unlock is not implemented.
+Remote commands use a short-lived dataSync foreground service and never restart/retry themselves. Bluetooth auto-lock uses a separate connectedDevice foreground service after one-time opt-in, and can resume monitoring after reboot when Android permits. It does not restore pending commands. See PARKING.md. Automatic unlocking is not implemented.
 
 ## Provenance
 
@@ -63,7 +63,7 @@ Removed FLAG_SECURE from the activity at user request. Screenshots and screen re
 The public repository does not embed the API client secret. Before building, create `local-api.properties` in the repository root with `hyundaiClientSecret=YOUR_VALUE`, or set the HYUNDAI_CLIENT_SECRET environment variable. Use the client credential from your existing working local source configuration. Do not commit this file. Builds without it compile but cannot connect. GitHub Actions only builds a credential-free test APK; that APK cannot connect to Hyundai. This is an API application credential, separate from the user's Hyundai password/PIN. Compiled apps necessarily contain the configured client credential; it cannot be treated as confidential once a binary is distributed. Review the upstream API integration's terms before distributing a binary.
 
 ## Preview 0.7
-Park & return setup and limitations are in PARKING.md. Account actions now have a caution strip and confirmation dialogs. Build with the same signing key as your installed app to preserve its local credentials.
+Bluetooth auto-lock setup and limitations are in PARKING.md. Account actions now have a caution strip and confirmation dialogs. Build with the same signing key as your installed app to preserve its local credentials.
 
 
 ## 0.7.11 security changes
