@@ -142,6 +142,7 @@ jobs:
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb shell am instrument -w com.ioniq.widget.test/com.ioniq.widget.SecurityInstrumentation | tee /tmp/security-instrumentation.txt
+            adb logcat -d -s AndroidRuntime:E
             grep -q 'security_result=PASS:' /tmp/security-instrumentation.txt
             adb uninstall com.ioniq.widget.test
             adb uninstall com.ioniq.widget
