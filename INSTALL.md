@@ -16,7 +16,7 @@ The first switch from a debug-signed preview to the permanent release key requir
 
 ## Verify a download on Windows
 
-Run `Get-FileHash .\ioniq-companion-0.7.10.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
+Run `Get-FileHash .\ioniq-companion-0.7.11.apk -Algorithm SHA256` and compare it with SHA256SUMS.txt attached to the same release. The certificate fingerprint is in SIGNING-CERTIFICATE.txt. A checksum detects a changed download; it does not independently establish publisher trust.
 
 ## Help and privacy
 
@@ -38,8 +38,13 @@ Tap Find my car below the car image to open Google Maps directly at the saved Hy
 
 Hyundai-reported location may be stale even after an update; retrieval time is not the vehicle's location timestamp. Saved parking spot is the phone GPS fix captured by Walk-away lock, not a car report. The fallback becomes available the next time parking is successfully marked after this update. Both sources are associated with the selected vehicle. Clear saved removes the local caches; it does not stop active parking monitoring.
 
-## Widget feedback (0.7.10)
+## Widget feedback (0.7.11)
 
 The icon sends the command; the small badge beneath it opens details without sending a command. Amber Queued/Sending means the app is processing it. Green Last OK is Hyundai's acknowledgement of the last request, not a live locked/climate/charge state. Unknown or Check app means read the full result and check the official app before retrying. The remaining widgets show Busy and dim while one widget command runs; repeated taps during that time send nothing else.
 
 Android may delay a widget repaint or the local recovery job after process termination. Opening IONIQ Companion refreshes these badges; no command is retried by this repaint. If an old widget does not pick up the new layout, remove and re-add that widget only. Do not uninstall the app.
+
+
+## Unlock protection (0.7.11)
+
+Open Settings & help → Unlock security to enable fingerprint or phone screen-lock authentication for unlocking. It starts off to preserve your current behavior. Lock and climate widgets remain one tap. Both enabling and disabling require phone authentication. If your home-screen app shortcut disappears after the launcher security change, add IONIQ Companion again from the app drawer; do not uninstall it.

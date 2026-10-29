@@ -8,17 +8,18 @@ public class CommandService extends Service {
   if(intent==null){if(!running)stopSelf();return START_NOT_STICKY;}String action=intent.getAction();int index=ActionWidget.index(action);
   if(index<0){if(!running)stopSelf();return START_NOT_STICKY;}
   if(running){android.widget.Toast.makeText(this,"A command is already in progress. Nothing else was sent.",android.widget.Toast.LENGTH_SHORT).show();ActionWidget.renderAll(this);return START_NOT_STICKY;}
+  if("unlock".equals(action)&&UnlockGuard.enabled(this)&&!UnlockGuard.consume(intent.getStringExtra("unlock_permit"))){startForeground(600,notification("Unlock requires phone authentication. Open the app and tap Unlock doors."));stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();return START_NOT_STICKY;}
   if("unlock".equals(action))((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(711);
   activeAction=action;running=true;startForeground(600,notification("Queued: "+ActionWidget.LABELS[index]));
-  getSharedPreferences("actions",0).edit().putString(action,"Queued…").putString(action+"_detail","Waiting for the app’s current request to finish.").putLong(action+"_time",System.currentTimeMillis()).apply();ActionWidget.renderAll(this);WidgetFeedbackJob.schedule(this);
+  SecurePrefs.get(this,"actions").edit().putString(action,"Queued…").putString(action+"_detail","Waiting for the app’s current request to finish.").putLong(action+"_time",System.currentTimeMillis()).apply();ActionWidget.renderAll(this);WidgetFeedbackJob.schedule(this);
   int temp=getSharedPreferences("ui",0).getInt("temp",72);
   RefreshJob.QUEUE.execute(()->{
-   getSharedPreferences("actions",0).edit().putString(action,"Sending…").putString(action+"_detail","Sending command / waiting for Hyundai confirmation.").putLong(action+"_time",System.currentTimeMillis()).commit();ActionWidget.renderAll(this);
+   SecurePrefs.get(this,"actions").edit().putString(action,"Sending…").putString(action+"_detail","Sending command / waiting for Hyundai confirmation.").putLong(action+"_time",System.currentTimeMillis()).commit();ActionWidget.renderAll(this);
    new Handler(Looper.getMainLooper()).post(()->{if(running)((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(600,notification("Sending "+ActionWidget.LABELS[index]+"…"));});
    String result;String shortResult;
    try{result=new HyundaiApi(this).command(action,temp);shortResult=result.startsWith("Hyundai reports command completed")?"Confirmed":"Unconfirmed";}
-   catch(Exception e){result=e.getMessage()==null?"Request failed. Check the official app before retrying.":e.getMessage();shortResult="Check app";}
-   getSharedPreferences("actions",0).edit().putString(action,shortResult).putString(action+"_detail",result).putString("last_result",ActionWidget.LABELS[index]+": "+result).putLong(action+"_time",System.currentTimeMillis()).commit();
+   catch(Exception e){result=ErrorText.message(e);shortResult="Check app";}
+   SecurePrefs.get(this,"actions").edit().putString(action,shortResult).putString(action+"_detail",result).putString("last_result",ActionWidget.LABELS[index]+": "+result).putLong(action+"_time",System.currentTimeMillis()).commit();
    final String answer=result;
    new Handler(Looper.getMainLooper()).post(()->{
     running=false;activeAction="";WidgetFeedbackJob.cancel(this);ActionWidget.renderAll(this);CarWidget.render(this);

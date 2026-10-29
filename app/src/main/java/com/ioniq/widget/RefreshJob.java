@@ -10,7 +10,7 @@ public class RefreshJob extends JobService {
  }
  private volatile boolean stopped;
  @Override public boolean onStartJob(JobParameters p){stopped=false;QUEUE.execute(()->{
-  try{if(!Vault.read(this).optString("vin").isEmpty())VehicleMileage.refresh(this,false);}catch(Exception e){getSharedPreferences("status",0).edit().putBoolean("error",true).apply();}
+  try{if(!Vault.read(this).optString("vin").isEmpty())VehicleMileage.refresh(this,false);}catch(Exception e){SecurePrefs.get(this,"status").edit().putBoolean("error",true).apply();}
   CarWidget.render(this);if(!stopped)jobFinished(p,false);
  });return true;}
  @Override public boolean onStopJob(JobParameters p){stopped=true;return false;}

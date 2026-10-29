@@ -13,13 +13,13 @@ final class VehicleMileage {
  }
  private static void store(Context c,String vin,MileageReading reading,boolean stale)throws JSONException{
   JSONObject data=new JSONObject().put("vin",vin).put("value",reading.value).put("unit",reading.unit).put("reportTime",reading.reportTime).put("stale",stale);
-  c.getSharedPreferences("mileage",0).edit().putString("json",data.toString()).apply();
+  SecurePrefs.get(c,"mileage").edit().putString("json",data.toString()).apply();
  }
  static JSONObject refresh(Context c,boolean force)throws Exception{
   HyundaiApi api=new HyundaiApi(c);JSONObject status=api.status(force);
   String vin=Vault.read(c).optString("vin","");if(vin.isEmpty())return status;
   MileageReading fallback=reading(status);
-  SharedPreferences prefs=c.getSharedPreferences("mileage",0);
+  SharedPreferences prefs=SecurePrefs.get(c,"mileage");
   // A partial/failed details response must not erase the last valid mileage.
   try{
    JSONArray vehicles=api.vehicles();
@@ -43,7 +43,7 @@ final class VehicleMileage {
  static void attach(Context c,JSONObject status){
   try{
    String vin=Vault.read(c).optString("vin","");
-   JSONObject saved=new JSONObject(c.getSharedPreferences("mileage",0).getString("json","{}"));
+   JSONObject saved=new JSONObject(SecurePrefs.get(c,"mileage").getString("json","{}"));
    if(!vin.isEmpty() && vin.equals(saved.optString("vin"))){
     status.put("odometer",new JSONObject().put("value",saved.getDouble("value")).put("unit",saved.getInt("unit")));
     status.put("mileageReport",MileageReading.reportLabel(saved.optString("reportTime"))+(saved.optBoolean("stale")?" · last known; refresh unavailable":""));

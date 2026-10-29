@@ -12,12 +12,12 @@ public abstract class ActionWidget extends AppWidgetProvider {
  static void renderAll(Context c){for(int i=0;i<ACTIONS.length;i++)render(c,i);}
  static void render(Context c,int i){AppWidgetManager m=AppWidgetManager.getInstance(c);for(int id:m.getAppWidgetIds(new ComponentName(c,TYPES[i]))){
   String label=LABELS[i];if(ACTIONS[i].equals("climate"))label+=" · "+c.getSharedPreferences("ui",0).getInt("temp",72)+"°F";
-  android.content.SharedPreferences s=c.getSharedPreferences("actions",0);String stored=s.getString(ACTIONS[i],"");long t=s.getLong(ACTIONS[i]+"_time",0);
+  android.content.SharedPreferences s=SecurePrefs.get(c,"actions");String stored=s.getString(ACTIONS[i],"");long t=s.getLong(ACTIONS[i]+"_time",0);
   boolean active=CommandService.running,own=active&&ACTIONS[i].equals(CommandService.activeAction);
   WidgetFeedback.State state=WidgetFeedback.state(stored,own,active&&!own);
   String result=WidgetFeedback.description(state);if(t>0&&state!=WidgetFeedback.State.BUSY)result+=" · "+android.text.format.DateFormat.getTimeFormat(c).format(new java.util.Date(t));
   Intent intent=new Intent(c,CommandService.class).setAction(ACTIONS[i]);
-  PendingIntent tap=PendingIntent.getForegroundService(c,i+100,intent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
+  PendingIntent tap="unlock".equals(ACTIONS[i])&&UnlockGuard.enabled(c)?PendingIntent.getActivity(c,i+100,new Intent(c,UnlockActivity.class).setAction("protected_unlock").putExtra("mode","unlock"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE):PendingIntent.getForegroundService(c,i+100,intent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
   Intent detailIntent=new Intent(c,MainActivity.class).setAction("widget_result_"+ACTIONS[i]).putExtra("widget_result",ACTIONS[i]).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
   PendingIntent details=PendingIntent.getActivity(c,i+200,detailIntent,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
   RemoteViews compact=layout(c,i,true,label,result,state,tap,details),large=layout(c,i,false,label,result,state,tap,details),views;

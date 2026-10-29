@@ -15,7 +15,7 @@ public class ParkingActivity extends Activity {
  private TextView status;
  private final Handler handler = new Handler(Looper.getMainLooper());
  private final Runnable refresh = new Runnable() { public void run() {
-  if (status != null) status.setText((ParkingService.active ? "Monitoring · " : "Stopped · ") + getSharedPreferences("parking",0).getString("status","No parking session started."));
+  if (status != null) status.setText((ParkingService.active ? "Monitoring · " : "Stopped · ") + SecurePrefs.get(this,"parking").getString("status","No parking session started."));
   handler.postDelayed(this,1000);
  }};
  private void text(String value) { TextView t=new TextView(this); t.setText(value);t.setTextColor(Color.WHITE);t.setTextSize(17);t.setPadding(0,16,0,16);page.addView(t); }
@@ -27,7 +27,7 @@ public class ParkingActivity extends Activity {
   status=new TextView(this);status.setTextColor(0xff8fe4cb);status.setTextSize(18);page.addView(status);
   button("1 · Select car / dongle Bluetooth",()->chooseDevice());
   button("2 · Departure distance",()->new AlertDialog.Builder(this).setTitle("Departure distance · current "+ParkingStart.radius(this)+" m").setItems(new String[]{"20 m (66 ft)","30 m (98 ft) · default","50 m (164 ft)","100 m (328 ft)","150 m (492 ft)","200 m (656 ft)"},(d,n)->{
-   ParkingService.stop(this);getSharedPreferences("parking",0).edit().putBoolean("close_distance_v2",true).putInt("radius",new int[]{20,30,50,100,150,200}[n]).apply();Toast.makeText(this,"Distance saved. Start a new session.",Toast.LENGTH_LONG).show();}).show());
+   ParkingService.stop(this);SecurePrefs.get(this,"parking").edit().putBoolean("close_distance_v2",true).putInt("radius",new int[]{20,30,50,100,150,200}[n]).apply();Toast.makeText(this,"Distance saved. Start a new session.",Toast.LENGTH_LONG).show();}).show());
   button("3 · Start monitoring before driving",()->start(false));
   button("I’ve parked here · arm this location",()->start(true));
   button("Stop / cancel parking session",()->ParkingService.stop(this));
@@ -45,7 +45,7 @@ public class ParkingActivity extends Activity {
    ArrayList<BluetoothDevice> devices=new ArrayList<>(adapter.getBondedDevices());
    if(devices.isEmpty()){Toast.makeText(this,"No paired Bluetooth devices. Use Android Bluetooth settings to pair first.",Toast.LENGTH_LONG).show();return;}
    String[] names=new String[devices.size()];for(int n=0;n<names.length;n++)names[n]=devices.get(n).getName()+" · "+devices.get(n).getAddress();
-   new AlertDialog.Builder(this).setTitle("Choose only your car / dongle").setItems(names,(d,n)->{ParkingService.stop(this);getSharedPreferences("parking",0).edit().putString("device",devices.get(n).getAddress()).putString("status","Device selected. Start monitoring before driving.").apply();}).show();
+   new AlertDialog.Builder(this).setTitle("Choose only your car / dongle").setItems(names,(d,n)->{ParkingService.stop(this);SecurePrefs.get(this,"parking").edit().putString("device",devices.get(n).getAddress()).putString("status","Device selected. Start monitoring before driving.").apply();}).show();
   }catch(SecurityException e){Toast.makeText(this,"Nearby devices permission is required.",Toast.LENGTH_LONG).show();}
  }
  private void start(boolean parked) { ParkingStart.start(this,parked); }

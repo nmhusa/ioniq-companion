@@ -1,8 +1,9 @@
 param([string]$ProjectPath = (Get-Location).Path)
 $ErrorActionPreference = 'Stop'
 # Pinned source. Known climate payload and charge-limit case are patched in HyundaiApi.java.
-# Credentials, Vault.java and signing configuration are preserved; API source is never uploaded.
-$revision = 'c589e997a890506a72ae86204e54605f0ba6e7be'
+# Credentials and signing configuration are preserved; API source is never uploaded.
+# Vault keeps the same credential key and format; only its cache cleanup changes.
+$revision = '6b5ea183a32995e49957851abf1b26a3462d22a6'
 $project = (Resolve-Path $ProjectPath).Path
 $javaRelative = 'app\src\main\java\com\ioniq\widget'
 if (-not (Test-Path (Join-Path $project "$javaRelative\HyundaiApi.java"))) { throw 'Open PowerShell in your existing working IONIQ app project folder, then run this script again.' }
@@ -32,6 +33,8 @@ if (-not $patchedApi.Contains($locationMethod)) {
  if ($patchedApi.Contains('JSONObject findCar(') -or [regex]::Matches($patchedApi, [regex]::Escape($commandSignature)).Count -ne 1) { throw 'Unrecognized API method layout; no files changed.' }
  $patchedApi = $patchedApi.Replace($commandSignature, $locationMethod + "`n" + $commandSignature)
 }
+# Route the two legacy status-cache accesses through encrypted storage; preserve API credentials.
+$patchedApi = $patchedApi.Replace('context.getSharedPreferences("status",0)', 'SecurePrefs.get(context,"status")')
 $work = Join-Path ([IO.Path]::GetTempPath()) ('ioniq-update-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory $work | Out-Null
 $backup = Join-Path $project ('.update-backups\' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
@@ -40,8 +43,8 @@ try {
  Invoke-WebRequest "https://github.com/nmhusa/ioniq-companion/archive/$revision.zip" -OutFile $archive
  Expand-Archive $archive -DestinationPath $work
  $source = Join-Path $work "ioniq-companion-$revision"
- $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.10.md', 'PARKING.md')
- $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java','Vault.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
+ $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.7.11.md', 'PARKING.md')
+ $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\res') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
  # Validate the complete download and take backups before replacing any project file.
  foreach ($relative in $files) { if (-not (Test-Path (Join-Path $source $relative))) { throw "Download is incomplete: $relative" } }
@@ -60,12 +63,12 @@ try {
   Copy-Item (Join-Path $source $relative) $target -Force
  }
  [IO.File]::WriteAllText($apiPath, $patchedApi, [Text.UTF8Encoding]::new($false))
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 17'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.10'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 18'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.7.11'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
- Write-Host "Updated app source to 0.7.10. Backup: $backup"
+ Write-Host "Updated app source to 0.7.11. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1'
 } finally { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }

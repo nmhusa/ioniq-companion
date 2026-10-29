@@ -64,3 +64,8 @@ The public repository does not embed the API client secret. Before building, cre
 
 ## Preview 0.7
 Park & return setup and limitations are in PARKING.md. Account actions now have a caution strip and confirmation dialogs. Build with the same signing key as your installed app to preserve its local credentials.
+
+
+## 0.7.11 security changes
+
+Personal caches migrate to AES-256-GCM storage backed by Android Keystore. The credential vault keeps its existing key alias and format. Optional unlock authentication uses a single-use process-local permit valid for 15 seconds. Only the launcher trampoline is exported, and it discards extras. Authentication gates car unlock, not the whole app. Client credentials remain extractable from compiled binaries. A corrupt/unavailable cache key fails closed; it never falls back to plaintext. Device migration and biometric cancellation need testing before wider distribution.

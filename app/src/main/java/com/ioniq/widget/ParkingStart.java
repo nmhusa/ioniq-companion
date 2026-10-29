@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /** Shared, one-tap start path. Android permission prompts occur only during setup. */
 final class ParkingStart {
  static int radius(Context c){
-  android.content.SharedPreferences p=c.getSharedPreferences("parking",0);
+  android.content.SharedPreferences p=SecurePrefs.get(c,"parking");
   if(!p.getBoolean("close_distance_v2",false)){
    int old=p.getInt("radius",100);
    p.edit().putInt("radius",old==100?30:old).putBoolean("close_distance_v2",true).apply();
@@ -34,7 +34,7 @@ final class ParkingStart {
  static void start(Activity a,boolean parked){
   radius(a);
   if(!permissions(a,!parked))return;
-  if(!parked && a.getSharedPreferences("parking",0).getString("device","").isEmpty()){Toast.makeText(a,"Select your car or dongle in Walk-away settings first.",Toast.LENGTH_LONG).show();return;}
+  if(!parked && SecurePrefs.get(a,"parking").getString("device","").isEmpty()){Toast.makeText(a,"Select your car or dongle in Walk-away settings first.",Toast.LENGTH_LONG).show();return;}
   try{if(Vault.read(a).optString("vin").isEmpty()){Toast.makeText(a,"Connect and select your Hyundai first.",Toast.LENGTH_LONG).show();return;}}
   catch(Exception e){Toast.makeText(a,"Connect your Hyundai first.",Toast.LENGTH_LONG).show();return;}
   a.startForegroundService(new Intent(a,ParkingService.class).setAction(parked?"park":"monitor"));

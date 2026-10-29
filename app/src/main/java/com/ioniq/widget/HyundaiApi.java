@@ -52,12 +52,12 @@ final class HyundaiApi {
   auth.put("access",t.getString("access_token"));auth.put("refresh",t.optString("refresh_token",auth.optString("refresh")));auth.put("expires",System.currentTimeMillis()+t.optLong("expires_in",1800)*1000);Vault.save(context,auth);
  }
  JSONArray vehicles() throws Exception { ensureToken(); return request("ac/v2/enrollment/details/"+Uri.encode(auth.getString("email"), "@"),"GET",null,true,false,headers()).json.getJSONArray("enrolledVehicleDetails"); }
- void select(JSONObject vehicle) throws Exception {auth.put("vin",vehicle.getString("vin")).put("regid",vehicle.getString("regid")).put("year",vehicle.optInt("modelYear",2023));Vault.save(context,auth);context.getSharedPreferences("status",0).edit().clear().commit();}
+ void select(JSONObject vehicle) throws Exception {auth.put("vin",vehicle.getString("vin")).put("regid",vehicle.getString("regid")).put("year",vehicle.optInt("modelYear",2023));Vault.save(context,auth);SecurePrefs.get(context,"status").edit().clear().commit();}
  private void requireVehicle() throws Exception { if(auth.optString("vin").isEmpty()||auth.optString("regid").isEmpty())throw new Exception("Setup is incomplete. Tap Connect / change Bluelink account and select your vehicle before using Refresh or controls."); }
  JSONObject status(boolean force) throws Exception {
   requireVehicle();
   ensureToken(); JSONObject s=request("ac/v2/rcs/rvs/vehicleStatus","GET",null,true,true,headers("refresh",force?"true":"false")).json.getJSONObject("vehicleStatus");
-  context.getSharedPreferences("status",0).edit().putString("json",s.toString()).putLong("fetched",System.currentTimeMillis()).remove("error").commit(); return s;
+  SecurePrefs.get(context,"status").edit().putString("json",s.toString()).putLong("fetched",System.currentTimeMillis()).remove("error").commit(); return s;
  }
  JSONObject findCar() throws Exception { requireVehicle();ensureToken();return request("ac/v2/rcs/rfc/findMyCar","GET",null,true,true,headers()).json; }
  String command(String action,int temp) throws Exception {

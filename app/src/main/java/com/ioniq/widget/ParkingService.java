@@ -51,7 +51,7 @@ public class ParkingService extends Service implements LocationListener {
    else setStatus("Disconnect detected, but no reliable parking fix. Tap I’ve parked here when parked.");
   }
  }};
- static void stop(Context c){generation++;active=false;c.stopService(new Intent(c,ParkingService.class));NotificationManager n=c.getSystemService(NotificationManager.class);n.cancel(RETURN_NOTICE);c.getSharedPreferences("parking",0).edit().putString("status","Stopped. Pending parking actions cancelled.").apply();}
+ static void stop(Context c){generation++;active=false;c.stopService(new Intent(c,ParkingService.class));NotificationManager n=c.getSystemService(NotificationManager.class);n.cancel(RETURN_NOTICE);SecurePrefs.get(c,"parking").edit().putString("status","Stopped. Pending parking actions cancelled.").apply();}
  private boolean permissionsValid(){
   return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED && (!monitorBluetooth || Build.VERSION.SDK_INT<31 || checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)==PackageManager.PERMISSION_GRANTED) && (Build.VERSION.SDK_INT<33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED) && notifications.areNotificationsEnabled() && notifications.getNotificationChannel(CHANNEL).getImportance()!=NotificationManager.IMPORTANCE_NONE && notifications.getNotificationChannel(ALERTS).getImportance()!=NotificationManager.IMPORTANCE_NONE;
  }
@@ -59,7 +59,7 @@ public class ParkingService extends Service implements LocationListener {
  private PendingIntent open(){return PendingIntent.getActivity(this,710,new Intent(this,ParkingActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);}
  private Notification.Builder base(String channel,String title,String text){return new Notification.Builder(this,channel).setSmallIcon(R.drawable.ic_lock).setContentTitle(title).setContentText(text).setStyle(new Notification.BigTextStyle().bigText(text)).setContentIntent(open()).setVisibility(Notification.VISIBILITY_PRIVATE);}
  private Notification monitor(String text){PendingIntent stop=PendingIntent.getService(this,710,new Intent(this,ParkingService.class).setAction("stop"),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);return base(CHANNEL,"IONIQ · Park & return",text).setOngoing(true).setOnlyAlertOnce(true).addAction(new Notification.Action.Builder(null,"Stop / cancel",stop).build()).build();}
- private void setStatus(String value){getSharedPreferences("parking",0).edit().putString("status",value).apply();if(active)notifications.notify(NOTICE,monitor(value));}
+ private void setStatus(String value){SecurePrefs.get(this,"parking").edit().putString("status",value).apply();if(active)notifications.notify(NOTICE,monitor(value));}
  @Override public void onCreate(){super.onCreate();notifications=getSystemService(NotificationManager.class);locations=getSystemService(LocationManager.class);notifications.createNotificationChannel(new NotificationChannel(CHANNEL,"Parking monitoring and cancellation",NotificationManager.IMPORTANCE_LOW));notifications.createNotificationChannel(new NotificationChannel(ALERTS,"Parking results and return reminder",NotificationManager.IMPORTANCE_DEFAULT));}
  @Override public int onStartCommand(Intent i,int flags,int id){
   if(i==null||"stop".equals(i.getAction())){stop(this);stopSelf();return START_NOT_STICKY;}
@@ -68,7 +68,7 @@ public class ParkingService extends Service implements LocationListener {
   active=true;canSend=false;session=++generation;startedAt=SystemClock.elapsedRealtime();anchor=null;rules=null;awaitingFix=false;
   startForeground(NOTICE,monitor("Starting parking monitoring…"));
   if(!permissionsValid()){setStatus("Enable precise location, Nearby devices and both notification channels, then start again.");stopSelf();return START_NOT_STICKY;}
-  device=getSharedPreferences("parking",0).getString("device","");notifications.cancel(RETURN_NOTICE);
+  device=SecurePrefs.get(this,"parking").getString("device","");notifications.cancel(RETURN_NOTICE);
   try {
    if(!locations.isProviderEnabled(LocationManager.GPS_PROVIDER)){setStatus("Turn on phone location, then start again.");stopSelf();return START_NOT_STICKY;}
    if(registered && !monitorBluetooth){unregisterReceiver(bluetooth);registered=false;}
@@ -86,7 +86,7 @@ public class ParkingService extends Service implements LocationListener {
   return START_NOT_STICKY;
  }
  private void arm(Location l){
-  canSend=false;getSharedPreferences("parking",0).edit().putBoolean("attempted",false).apply();
+  canSend=false;SecurePrefs.get(this,"parking").edit().putBoolean("attempted",false).apply();
   session=++generation;anchor=new Location(l);rules=new ParkingRules(ParkingStart.radius(this),SystemClock.elapsedRealtime());awaitingFix=false;
   CarLocations.saveParking(this,l);
   notifications.cancel(RETURN_NOTICE);setStatus("Parking saved on phone. Walk beyond "+rules.radius+" m plus GPS uncertainty to begin the "+(rules.countdownMillis()/1000)+"-second lock countdown.");
@@ -107,20 +107,20 @@ public class ParkingService extends Service implements LocationListener {
   else if(event==ParkingRules.Event.LOCK)sendLock();
   else if(event==ParkingRules.Event.RETURN)showReturn();
   else if(event==ParkingRules.Event.EXPIRED){setStatus("Parking window expired. Start a new session when parked.");stopSelf();}
-  else if(!getSharedPreferences("parking",0).getBoolean("attempted",false))setStatus("Parking saved. Waiting for sustained movement beyond "+rules.radius+" m.");
+  else if(!SecurePrefs.get(this,"parking").getBoolean("attempted",false))setStatus("Parking saved. Waiting for sustained movement beyond "+rules.radius+" m.");
  }
  private void sendLock(){
   final long token=session;
   setStatus("Lock queued · no automatic retry. Waiting for Hyundai.");
-  getSharedPreferences("parking",0).edit().putBoolean("attempted",true).apply();
+  SecurePrefs.get(this,"parking").edit().putBoolean("attempted",true).apply();
   RefreshJob.QUEUE.execute(()->{
    // Cancelled, reconnected, re-armed, signed out or stopped while queued: do not send.
    if(!active||generation!=token||!canSend||latest==null||!fresh(latest)||!permissionsValid())return;
    String result;
-   try{result=new HyundaiApi(this).command("lock",72);}catch(Exception e){result="Lock not confirmed: "+(e.getMessage()==null?"request failed":e.getMessage());}
+   try{result=new HyundaiApi(this).command("lock",72);}catch(Exception e){result="Lock not confirmed: "+ErrorText.message(e);}
    final String answer=result;
    handler.post(()->{
-    getSharedPreferences("actions",0).edit().putString("last_result","Walk-away lock: "+answer).apply();
+    SecurePrefs.get(this,"actions").edit().putString("last_result","Walk-away lock: "+answer).apply();
     if(active&&generation==token)setStatus("Lock result: "+answer+" Waiting for return; no retries.");
     if(Build.VERSION.SDK_INT<33||checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED)notifications.notify(RESULT_NOTICE,base(ALERTS,"IONIQ · Walk-away lock result",answer).build());
    });

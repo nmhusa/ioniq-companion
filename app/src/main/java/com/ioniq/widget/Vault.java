@@ -26,5 +26,5 @@ final class Vault {
   Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding"); cipher.init(Cipher.DECRYPT_MODE,key(),new GCMParameterSpec(128,Base64.decode(s.getString("iv",""),Base64.NO_WRAP)));
   return new JSONObject(new String(cipher.doFinal(Base64.decode(data,Base64.NO_WRAP)),java.nio.charset.StandardCharsets.UTF_8));
  }
- static synchronized void clear(Context c) { c.getSharedPreferences("vault",0).edit().clear().commit(); c.getSharedPreferences("status",0).edit().clear().commit(); c.getSharedPreferences("actions",0).edit().clear().commit();ActionWidget.renderAll(c); }
+ static synchronized void clear(Context c) { c.getSharedPreferences("vault",0).edit().clear().commit(); SecurePrefs.get(c,"status").edit().clear().commit(); SecurePrefs.get(c,"actions").edit().clear().commit();ActionWidget.renderAll(c); }
 }

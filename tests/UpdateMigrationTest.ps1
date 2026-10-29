@@ -9,10 +9,10 @@ $javaRelative = 'api'
 New-Item -ItemType Directory (Join-Path $project $javaRelative) | Out-Null
 try {
  $file = Join-Path $project 'api\HyundaiApi.java'
- $original = ' String command(String action,int temp) throws Exception { CREDENTIAL_SENTINEL; body=new JSONObject().put("airCtrl",1).put("defrost",false).put("airTemp",new JSONObject().put("value",String.valueOf(temp)).put("unit",1)).put("heating1",0);' + "`n" + '   default:throw new Exception("Unsupported command");'
+ $original = ' String command(String action,int temp) throws Exception { CREDENTIAL_SENTINEL; context.getSharedPreferences("status",0); body=new JSONObject().put("airCtrl",1).put("defrost",false).put("airTemp",new JSONObject().put("value",String.valueOf(temp)).put("unit",1)).put("heating1",0);' + "`n" + '   default:throw new Exception("Unsupported command");'
  [IO.File]::WriteAllText($file,$original)
  Invoke-Expression $migration
- if (-not $patchedApi.Contains('CREDENTIAL_SENTINEL') -or -not $patchedApi.Contains('ClimatePreset.body(context,temp)') -or -not $patchedApi.Contains('case "limits"') -or -not $patchedApi.Contains('JSONObject findCar()')) { throw 'Migration lost existing source or missed additions' }
+ if (-not $patchedApi.Contains('CREDENTIAL_SENTINEL') -or -not $patchedApi.Contains('ClimatePreset.body(context,temp)') -or -not $patchedApi.Contains('case "limits"') -or -not $patchedApi.Contains('JSONObject findCar()') -or -not $patchedApi.Contains('SecurePrefs.get(context,"status")') -or $patchedApi.Contains('context.getSharedPreferences("status",0)')) { throw 'Migration lost existing source or missed additions' }
  $first = $patchedApi
  [IO.File]::WriteAllText($file,$first)
  Invoke-Expression $migration
