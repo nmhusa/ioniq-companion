@@ -104,3 +104,12 @@ Source `9f91753cf0a1a711a4f0c2cbe139583db177f77a`; workflow https://github.com/n
 An API 30 emulator passed 51 phone storage/component/watch-receipt checks and 15 compact watch UI checks at 450×450 pixels, density 320. Tests cover opt-in/session scope, duplicate and rejected request receipts, process interruption, protected unlock, disabled controls, touch target bounds, swipe navigation without command activation, and recreation. Synthetic payloads only; no Hyundai credentials or real vehicle commands were used.
 
 The watch sends transient requests through the paired phone and contains no Hyundai credentials. Both APKs require the same package name and signing key. This is a preview: actual Samsung round-screen appearance, Wear OS pairing/message delivery, phone background service behavior, and live vehicle command results still require paired-device testing. The emulator is not a substitute for that testing. No standalone LTE commands, map view, tiles, complications, or bezel navigation are implemented.
+
+
+## 0.8.1 — release obfuscation and credential masking
+
+Source `e45b55dad7318b589fe23951ad7966fc1c7ed4fe`; https://github.com/nmhusa/ioniq-companion/actions/runs/40918496276 passed phone/watch debug and release builds and lint, Windows migration tests, existing regressions, and Android instrumentation (51 phone checks and 15 compact watch checks). The obfuscated release APKs were signed with a disposable CI key and both launched successfully on an API 30 emulator, with live processes after startup.
+
+New checks verify UTF-8 credential decoding, empty/mismatched data handling, local quoted-credential migration, repeat-update stability and rejection of unknown declarations. Release inspection verifies that HyundaiApi is renamed in R8 mapping and that a synthetic credential does not appear in any decompressed APK entry. Actual credentials are never supplied to CI. These checks demonstrate an extraction deterrent, not secrecy: masked bytes and the decoding data both ship in the APK. API endpoints remain discoverable and decoded values exist at runtime.
+
+The updater preserves signing identity and locally masks the existing quoted credential; private backups can still contain the original value. Build maps are stored outside distribution folders under ignored private-build-maps/. Watch 0.8.0 is protocol-compatible with phone 0.8.1. Live login, widgets, car commands and phone/watch interaction after the release update remain owner-device checks; no real vehicle commands were issued during validation.

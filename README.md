@@ -38,7 +38,7 @@ Account-change and erase actions sit in a yellow/black caution section, with exp
 
 ## Updating an existing working Windows project
 
-Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up replaced files, preserves local API credentials and signing files, and migrates the app/build configuration. Then run `powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1` with your existing signing key. Install `release-output\0.8.0\ioniq-companion-0.8.0.apk` over your signed phone app. Do not uninstall your working app. For the separate watch APK, follow [WATCH.md](WATCH.md).
+Download [update-existing-windows.ps1](update-existing-windows.ps1). Open PowerShell in the root of your existing working IONIQ project and run the downloaded script by its full path. It backs up replaced files, preserves local API credentials and signing files, and migrates the app/build configuration. Then run `powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1` with your existing signing key. Install `release-output\0.8.1\ioniq-companion-0.8.1.apk` over your signed phone app. Do not uninstall your working app. For the separate watch APK, follow [WATCH.md](WATCH.md).
 
 The new top-of-page car photo has a transparent background and native status overlays; unknown odometer/range values are explicitly unavailable.
 
@@ -84,3 +84,7 @@ Compact widgets now retain a status badge, with amber pending, green last-confir
 ## Galaxy Watch companion (0.8.0 preview)
 
 A Wear OS companion provides swipe-up/down pages and large one-tap controls through your paired phone. Enable Watch controls on the phone first. Phone unlock protection is respected. Both apps must be signed with the same existing key. See [WATCH.md](WATCH.md) for building and installing the separate watch APK.
+
+## Release obfuscation (0.8.1)
+
+Signed release builds use R8 optimization and name obfuscation. Client credentials are masked at build/update time to deter simple string searches. Both masking halves remain in the APK: this is not encryption or a promise of secrecy. The updater converts an existing quoted credential on your computer without uploading it. Build with your existing signing key; your watch 0.8.0 stays compatible. Private mappings are saved under ignored private-build-maps/, separate from APK distribution folders. See [release notes](RELEASE-0.8.1.md).
