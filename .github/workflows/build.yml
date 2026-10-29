@@ -75,6 +75,8 @@ jobs:
           HYUNDAI_CLIENT_SECRET: CI_SYNTHETIC_CREDENTIAL_DO_NOT_USE_081
       - name: Verify release obfuscation and no plaintext sentinel
         run: python tests/check_release_obfuscation.py
+      - name: Rebuild credential-free debug artifacts
+        run: gradle --no-daemon :app:assembleDebug :wear:assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: IONIQ6-Android-APK

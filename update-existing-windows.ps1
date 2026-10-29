@@ -119,6 +119,7 @@ try {
  [IO.File]::WriteAllText($propertiesPath, $properties, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
+ if (-not (Select-String -Path $ignore -SimpleMatch 'private-build-maps/' -Quiet)) { Add-Content $ignore "`nprivate-build-maps/" }
  Write-Host "Updated app source to 0.8.1. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'For the watch APK, also run: powershell -ExecutionPolicy Bypass -File .\build-watch-windows.ps1'
