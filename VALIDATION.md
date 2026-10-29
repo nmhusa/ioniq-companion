@@ -74,3 +74,12 @@ GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/407762
 Widgets display queued/sending/last-confirmed/unknown/error states and open full timestamped details from their badge. Repeated widget taps during an active command do not submit another command. Interrupted pending commands become unknown on redraw; a local-only scheduled job requests a recovery redraw, subject to Android scheduling. Last OK describes the previous command acknowledgement, not live vehicle state.
 
 No real vehicle commands were issued during validation. Samsung launcher rendering, background scheduling, and on-device command transitions still require device testing.
+
+
+## 0.7.11 — local security hardening
+
+Source commit `8487a3d36291f06860568b14d5bf181fc9c7eba1`; GitHub Actions https://github.com/nmhusa/ioniq-companion/actions/runs/40861557269 passed debug/release assembly and lint, Windows syntax/migration checks, existing regression tests, and 17 new cryptographic/permit/error-redaction assertions.
+
+An API 30 Android emulator passed 27 instrumentation checks: legacy plaintext migration and deletion, typed encrypted preference round-trips using Android Keystore and a newly constructed reader, non-clobbering editor updates, deletion, rejection of corrupted encrypted data without plaintext fallback, manifest component export restrictions, and rejection of a stale unlock intent lacking an authentication permit. Test payloads were synthetic. No Hyundai credentials or real vehicle commands were used.
+
+Remaining device checks: Samsung biometric/PIN prompt success and cancellation, launcher/widget behavior after upgrading, actual vehicle operations, and background scheduling. This is not a penetration test or a claim that the embedded Hyundai client credential is secret. Existing password storage remains encrypted and unchanged for protocol compatibility. Existing vault key alias and ciphertext format are preserved.
