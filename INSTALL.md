@@ -1,5 +1,7 @@
 # Install IONIQ Companion
 
+For the 0.8.3 compact phone layout, run the latest `update-existing-windows.ps1`, then `build-release-windows.ps1` with your existing signing key. Install `release-output/0.8.3/ioniq-companion-0.8.3.apk` over the current app. No watch update is needed. Charging is under the expandable Charging row; climate heat options remain in Climate presets.
+
 Unofficial community preview for Hyundai US. Android 8.0 or later. Use your own Bluelink account and remote-service PIN with applicable active services. US 2023 IONIQ 6 connectivity has been owner-tested; IONIQ 5 display support is not proof of API compatibility with every model. This is not Hyundai Digital Key/NFC.
 
 1. Download the APK attached to a release at https://github.com/nmhusa/ioniq-companion/releases — not the source ZIP or Actions debug artifact.

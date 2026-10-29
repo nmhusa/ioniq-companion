@@ -1,5 +1,7 @@
 # IONIQ Companion
 
+Latest phone layout: **0.8.3** — compact raised controls, doors and climate first, expandable charging, and a compact Bluetooth auto-lock status row. [Release notes](RELEASE-0.8.3.md). Existing watch and widgets remain compatible.
+
 Unofficial Android companion for Hyundai US, with vehicle status and six colorful home-screen controls.
 
 **Preview software.** Owner-tested connection with a US 2023 Hyundai IONIQ 6 on version 0.2. Later widget/UI changes still require release-device validation. Android 8.0+. Other vehicles/regions are not verified.

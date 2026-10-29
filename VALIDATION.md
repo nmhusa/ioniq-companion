@@ -124,3 +124,8 @@ The new in-memory state machine requires an observed car connection before disco
 Automatic monitoring is opt-in once, can resume after boot/package replacement/system restart when Android permits, and never persists pending commands. Old GPS services/rules are removed, and the updater backs up and deletes obsolete source files. The car must be selected anew, so an old dongle selection is not silently reused. GPS permissions are removed; existing historical parking-location caches may remain until cleared. Account/vehicle changes cancel unsent work. Phone 0.8.2 remains compatible with watch 0.8.0/0.8.1.
 
 Physical-device testing remains necessary for Samsung Bluetooth event delivery, connection detection when already in the car, background/boot behavior and actual car locking. Bluetooth loss does not establish that the vehicle is parked, doors are closed or a key is outside. A command already sent cannot be recalled.
+
+
+## 0.8.3 compact phone layout
+
+Source commit `ba389cb11fd71771afe6249d07145d2e9b688ee8`; [CI run 40963391676](https://github.com/nmhusa/ioniq-companion/actions/runs/40963391676) passed all jobs: phone/watch debug and release builds and lint, release obfuscation checks, Windows script parsing and migration checks, pure regression checks, Android instrumentation, and obfuscated release launch smoke tests. Changes affect phone layout and version metadata, not command dispatch or Bluetooth locking rules. No live vehicle commands were sent. Physical Samsung layout and enlarged-text review remain owner checks.
