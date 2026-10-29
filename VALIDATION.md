@@ -95,3 +95,12 @@ The Find my car main button retains direct-map behavior. Its adjacent menu conta
 ## 0.7.13 — signal menu styling
 
 Source `cc135d9b73a43f8086a42d2fa7bd141d2ed35a3a`; workflow https://github.com/nmhusa/ioniq-companion/actions/runs/40891299898 passed debug/release builds and lint, Windows updater checks, existing regression tests and Android security instrumentation. Flash lights is bold amber; Horn & lights is bold red, using native styled menu text. No command or authentication behavior changed. Samsung visual appearance remains an on-device check.
+
+
+## 0.8.0 — Galaxy Watch companion preview
+
+Source `9f91753cf0a1a711a4f0c2cbe139583db177f77a`; workflow https://github.com/nmhusa/ioniq-companion/actions/runs/40908137758 passed phone and watch debug/release assembly and lint, Windows script syntax and updater migration checks, shared watch protocol tests, and existing regression tests.
+
+An API 30 emulator passed 51 phone storage/component/watch-receipt checks and 15 compact watch UI checks at 450×450 pixels, density 320. Tests cover opt-in/session scope, duplicate and rejected request receipts, process interruption, protected unlock, disabled controls, touch target bounds, swipe navigation without command activation, and recreation. Synthetic payloads only; no Hyundai credentials or real vehicle commands were used.
+
+The watch sends transient requests through the paired phone and contains no Hyundai credentials. Both APKs require the same package name and signing key. This is a preview: actual Samsung round-screen appearance, Wear OS pairing/message delivery, phone background service behavior, and live vehicle command results still require paired-device testing. The emulator is not a substitute for that testing. No standalone LTE commands, map view, tiles, complications, or bezel navigation are implemented.
