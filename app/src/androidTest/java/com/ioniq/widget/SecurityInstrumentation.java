@@ -32,7 +32,7 @@ public final class SecurityInstrumentation extends Instrumentation {
   check(!pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).exported);
   check(!pm.getReceiverInfo(new ComponentName(c,BluetoothLockBoot.class),0).exported);
   check(!pm.getActivityInfo(new ComponentName(c,ParkingActivity.class),0).exported);
-  check((pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).foregroundServiceType & ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)!=0);
+  check((pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).getForegroundServiceType() & ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)!=0);
   Intent stale=new Intent(c,CommandService.class).setAction("lock").putExtra("bt_token",123L).putExtra("bt_run","stale");
   check(!BluetoothLockService.mayRun(c,stale));check(!BluetoothLockService.consume(c,stale));
   before=actions.getAll();c.startForegroundService(stale);android.os.SystemClock.sleep(1000);
