@@ -83,3 +83,10 @@ Source commit `8487a3d36291f06860568b14d5bf181fc9c7eba1`; GitHub Actions https:/
 An API 30 Android emulator passed 27 instrumentation checks: legacy plaintext migration and deletion, typed encrypted preference round-trips using Android Keystore and a newly constructed reader, non-clobbering editor updates, deletion, rejection of corrupted encrypted data without plaintext fallback, manifest component export restrictions, and rejection of a stale unlock intent lacking an authentication permit. Test payloads were synthetic. No Hyundai credentials or real vehicle commands were used.
 
 Remaining device checks: Samsung biometric/PIN prompt success and cancellation, launcher/widget behavior after upgrading, actual vehicle operations, and background scheduling. This is not a penetration test or a claim that the embedded Hyundai client credential is secret. Existing password storage remains encrypted and unchanged for protocol compatibility. Existing vault key alias and ciphertext format are preserved.
+
+
+## 0.7.12 — Find my car lights and horn
+
+Source `1a13fa0245cddf720ee07a27301980ee35aaf9f9`. GitHub Actions https://github.com/nmhusa/ioniq-companion/actions/runs/40887206259 passed debug/release builds and lint, Windows updater syntax/migration tests, 13 new command-route/polling checks, existing regressions and Android security instrumentation. Requests and payload names were checked against Hyundai-Kia-Connect/hyundai_kia_connect_api's US implementation. Flash lights uses rcs/rhl/light and LIGHTS_ONLY; horn and lights uses rcs/rhl/hnl and HORN_AND_LIGHTS. Existing commands retain REMOTE_POLL.
+
+The Find my car main button retains direct-map behavior. Its adjacent menu contains the two signal actions, each with Send/Cancel confirmation. The app does not implement horn-only, signal duration configuration or a stop-horn action. No live requests were made to a vehicle; real-car behavior and Samsung UI verification remain user device checks.

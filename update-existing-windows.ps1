@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 # Pinned source. Known climate payload and charge-limit case are patched in HyundaiApi.java.
 # Credentials and signing configuration are preserved; API source is never uploaded.
 # Vault keeps the same credential key and format; only its cache cleanup changes.
-$revision = '8487a3d36291f06860568b14d5bf181fc9c7eba1'
+$revision = '1a13fa0245cddf720ee07a27301980ee35aaf9f9'
 $project = (Resolve-Path $ProjectPath).Path
 $javaRelative = 'app\src\main\java\com\ioniq\widget'
 if (-not (Test-Path (Join-Path $project "$javaRelative\HyundaiApi.java"))) { throw 'Open PowerShell in your existing working IONIQ app project folder, then run this script again.' }
