@@ -18,6 +18,10 @@ $settings = [IO.File]::ReadAllText($settingsPath)
 foreach ($module in @('shared','wear')) { if (-not $settings.Contains(":" + $module)) { $settings += "`ninclude ':$module'`n" } }
 if (-not $gradle.Contains("implementation project(':shared')")) { $gradle += "`ndependencies { implementation project(':shared') }`n" }
 if (-not $gradle.Contains('com.google.android.gms:play-services-wearable:')) { $gradle += "`ndependencies { implementation 'com.google.android.gms:play-services-wearable:20.0.1' }`n" }
+$propertiesPath = Join-Path $project 'gradle.properties'
+$properties = if (Test-Path $propertiesPath) { [IO.File]::ReadAllText($propertiesPath) } else { '' }
+if ($properties -match '(?m)^\s*android.useAndroidX\s*=') { $properties = $properties -replace '(?m)^\s*android.useAndroidX\s*=.*$', 'android.useAndroidX=true' }
+else { $properties += "`nandroid.useAndroidX=true`n" }
 # End watch Gradle preparation.
 # Validate a narrow local climate-payload migration before changing any files.
 $apiPath = Join-Path $project "$javaRelative\HyundaiApi.java"
@@ -70,7 +74,7 @@ try {
  # Validate the complete download and take backups before replacing any project file.
  foreach ($relative in $files) { if (-not (Test-Path (Join-Path $source $relative))) { throw "Download is incomplete: $relative" } }
  New-Item -ItemType Directory -Force $backup | Out-Null
- foreach ($relative in ($files + @('app\build.gradle', 'settings.gradle', "$javaRelative\HyundaiApi.java"))) {
+ foreach ($relative in ($files + @('app\build.gradle', 'settings.gradle', 'gradle.properties', "$javaRelative\HyundaiApi.java"))) {
   $target = Join-Path $project $relative
   if (Test-Path $target) {
    $saved = Join-Path $backup $relative
@@ -88,6 +92,7 @@ try {
  $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.8.0'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  [IO.File]::WriteAllText($settingsPath, $settings, [Text.UTF8Encoding]::new($false))
+ [IO.File]::WriteAllText($propertiesPath, $properties, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
  Write-Host "Updated app source to 0.8.0. Backup: $backup"

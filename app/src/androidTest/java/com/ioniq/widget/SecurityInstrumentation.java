@@ -45,8 +45,8 @@ public final class SecurityInstrumentation extends Instrumentation {
    Intent command=new Intent(c,CommandService.class).setAction("lock").putExtra("watch_id",id).putExtra("watch_session",session).putExtra("watch_node","test-node");
    check(WatchRelay.mayRun(c,command));check(!WatchRelay.mayRun(c,new Intent(command).setAction("unlock")));check(!WatchRelay.mayRun(c,new Intent(command).putExtra("watch_node","other-node")));
    WatchRelay.update(c,command,"confirmed","Synthetic test; no vehicle request");check(!WatchRelay.mayRun(c,command));check(WatchRelay.claim(c,"test-node",first,now).getString("state").equals("confirmed"));
-   SecurePrefs.get(c,"security").edit().putBoolean("protect_unlock",true).commit();check(WatchRelay.claim(c,"test-node",request(session,"unlock",now),now).getString("state").equals("blocked"));
-   SecurePrefs.get(c,"security").edit().putBoolean("protect_unlock",false).commit();org.json.JSONObject interrupted=request(session,"lock",now);check(WatchRelay.claim(c,"test-node",interrupted,now)==null);
+   SecurePrefs.get(c,"security").edit().putBoolean("protect_unlock",true).commit();org.json.JSONObject blockedUnlock=request(session,"unlock",now);check(WatchRelay.claim(c,"test-node",blockedUnlock,now).getString("state").equals("blocked"));
+   SecurePrefs.get(c,"security").edit().putBoolean("protect_unlock",false).commit();check(WatchRelay.claim(c,"test-node",blockedUnlock,now).getString("state").equals("blocked"));org.json.JSONObject interrupted=request(session,"lock",now);check(WatchRelay.claim(c,"test-node",interrupted,now)==null);
    java.lang.reflect.Field active=WatchRelay.class.getDeclaredField("activeId");active.setAccessible(true);active.set(null,"");check(WatchRelay.claim(c,"test-node",interrupted,now).getString("state").equals("unknown"));
    WatchRelay.disable(c);check(WatchRelay.session(c).isEmpty());check(WatchRelay.enable(c));check(!session.equals(WatchRelay.session(c)));check(WatchRelay.claim(c,"test-node",first,now).getString("state").equals("blocked"));
    Vault.save(c,new org.json.JSONObject().put("email","test@example.invalid").put("vin","DIFFERENT-VEHICLE"));check(WatchRelay.session(c).isEmpty());

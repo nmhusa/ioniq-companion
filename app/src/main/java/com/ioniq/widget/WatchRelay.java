@@ -11,7 +11,7 @@ final class WatchRelay {
  static boolean enabled(Context c){return prefs(c).getBoolean("enabled",false);}
  private static String scope(Context c){try{JSONObject a=Vault.read(c);String vin=a.optString("vin"),email=a.optString("email");return vin.isEmpty()||email.isEmpty()?"":email+"\n"+vin;}catch(Exception e){return "";}}
  static synchronized boolean enable(Context c){String scope=scope(c);if(scope.isEmpty())return false;return prefs(c).edit().clear().putBoolean("enabled",true).putString("scope",scope).putString("session",java.util.UUID.randomUUID().toString()).commit();}
- static synchronized void disable(Context c){prefs(c).edit().clear().commit();activeId="";}
+ static synchronized void disable(Context c){if(!prefs(c).edit().clear().commit())throw new IllegalStateException("Could not disable watch controls.");activeId="";}
  static synchronized String session(Context c){SharedPreferences p=prefs(c);return enabled(c)&&!scope(c).isEmpty()&&scope(c).equals(p.getString("scope",""))?p.getString("session",""):"";}
  static void reply(Context c,String node,String path,JSONObject data){if(node==null||node.isEmpty())return;try{Wearable.getMessageClient(c).sendMessage(node,path,data.toString().getBytes(StandardCharsets.UTF_8)).addOnFailureListener(e->{});}catch(Exception ignored){}}
  private static JSONObject records(Context c)throws Exception{return new JSONObject(prefs(c).getString("records","{}"));}
@@ -31,11 +31,13 @@ final class WatchRelay {
   if(session.isEmpty()||!session.equals(session(c)))return response(id,"blocked","Phone account or watch permission changed. Sync the watch again.");
   JSONObject all=records(c),old=all.optJSONObject(id);
   if(old!=null)return result(c,node,id,session);
-  if(!WatchProtocol.fresh(request.optLong("sent"),now))return response(id,"blocked","Request expired. Nothing was sent. Check watch and phone clocks.");
-  if(CommandService.running||!activeId.isEmpty())return response(id,"blocked","Another command is in progress. Nothing else was sent.");
-  if("unlock".equals(action)&&UnlockGuard.enabled(c))return response(id,"blocked","Unlock protection is on. Use Unlock doors on your phone to authenticate.");
-  java.util.ArrayList<String> remove=new java.util.ArrayList<>();java.util.Iterator<String> keys=all.keys();while(keys.hasNext()){String k=keys.next();if(all.getJSONObject(k).optLong("created")<now-3600000)remove.add(k);}for(String k:remove)all.remove(k);
-  if(all.length()>=128)return response(id,"blocked","Too many recent watch requests. Please use the phone app.");
+  java.util.ArrayList<String> remove=new java.util.ArrayList<>();java.util.Iterator<String> keys=all.keys();while(keys.hasNext()){String k=keys.next();if(all.getJSONObject(k).optLong("created")<now-3600000&&!k.equals(activeId))remove.add(k);}for(String k:remove)all.remove(k);
+  if(all.length()>=128){disable(c);return response(id,"blocked","Watch request limit reached. Re-enable Watch controls on the phone.");}
+  String rejected=null;
+  if(!WatchProtocol.fresh(request.optLong("sent"),now))rejected="Request expired. Nothing was sent. Check watch and phone clocks.";
+  else if(CommandService.running||!activeId.isEmpty())rejected="Another command is in progress. Nothing else was sent.";
+  else if("unlock".equals(action)&&UnlockGuard.enabled(c))rejected="Unlock protection is on. Use Unlock doors on your phone to authenticate.";
+  if(rejected!=null){all.put(id,new JSONObject(request.toString()).put("node",node).put("created",now).put("state","blocked").put("detail",rejected));save(c,all);return response(id,"blocked",rejected);}
   JSONObject record=new JSONObject(request.toString()).put("node",node).put("created",now).put("state","queued").put("detail","Phone received your request.");all.put(id,record);save(c,all);activeId=id;return null;
  }
  static synchronized boolean mayRun(Context c,Intent intent){try{
