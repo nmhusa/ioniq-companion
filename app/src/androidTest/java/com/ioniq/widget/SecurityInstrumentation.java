@@ -55,7 +55,7 @@ public final class SecurityInstrumentation extends Instrumentation {
  private void seatChecks(Context c)throws Exception{
   org.json.JSONObject original=Vault.read(c);try{
    org.json.JSONObject auth=new org.json.JSONObject().put("email","seats@example.invalid").put("vin","SEAT-A");Vault.save(c,auth);
-   org.json.JSONObject details=new org.json.JSONObject().put("vin","SEAT-A").put("evStatus","E").put("vehicleGeneration",3).put("seatConfigurations",new org.json.JSONObject().put("seatConfigs",new org.json.JSONArray().put(SeatOptionsTest.seat(1,"YES","YES","2,3,4,5,6,7,8")))));
+   org.json.JSONObject details=new org.json.JSONObject().put("vin","SEAT-A").put("evStatus","E").put("vehicleGeneration",3).put("seatConfigurations",new org.json.JSONObject().put("seatConfigs",new org.json.JSONArray().put(SeatOptionsTest.seat(1,"YES","YES","2,3,4,5,6,7,8"))));
    VehicleIdentity.save(c,details);check(SeatClimate.generation(c,auth).equals("3"));String key=VehicleGarage.scope(c)+"\n"+NamedClimate.active(c);SecurePrefs.get(c,"seat_presets").edit().putString(key,new org.json.JSONObject().put("enabled",true).put("values",new org.json.JSONArray().put(5).put(0).put(0).put(0)).toString()).commit();
    check(ClimatePreset.body(c,72).getJSONObject("seatHeaterVentInfo").getInt("drvSeatHeatState")==5);check(ClimatePreset.body(c,72).getInt("igniOnDuration")==5);
    Vault.save(c,new org.json.JSONObject().put("email","seats@example.invalid").put("vin","SEAT-B"));check(!ClimatePreset.body(c,72).has("seatHeaterVentInfo"));
