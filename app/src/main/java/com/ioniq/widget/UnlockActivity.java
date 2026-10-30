@@ -4,8 +4,8 @@ import android.content.*;
 import android.os.*;
 import android.hardware.biometrics.*;
 public final class UnlockActivity extends Activity {
- private CancellationSignal cancellation;private boolean completed;private String mode;
- @Override public void onCreate(Bundle state){super.onCreate(state);mode=getIntent().getStringExtra("mode");
+ private CancellationSignal cancellation;private boolean completed;private String mode,vehicleScope;
+ @Override public void onCreate(Bundle state){super.onCreate(state);mode=getIntent().getStringExtra("mode");vehicleScope=VehicleGarage.scope(this);
   if(state!=null){finish();return;} // Recreated activities never resume a previously approved operation.
   KeyguardManager keyguard=getSystemService(KeyguardManager.class);
   if(!keyguard.isDeviceSecure()){android.widget.Toast.makeText(this,"Set a phone screen-lock PIN or password first.",android.widget.Toast.LENGTH_LONG).show();finish();return;}
@@ -20,7 +20,7 @@ public final class UnlockActivity extends Activity {
  }
  @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request==42){if(result==RESULT_OK)approved();else finish();}}
  private void approved(){if(completed||isFinishing())return;completed=true;
-  if("unlock".equals(mode)){startForegroundService(new Intent(this,CommandService.class).setAction("unlock").putExtra("unlock_permit",UnlockGuard.grant()));}
+  if("unlock".equals(mode)){if(vehicleScope.isEmpty()||!vehicleScope.equals(VehicleGarage.scope(this))){android.widget.Toast.makeText(this,"Vehicle changed. Unlock cancelled.",android.widget.Toast.LENGTH_LONG).show();finish();return;}startForegroundService(new Intent(this,CommandService.class).setAction("unlock").putExtra("unlock_permit",UnlockGuard.grant()));}
   else if("enable".equals(mode)||"disable".equals(mode)){boolean on="enable".equals(mode);if(SecurePrefs.get(this,"security").edit().putBoolean("protect_unlock",on).commit()){ActionWidget.renderAll(this);android.widget.Toast.makeText(this,on?"Unlock protection enabled":"Unlock protection disabled",android.widget.Toast.LENGTH_SHORT).show();}}
   finish();
  }

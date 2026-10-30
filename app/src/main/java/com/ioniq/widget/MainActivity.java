@@ -9,7 +9,7 @@ import android.widget.*;
 import org.json.*;
 public class MainActivity extends Activity {
  private ImageView carImage;private TextView vehicleTitle,vehicleSubtitle;private int shownModel=-1;
- private Button walkAway;private TextView parkingStatus;private String reportDetails="",resultDetails="";
+ private Button vehicleSwitch;private Button walkAway;private TextView parkingStatus;private String reportDetails="",resultDetails="";
  private final android.os.Handler parkingHandler=new android.os.Handler(android.os.Looper.getMainLooper());
  private final Runnable parkingTick=new Runnable(){public void run(){updateParkingControl();parkingHandler.postDelayed(this,1000);}};
  private void updateParkingControl(){
@@ -66,7 +66,10 @@ public class MainActivity extends Activity {
  }
  private void build(){
   buttons.clear();ScrollView scroll=new ScrollView(this);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(20),dp(16),dp(20),dp(24));page.setBackgroundColor(Color.rgb(11,22,31));scroll.addView(page);setContentView(scroll);
-  vehicleTitle=text("IONIQ Companion",30,Color.WHITE);vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
+  LinearLayout titleParent=page;LinearLayout titleRow=new LinearLayout(this);titleRow.setOrientation(LinearLayout.HORIZONTAL);titleRow.setGravity(Gravity.CENTER_VERTICAL);page.addView(titleRow);page=titleRow;
+  vehicleTitle=text("IONIQ Companion",30,Color.WHITE);vehicleTitle.setLayoutParams(new LinearLayout.LayoutParams(0,-2,1));vehicleTitle.setMinHeight(dp(48));vehicleTitle.setGravity(Gravity.CENTER_VERTICAL);vehicleTitle.setMaxLines(2);vehicleTitle.setEllipsize(android.text.TextUtils.TruncateAt.END);vehicleTitle.setOnClickListener(v->{if(!busy)renameVehicle();});
+  vehicleSwitch=button("⇄",()->openVehicles());vehicleSwitch.setLayoutParams(new LinearLayout.LayoutParams(dp(52),dp(52)));vehicleSwitch.setContentDescription("Switch Bluelink vehicle");page=titleParent;
+  vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
   carHeader();
   LinearLayout summaryParent=page;LinearLayout summary=new LinearLayout(this);summary.setOrientation(LinearLayout.VERTICAL);summary.setGravity(Gravity.CENTER_VERTICAL);summary.setMinimumHeight(dp(48));summary.setPadding(0,dp(2),0,dp(2));summaryParent.addView(summary);page=summary;
   status=text("No vehicle data yet",12,0xffAFC5D4);status.setPadding(0,dp(2),0,dp(2));
@@ -94,6 +97,7 @@ public class MainActivity extends Activity {
   settingsToggle.setBackground(getDrawable(R.drawable.settings_bar));settingsToggle.setTextColor(0xffF5EEFF);settingsToggle.setTypeface(null,android.graphics.Typeface.BOLD);settingsToggle.setPadding(dp(12),0,dp(12),dp(5));
   settingsToggle.setOnClickListener(v->{boolean open=settings.getVisibility()!=View.VISIBLE;settings.setVisibility(open?View.VISIBLE:View.GONE);settingsToggle.setSelected(open);settingsToggle.setText(open?"Settings & help ▴":"Settings & help ▾");});
   dashboard.addView(settings);page=settings;
+  button("Switch / refresh vehicles",()->openVehicles());
   button("Bluetooth auto-lock settings",()->startActivity(new Intent(this,ParkingActivity.class)));
   button("＋  Add a home-screen widget",()->pinWidgets());
 
@@ -103,20 +107,21 @@ public class MainActivity extends Activity {
   text("⚠  ACCOUNT SETTINGS — PROCEED WITH CARE",14,0xffffd54f);
   Button account=button("⚠  Connect / change Bluelink account",()->new AlertDialog.Builder(this).setTitle("Change your Bluelink connection?").setMessage("Continuing opens sign-in. Submitting a new login replaces this phone’s saved account and vehicle selection and stops Bluetooth auto-lock. You will need your Bluelink email, password and remote-service PIN. Cancelling leaves your current connection unchanged.").setNegativeButton("Keep current account",null).setPositiveButton("Continue to sign-in",(d,w)->loginForm()).show());
   account.setTextColor(0xffffd54f);
-  Button erase=button("⚠  Disconnect and erase local data",()->new AlertDialog.Builder(this).setTitle("Erase this phone’s saved connection?").setMessage("This removes your saved Bluelink login, PIN, selected vehicle, status and command history. Bluetooth auto-lock will stop and its settings will be erased. You must sign in again to control the car. This does not delete your Hyundai account. This action cannot be undone.").setNegativeButton("Cancel — keep my data",null).setPositiveButton("Erase and disconnect",(d,w)->{BluetoothLockService.stop(this);run(()->{WatchRelay.disable(this);Vault.clear(this);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"parking").edit().clear().commit();return "Disconnected. Saved login, status and parking settings removed.";});}).show());
+  Button erase=button("⚠  Disconnect and erase local data",()->new AlertDialog.Builder(this).setTitle("Erase this phone’s saved connection?").setMessage("This removes your saved Bluelink login, PIN, selected vehicle, status and command history. Bluetooth auto-lock will stop and its settings will be erased. You must sign in again to control the car. This does not delete your Hyundai account. This action cannot be undone.").setNegativeButton("Cancel — keep my data",null).setPositiveButton("Erase and disconnect",(d,w)->{BluetoothLockService.stop(this);run(()->{WatchRelay.disable(this);Vault.clear(this);VehicleGarage.clear(this);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"parking").edit().clear().commit();return "Disconnected. Saved login, status and parking settings removed.";});}).show());
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.8.8",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.8.9",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
  private void updateVehicleIdentity(){
   JSONObject profile=VehicleIdentity.read(this);int model=profile.optInt("model");
-  if(vehicleTitle!=null)vehicleTitle.setText(ModelName.title(model));
+  if(vehicleTitle!=null){vehicleTitle.setText(VehicleIdentity.title(this));vehicleTitle.setContentDescription(VehicleIdentity.title(this)+". Tap to rename this vehicle.");}
+  if(vehicleSwitch!=null)vehicleSwitch.setVisibility(VehicleGarage.vehicles(this).length()>1||(!VehicleGarage.vin(this).isEmpty()&&VehicleGarage.vehicles(this).length()==0)?View.VISIBLE:View.GONE);
   String year=profile.optString("year","");
   if(vehicleSubtitle!=null)vehicleSubtitle.setText((year.isEmpty()?"":year+" • ")+"HYUNDAI US");
-  if(carImage!=null&&shownModel!=model){carImage.setImageResource(model==5?R.drawable.car_profile_5:model==6?R.drawable.car_profile:R.drawable.ic_launcher_car);shownModel=model;}
+  if(carImage!=null&&shownModel!=model){carImage.setImageResource(model==5?R.drawable.car_profile_5:model==6?R.drawable.car_profile:model==9?R.drawable.car_profile_9:R.drawable.ic_launcher_car);shownModel=model;}
  }
  private void showStatus(){updateVehicleIdentity();try{JSONObject s=new JSONObject(SecurePrefs.get(this,"status").getString("json","{}"));VehicleMileage.attach(this,s);reportDetails=StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable");status.setText(reportLabel(s.optString("dateTime","")));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}}
  private void watchSettings(){
@@ -198,7 +203,7 @@ public class MainActivity extends Activity {
   AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Charge limits").setView(box).setNegativeButton("Cancel",null).setNeutralButton("Read latest",(d,w)->run(()->{new HyundaiApi(this).status(false);runOnUiThread(()->{if(!isFinishing()&&!isDestroyed())chargeLimits();});return "Hyundai report refreshed";})).setPositiveButton("Review",null).create();
   dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{int ai=pickers[0].getSelectedItemPosition(),di=pickers[1].getSelectedItemPosition();if(ai==0||di==0){report.setText("Choose both AC and DC limits before continuing.");return;}int ac=40+ai*10,dc=40+di*10;dialog.dismiss();new AlertDialog.Builder(this).setTitle("Set charging limits?").setMessage("AC: "+ac+"%\nDC fast charging: "+dc+"%\n\nSend these limits to your selected Hyundai?").setNegativeButton("Cancel",null).setPositiveButton("Send",(d,w)->run(()->new HyundaiApi(this).command("limits",ChargeLimitValues.pack(ac,dc)))).show();}));dialog.show();
  }
- private void confirm(String a){if("unlock".equals(a)&&UnlockGuard.enabled(this)){startActivity(new Intent(this,UnlockActivity.class).putExtra("mode","unlock"));return;}String name=a.equals("climate")?"Start climate at "+temperature+" °F":a.replace('_',' ');new AlertDialog.Builder(this).setTitle(name).setMessage((a.equals("climate")?ClimatePreset.summary(this)+"\n\n":"")+"Send this command to your selected Hyundai? Completion can take a minute.").setPositiveButton("Send",(d,w)->{final int chosen=temperature;run(()->new HyundaiApi(this).command(a,chosen));}).setNegativeButton("Cancel",null).show();}
+ private void confirm(String a){final String target=VehicleGarage.scope(this);if("unlock".equals(a)&&UnlockGuard.enabled(this)){startActivity(new Intent(this,UnlockActivity.class).putExtra("mode","unlock"));return;}String name=a.equals("climate")?"Start climate at "+temperature+" °F":a.replace('_',' ');new AlertDialog.Builder(this).setTitle(name).setMessage((a.equals("climate")?ClimatePreset.summary(this)+"\n\n":"")+"Send this command to your selected Hyundai? Completion can take a minute.").setPositiveButton("Send",(d,w)->{final int chosen=temperature;run(()->{if(target.isEmpty()||!target.equals(VehicleGarage.scope(this)))return "Vehicle changed. Nothing was sent.";return new HyundaiApi(this).command(a,chosen);});}).setNegativeButton("Cancel",null).show();}
  private EditText field(LinearLayout box,String hint,int type){EditText e=new EditText(this);e.setHint(hint);e.setInputType(type);e.setSingleLine(true);e.setSaveEnabled(false);e.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);box.addView(e);return e;}
  private void loginForm(){
   LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(20),0,dp(20),0);
@@ -207,14 +212,38 @@ public class MainActivity extends Activity {
   EditText pin=field(box,"Remote-service PIN",InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_VARIATION_PASSWORD);
   AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Hyundai US sign-in").setView(box).setPositiveButton("Connect",null).setNegativeButton("Cancel",null).create();
   dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{String e=email.getText().toString().trim(),p=pass.getText().toString(),n=pin.getText().toString();if(e.isEmpty()||p.isEmpty()||n.isEmpty()){email.setError("Fill in all three fields");return;}dialog.dismiss();BluetoothLockService.stop(this);run(()->{
-   JSONObject data=new JSONObject().put("email",e).put("password",p).put("pin",n);WatchRelay.disable(this);Vault.save(this,data);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"status").edit().clear().commit();
-   HyundaiApi api=new HyundaiApi(this);JSONArray list=api.vehicles();if(list.length()==0)return "No enrolled vehicles found.";
+   JSONObject data=new JSONObject().put("email",e).put("password",p).put("pin",n);WatchRelay.disable(this);Vault.save(this,data);VehicleGarage.clear(this);CarLocations.clear(this);SecurePrefs.get(this,"mileage").edit().clear().commit();SecurePrefs.get(this,"vehicle_identity").edit().clear().commit();SecurePrefs.get(this,"status").edit().clear().commit();
+   HyundaiApi api=new HyundaiApi(this);JSONArray list=api.vehicles();VehicleGarage.save(this,list);if(list.length()==0)return "No enrolled vehicles found.";
    runOnUiThread(()->chooseVehicle(list));return "Signed in. Select your vehicle.";
   });}));dialog.show();
  }
+ private void renameVehicle(){
+  final String target=VehicleGarage.scope(this);if(target.isEmpty()){showResult("Connect and select a vehicle first.");return;}
+  LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(20),0,dp(20),0);EditText name=field(box,"Vehicle nickname",InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_CAP_WORDS);name.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(40)});name.setText(VehicleGarage.nickname(this,VehicleGarage.vin(this)));
+  new AlertDialog.Builder(this).setTitle("Name this car").setMessage("Saved on this phone for this vehicle. Leave blank to use its model name.").setView(box).setNegativeButton("Cancel",null).setPositiveButton("Save",(d,w)->{if(!target.equals(VehicleGarage.scope(this))){showResult("Vehicle changed. Open its name again.");return;}try{VehicleGarage.rename(this,name.getText().toString());updateVehicleIdentity();CarWidget.render(this);ActionWidget.renderAll(this);}catch(Exception e){showResult(ErrorText.message(e));}}).show();
+ }
+ private void openVehicles(){if(busy||CommandService.running){showResult("Wait for the current request to finish before switching cars.");return;}JSONArray saved=VehicleGarage.vehicles(this);if(saved.length()>0)chooseVehicle(saved);else fetchVehicles();}
+ private void fetchVehicles(){run(()->{JSONArray list=new HyundaiApi(this).vehicles();VehicleGarage.save(this,list);runOnUiThread(()->chooseVehicle(VehicleGarage.vehicles(this)));return list.length()==0?"No enrolled vehicles found.":"Vehicle list updated.";});}
  private void chooseVehicle(JSONArray list){
   if(isFinishing()||isDestroyed())return;
-  String[] names=new String[list.length()];try{for(int i=0;i<names.length;i++){JSONObject v=list.getJSONObject(i).getJSONObject("vehicleDetails");String vin=v.getString("vin");names[i]=v.optString("modelYear")+" "+v.optString("modelCode")+" • …"+vin.substring(Math.max(0,vin.length()-6));}}catch(Exception e){showResult("Unexpected vehicle list format.");return;}
-  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setItems(names,(d,index)->{BluetoothLockService.stop(this);run(()->{HyundaiApi api=new HyundaiApi(this);CarLocations.clear(this);WatchRelay.disable(this);api.select(list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleIdentity.save(this,list.getJSONObject(index).getJSONObject("vehicleDetails"));VehicleMileage.refresh(this,false);RefreshJob.schedule(this);return "Vehicle connected. You can now add the widget.";});}).show();
+  final String account=VehicleGarage.account(this);String[] names=new String[list.length()];int selected=-1;
+  try{for(int i=0;i<names.length;i++){JSONObject v=list.getJSONObject(i).getJSONObject("vehicleDetails");names[i]=VehicleGarage.label(this,v);if(v.optString("vin").equals(VehicleGarage.vin(this)))selected=i;}}catch(Exception e){showResult("Unexpected vehicle list format.");return;}
+  new AlertDialog.Builder(this).setTitle("Choose your vehicle").setSingleChoiceItems(names,selected,(d,index)->{
+   if(busy||CommandService.running){showResult("Wait for the current request to finish.");return;}if(!account.equals(VehicleGarage.account(this))){d.dismiss();return;}
+   JSONObject vehicle;try{vehicle=list.getJSONObject(index).getJSONObject("vehicleDetails");}catch(Exception e){return;}
+   d.dismiss();if(vehicle.optString("vin").equals(VehicleGarage.vin(this)))return;
+   new AlertDialog.Builder(this).setTitle("Switch to "+VehicleGarage.label(this,vehicle)+"?").setMessage("Phone controls and widgets will use this car. Auto-lock and watch controls will pause; enable them again for this car.").setNegativeButton("Cancel",null).setPositiveButton("Switch",(x,w)->{
+    if(busy||CommandService.running){showResult("Wait for the current request to finish.");return;}
+    BluetoothLockService.stop(this);run(()->{
+     if(!account.equals(VehicleGarage.account(this)))return "Account changed. Choose your vehicle again.";
+     HyundaiApi api=new HyundaiApi(this);WatchRelay.disable(this);api.select(vehicle);CarLocations.clear(this);
+     for(String store:new String[]{"mileage","vehicle_identity","actions"})SecurePrefs.get(this,store).edit().clear().commit();
+     VehicleIdentity.save(this,vehicle);CarWidget.render(this);ActionWidget.renderAll(this);
+     runOnUiThread(()->{showStatus();showResult("Updating "+VehicleIdentity.title(this)+"…");});
+     try{VehicleMileage.refresh(this,false);}catch(Exception e){return "Switched to "+VehicleIdentity.title(this)+". Status unavailable: "+ErrorText.message(e);}
+     RefreshJob.schedule(this);return "Selected "+VehicleIdentity.title(this)+".";
+    });
+   }).show();
+  }).setNeutralButton("Refresh list",(d,w)->{if(!busy&&!CommandService.running)fetchVehicles();}).setNegativeButton("Cancel",null).show();
  }
 }

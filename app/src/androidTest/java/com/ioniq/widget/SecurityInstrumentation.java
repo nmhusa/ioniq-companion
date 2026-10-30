@@ -29,6 +29,7 @@ public final class SecurityInstrumentation extends Instrumentation {
   Map<String,?> before=actions.getAll();c.startForegroundService(new Intent(c,CommandService.class).setAction("unlock"));android.os.SystemClock.sleep(1000);
   check(!CommandService.running);check(before.equals(actions.getAll()));settings.edit().clear().commit();
   watchChecks(c);
+  garageChecks(c);
   check(!pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).exported);
   check(!pm.getReceiverInfo(new ComponentName(c,BluetoothLockBoot.class),0).exported);
   check(!pm.getActivityInfo(new ComponentName(c,ParkingActivity.class),0).exported);
@@ -44,6 +45,29 @@ public final class SecurityInstrumentation extends Instrumentation {
 
   result.putString("security_result","PASS: "+checks+" Android storage and component checks");finish(-1,result);
  }catch(Throwable e){result.putString("security_result","FAIL: "+e.getClass().getSimpleName()+" after "+checks+" checks");finish(0,result);}}
+ private void garageChecks(Context c)throws Exception{
+  org.json.JSONObject saved=Vault.read(c);java.util.concurrent.CountDownLatch release=new java.util.concurrent.CountDownLatch(1);
+  try{
+   org.json.JSONObject auth=new org.json.JSONObject().put("email","garage@example.invalid").put("vin","TEST-CAR-A").put("regid","reg-A");Vault.save(c,auth);VehicleGarage.clear(c);
+   org.json.JSONObject first=new org.json.JSONObject().put("vin","TEST-CAR-A").put("regid","reg-A").put("modelName","IONIQ 6").put("modelYear","2023").put("private_unneeded","not stored");
+   org.json.JSONObject second=new org.json.JSONObject().put("vin","TEST-CAR-B").put("regid","reg-B").put("modelCode","IONIQ 9").put("modelYear","2026");
+   org.json.JSONArray cars=new org.json.JSONArray().put(new org.json.JSONObject().put("vehicleDetails",first)).put(new org.json.JSONObject().put("vehicleDetails",second));
+   VehicleGarage.save(c,cars);check(VehicleGarage.vehicles(c).length()==2);check(!VehicleGarage.vehicles(c).toString().contains("private_unneeded"));
+   VehicleIdentity.save(c,first);VehicleGarage.rename(c,"  Comet  ");check(VehicleIdentity.title(c).equals("Comet"));check(VehicleGarage.label(c,first).contains("Comet"));
+   String scope=VehicleGarage.scope(c);new HyundaiApi(c).select(second);VehicleIdentity.save(c,second);check(!scope.equals(VehicleGarage.scope(c)));check(VehicleIdentity.title(c).equals("IONIQ 9"));check(VehicleIdentity.read(c).optInt("model")==9);VehicleGarage.rename(c,"Atlas");
+   new HyundaiApi(c).select(first);VehicleIdentity.save(c,first);check(VehicleIdentity.title(c).equals("Comet"));check(VehicleGarage.nickname(c,"TEST-CAR-B").equals("Atlas"));VehicleGarage.rename(c,"");check(VehicleIdentity.title(c).equals("IONIQ 6"));
+   Vault.save(c,new org.json.JSONObject().put("email","different@example.invalid").put("vin","TEST-CAR-B"));check(VehicleGarage.vehicles(c).length()==0);check(VehicleGarage.nickname(c,"TEST-CAR-B").isEmpty());
+   Vault.save(c,auth);
+   // Block the queue, enqueue a vehicle change, then receive a lock for the old vehicle.
+   java.util.concurrent.CountDownLatch blocked=new java.util.concurrent.CountDownLatch(1);
+   RefreshJob.QUEUE.execute(()->{blocked.countDown();try{release.await(10,java.util.concurrent.TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();}});
+   check(blocked.await(3,java.util.concurrent.TimeUnit.SECONDS));
+   RefreshJob.QUEUE.execute(()->{try{new HyundaiApi(c).select(second);}catch(Exception e){throw new RuntimeException(e);}});
+   c.startForegroundService(new Intent(c,CommandService.class).setAction("lock"));
+   long until=android.os.SystemClock.elapsedRealtime()+3000;while(!CommandService.running&&android.os.SystemClock.elapsedRealtime()<until)android.os.SystemClock.sleep(50);check(CommandService.running);release.countDown();
+   until=android.os.SystemClock.elapsedRealtime()+5000;while(CommandService.running&&android.os.SystemClock.elapsedRealtime()<until)android.os.SystemClock.sleep(50);check(!CommandService.running);check(SecurePrefs.get(c,"actions").getString("lock_detail","").equals("Vehicle changed. Nothing was sent."));
+  }finally{release.countDown();VehicleGarage.clear(c);SecurePrefs.get(c,"vehicle_identity").edit().clear().commit();SecurePrefs.get(c,"actions").edit().clear().commit();Vault.save(c,saved);}
+ }
  private org.json.JSONObject request(String session,String action,long now)throws Exception{return new org.json.JSONObject().put("id",java.util.UUID.randomUUID().toString()).put("session",session).put("action",action).put("sent",now);}
  private void watchChecks(Context c)throws Exception{
   org.json.JSONObject saved=Vault.read(c);boolean protectedUnlock=UnlockGuard.enabled(c);

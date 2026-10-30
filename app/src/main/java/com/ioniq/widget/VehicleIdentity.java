@@ -13,5 +13,5 @@ final class VehicleIdentity {
   return new JSONObject();
  }
  static boolean needsLookup(Context c){try{return !Vault.read(c).optString("vin","").isEmpty()&&!read(c).has("vin");}catch(Exception e){return false;}}
- static String title(Context c){return ModelName.title(read(c).optInt("model"));}
+ static String title(Context c){String name=VehicleGarage.nickname(c,VehicleGarage.vin(c));return name.isEmpty()?ModelName.title(read(c).optInt("model")):name;}
 }

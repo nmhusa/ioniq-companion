@@ -16,13 +16,15 @@ public class CommandService extends Service {
   if("unlock".equals(action))((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(711);
   activeAction=action;running=true;startForeground(600,notification("Queued: "+label));
   SecurePrefs.get(this,"actions").edit().putString(action,"Queued…").putString(action+"_detail","Waiting for the app’s current request to finish.").putLong(action+"_time",System.currentTimeMillis()).apply();ActionWidget.renderAll(this);WidgetFeedbackJob.schedule(this);if(watch)WatchRelay.update(this,intent,"queued","Queued on phone…");
+  final String commandScope=VehicleGarage.scope(this);
   int temp=getSharedPreferences("ui",0).getInt("temp",72);
   RefreshJob.QUEUE.execute(()->{
    SecurePrefs.get(this,"actions").edit().putString(action,"Sending…").putString(action+"_detail","Sending command / waiting for Hyundai confirmation.").putLong(action+"_time",System.currentTimeMillis()).commit();ActionWidget.renderAll(this);
    new Handler(Looper.getMainLooper()).post(()->{if(running)((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).notify(600,notification("Sending "+label+"…"));});
    String result;String shortResult;
    try{
-    if(bluetooth&&!BluetoothLockService.consume(this,intent)){result="Bluetooth lock cancelled or expired. Nothing was sent.";shortResult="Blocked";}
+    if(commandScope.isEmpty()||!commandScope.equals(VehicleGarage.scope(this))){result="Vehicle changed. Nothing was sent.";shortResult="Blocked";}
+    else if(bluetooth&&!BluetoothLockService.consume(this,intent)){result="Bluetooth lock cancelled or expired. Nothing was sent.";shortResult="Blocked";}
     else if(watch&&(!WatchRelay.mayRun(this,intent)||("unlock".equals(action)&&UnlockGuard.enabled(this)))){result="Watch request expired, connection changed, or unlock protection was enabled. Nothing was sent.";shortResult="Blocked";}
     else{if(watch)WatchRelay.update(this,intent,"sending","Sending to Hyundai…");result=new HyundaiApi(this).command(action,temp);shortResult=result.startsWith("Hyundai reports command completed")?"Confirmed":"Unconfirmed";}
    }

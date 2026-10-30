@@ -22,7 +22,7 @@ final class VehicleMileage {
   SharedPreferences prefs=SecurePrefs.get(c,"mileage");
   // A partial/failed details response must not erase the last valid mileage.
   try{
-   JSONArray vehicles=api.vehicles();
+   JSONArray vehicles=api.vehicles();VehicleGarage.save(c,vehicles);
    for(int i=0;i<vehicles.length();i++){
     JSONObject item=vehicles.optJSONObject(i);JSONObject details=item==null?null:item.optJSONObject("vehicleDetails");
     if(details==null||!vin.equals(details.optString("vin")))continue;
