@@ -1,9 +1,9 @@
-# Bluetooth auto-lock — 0.8.2
+# Bluetooth auto-lock — 0.8.8
 
 This replaces GPS walk-away lock. There is no distance setting, parked-location arming, or return-unlock notification.
 
 ## Set up once
-Open Bluetooth auto-lock on the phone dashboard. Select the car's own paired Bluetooth device, NOT an Android Auto dongle. Choose 30 (default), 60 or 120 seconds, then Enable auto-lock. Allow Nearby devices and notifications. Location permission is not required for this feature.
+Open Bluetooth auto-lock on the phone dashboard. Select the car's own paired Bluetooth device, NOT an Android Auto dongle. Choose 10, 15 (default for new setups), 30, 60 or 120 seconds, then Enable auto-lock. Allow Nearby devices and notifications. Location permission is not required for this feature.
 
 After setup, no button press is needed per trip. The app observes a car connection (including an existing headset/audio connection at startup), then waits for the link to disconnect. After the delay it attempts one lock through Hyundai. It will not retry automatically. Reconnection before dispatch cancels the request. An actual new connection/disconnection starts a new cycle.
 

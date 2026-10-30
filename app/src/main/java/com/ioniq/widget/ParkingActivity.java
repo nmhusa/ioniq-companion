@@ -11,7 +11,7 @@ public class ParkingActivity extends Activity {
   text("BLUETOOTH AUTO-LOCK");
   text("Set up once. Your car disconnects → countdown → one lock attempt. No button press each trip.");
   car=button("Select car Bluetooth",()->choose());
-  delay=button("Delay",()->new AlertDialog.Builder(this).setTitle("Lock delay").setItems(new String[]{"30 seconds","60 seconds","120 seconds"},(d,n)->{BluetoothLockService.stop(this);prefs().edit().putInt("bt_delay",new int[]{30,60,120}[n]).apply();render();Toast.makeText(this,"Delay saved. Enable auto-lock again.",Toast.LENGTH_SHORT).show();}).show());
+  delay=button("Delay",()->new AlertDialog.Builder(this).setTitle("Lock delay").setItems(new String[]{"10 seconds","15 seconds","30 seconds","60 seconds","120 seconds"},(d,n)->{BluetoothLockService.stop(this);prefs().edit().putInt("bt_delay",new int[]{10,15,30,60,120}[n]).apply();render();Toast.makeText(this,"Delay saved. Enable auto-lock again.",Toast.LENGTH_SHORT).show();}).show());
   toggle=button("Enable auto-lock",()->{if(BluetoothLockService.enabled(this)&&BluetoothLockService.instance!=null){BluetoothLockService.stop(this);render();}else enable();});
   status=new TextView(this);status.setTextColor(0xff8fe4cb);status.setTextSize(15);page.addView(status);
   text("Select the car itself, not your Android Auto dongle. Reconnecting cancels a pending lock. Turning Bluetooth off stops auto-lock. A lost Bluetooth connection can also happen while driving; it is not proof you parked or closed the doors.");

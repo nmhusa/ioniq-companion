@@ -13,6 +13,12 @@ public final class BluetoothLockRulesTest {
   r.connected();r.disconnected(400000,30);token=r.claim(430000);check(!r.consume(token,490001));
   r=new BluetoothLockRules();check(!r.disconnected(500000,30));check(r.claim(600000)<0);
   r.connected();r.disconnected(700000,30);token=r.claim(730000);r.finish(token);check(!r.consume(token,730001));
+  for(int seconds:new int[]{10,15}){
+   r=new BluetoothLockRules();r.connected();check(r.disconnected(1000,seconds));
+   long due=1000+seconds*1000L;check(r.claim(due-1)<0);token=r.claim(due);check(token>=0);check(r.consume(token,due));check(!r.consume(token,due));
+   r=new BluetoothLockRules();r.connected();r.disconnected(1000,seconds);r.connected();check(r.claim(due)<0);
+   r.disconnected(due+1000,seconds);token=r.claim(due+1000+seconds*1000L);r.connected();check(!r.consume(token,due+1000+seconds*1000L));
+  }
   System.out.println(n+" Bluetooth lock checks passed");
  }
 }
