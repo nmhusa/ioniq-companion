@@ -134,3 +134,10 @@ Source commit `ba389cb11fd71771afe6249d07145d2e9b688ee8`; [CI run 40963391676](h
 ## 0.8.9 vehicle identity and switching
 
 Source `a4e238c0ad5df8ed887a2b2220d065bd1588c1c1`; [CI run 41095663899](https://github.com/nmhusa/ioniq-companion/actions/runs/41095663899) passed all three jobs. Phone/watch builds and lint, release obfuscation, PowerShell parsing/migration, model identification (including 9 and rejection of 90), Android encrypted nickname/account isolation and vehicle-selection checks, queued old-vehicle command rejection, existing storage and component checks, watch tests and release launch smoke checks passed. Synthetic accounts only; no live car commands sent. Real multi-car accounts and IONIQ 9 API compatibility remain owner validation.
+
+
+## 0.9.0 vehicle appearance
+
+Source commit `da1a59d042851baa1a5b335f313777606fb1eb6f` adds 13 US palettes and 50 local transparent images. Local checks passed: 23 model/body identification assertions, 161 actual catalog matching assertions (names, verified codes, unknown and conflicting hints), JSON/path/year validation, and alpha-channel checks for all images. The six new/updated appearance and identity classes compile against Android 14 API classes with temporary Vault/SecurePrefs/R integration stubs; this is not a full APK build. Images total approximately 2.1 MB.
+
+GitHub Actions run https://github.com/nmhusa/ioniq-companion/actions/runs/41101958632 remains queued at delivery. Full Android APK/lint, Windows script parsing and emulator checks are therefore pending, not passed. Instrumentation includes asset decoding, VIN/account isolation, manual override, clearing choices, rejecting a stale vehicle editor, and selecting/saving a color in the real activity. No live Hyundai account or car was contacted. Build the configured signed APK locally with the existing signing key; that script runs compilation and lint. Hardware appearance selection remains to be confirmed by the owner.
