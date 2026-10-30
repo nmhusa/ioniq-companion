@@ -30,6 +30,7 @@ public final class SecurityInstrumentation extends Instrumentation {
   check(!CommandService.running);check(before.equals(actions.getAll()));settings.edit().clear().commit();
   watchChecks(c);
   garageChecks(c);
+  appearanceChecks(c);
   check(!pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).exported);
   check(!pm.getReceiverInfo(new ComponentName(c,BluetoothLockBoot.class),0).exported);
   check(!pm.getActivityInfo(new ComponentName(c,ParkingActivity.class),0).exported);
@@ -45,6 +46,27 @@ public final class SecurityInstrumentation extends Instrumentation {
 
   result.putString("security_result","PASS: "+checks+" Android storage and component checks");finish(-1,result);
  }catch(Throwable e){result.putString("security_result","FAIL: "+e.getClass().getSimpleName()+" after "+checks+" checks");finish(0,result);}}
+ private void appearanceChecks(Context c)throws Exception{
+  org.json.JSONObject saved=Vault.read(c);try{
+   org.json.JSONArray groups=PaintCatalog.groups(c);check(groups.length()==13);java.util.HashSet<String> images=new java.util.HashSet<>();
+   for(int i=0;i<groups.length();i++){org.json.JSONObject g=groups.getJSONObject(i);org.json.JSONArray colors=g.getJSONArray("colors");for(int x=0;x<colors.length();x++){String asset=colors.getJSONObject(x).getString("asset");if(images.add(asset))try(java.io.InputStream in=c.getAssets().open(asset)){android.graphics.Bitmap bitmap=android.graphics.BitmapFactory.decodeStream(in);check(bitmap!=null&&bitmap.hasAlpha()&&bitmap.getWidth()>=500);check(android.graphics.Color.alpha(bitmap.getPixel(0,0))==0);bitmap.recycle();}}}check(images.size()==50);
+   org.json.JSONObject auth=new org.json.JSONObject().put("email","paint@example.invalid").put("vin","PAINT-A");Vault.save(c,auth);VehicleGarage.clear(c);
+   org.json.JSONObject details=new org.json.JSONObject().put("vin","PAINT-A").put("modelName","IONIQ 9").put("modelYear","2026").put("exteriorColorCode","NH5");VehicleIdentity.save(c,details);check(VehicleAppearance.asset(c).equals("paint_icons/i9_nh5.webp"));String scope=VehicleGarage.scope(c);
+   VehicleAppearance.save(c,scope,"i9_2026_standard","i9_swp");check(VehicleAppearance.asset(c).equals("paint_icons/i9_swp.webp"));
+   Vault.save(c,new org.json.JSONObject().put("email","paint@example.invalid").put("vin","PAINT-B"));VehicleIdentity.save(c,new org.json.JSONObject().put("vin","PAINT-B").put("modelName","IONIQ 6").put("modelYear","2026").put("exteriorColorCode","A2B"));check(VehicleAppearance.asset(c).isEmpty());check(PaintCatalog.defaultGroup(c,VehicleIdentity.read(c))==null);
+   boolean rejected=false;try{VehicleAppearance.save(c,scope,"i9_2026_standard","i9_swp");}catch(Exception expected){rejected=true;}check(rejected);
+   VehicleAppearance.save(c,VehicleGarage.scope(c),"i6_2025_standard","i6_w6h");check(VehicleAppearance.asset(c).equals("paint_icons/i6_w6h.webp"));
+   Vault.save(c,auth);VehicleIdentity.save(c,details);check(VehicleAppearance.asset(c).equals("paint_icons/i9_swp.webp"));
+   Vault.save(c,new org.json.JSONObject().put("email","other@example.invalid").put("vin","PAINT-A"));check(VehicleAppearance.selection(c).length()==0);Vault.save(c,auth);
+   VehicleAppearance.save(c,scope,"","");check(VehicleAppearance.asset(c).equals("paint_icons/i9_nh5.webp"));details.put("exteriorColorCode","unknown");VehicleIdentity.save(c,details);check(VehicleAppearance.asset(c).isEmpty());
+   check(PaintCatalog.match(PaintCatalog.group(c,"i9_2026_standard"),new org.json.JSONArray().put("NH5").put("SWP"))==null);
+   check(PaintCatalog.match(PaintCatalog.group(c,"i5_2022_standard"),new org.json.JSONArray().put("A2B"))==null);
+   check(PaintCatalog.match(PaintCatalog.group(c,"i5_2022_standard"),new org.json.JSONArray().put("Digital Teal")).getString("id").equals("i5_early_digital_teal"));
+   VehicleAppearance.save(c,scope,"i9_2026_standard","i9_swp");VehicleGarage.clear(c);check(VehicleAppearance.selection(c).length()==0);
+   check(!c.getPackageManager().getActivityInfo(new ComponentName(c,AppearanceActivity.class),0).exported);
+   android.app.Activity editor=startActivitySync(new Intent(c,AppearanceActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));waitForIdleSync();runOnMainSync(()->editor.finish());
+  }finally{VehicleGarage.clear(c);SecurePrefs.get(c,"vehicle_identity").edit().clear().commit();Vault.save(c,saved);}
+ }
  private void garageChecks(Context c)throws Exception{
   org.json.JSONObject saved=Vault.read(c);java.util.concurrent.CountDownLatch release=new java.util.concurrent.CountDownLatch(1);
   try{

@@ -23,6 +23,8 @@ jobs:
         run: |
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/MileageReading.java tests/MileageReadingTest.java
           java -cp /tmp/parking-tests com.ioniq.widget.MileageReadingTest
+      - name: Check bundled paint catalog
+        run: python tests/check_paint_catalog.py
       - name: Test vehicle model identification
         run: |
           javac -d /tmp/parking-tests app/src/main/java/com/ioniq/widget/ModelName.java tests/ModelNameTest.java

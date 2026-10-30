@@ -6,6 +6,7 @@ public class ModelNameTest {
   for(int i=0;i<inputs.length;i++)if(ModelName.number(inputs[i],"")!=expected[i])throw new AssertionError("Model mismatch: "+inputs[i]);
   if(ModelName.number("UNKNOWN","IONIQ 5")!=5)throw new AssertionError("Model-name fallback");
   if(!ModelName.title(0).equals("IONIQ Companion"))throw new AssertionError("Unknown must not default to 6");
-  System.out.println("Passed 18 model identification checks.");
+  if(!ModelName.variant("IONIQ 5 N").equals("n")||!ModelName.variant("IONIQ5N").equals("n")||!ModelName.variant("IONIQ 5 XRT").equals("xrt")||!ModelName.variant("IONIQ 5 N Line").isEmpty()||!ModelName.variant("IONIQ 5 Limited").isEmpty())throw new AssertionError("Body style identification");
+  System.out.println("Passed 23 model identification checks.");
  }
 }

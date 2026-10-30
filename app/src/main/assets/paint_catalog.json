@@ -1,0 +1,712 @@
+{
+  "market": "US",
+  "verifiedThroughModelYear": 2026,
+  "groups": [
+    {
+      "id": "i5_2022_standard",
+      "label": "2022 IONIQ 5",
+      "model": 5,
+      "year": "2022",
+      "variant": "",
+      "source": "https://secure.viewer.zmags.com/publication/7ae4faa8",
+      "colors": [
+        {
+          "id": "i5_early_atlas_white",
+          "name": "Atlas White",
+          "code": "",
+          "asset": "paint_icons/i5_early_atlas_white.webp"
+        },
+        {
+          "id": "i5_early_cyber_gray",
+          "name": "Cyber Gray",
+          "code": "",
+          "asset": "paint_icons/i5_early_cyber_gray.webp"
+        },
+        {
+          "id": "i5_early_digital_teal",
+          "name": "Digital Teal",
+          "code": "",
+          "asset": "paint_icons/i5_early_digital_teal.webp"
+        },
+        {
+          "id": "i5_early_lucid_blue",
+          "name": "Lucid Blue",
+          "code": "",
+          "asset": "paint_icons/i5_early_lucid_blue.webp"
+        },
+        {
+          "id": "i5_early_phantom_black",
+          "name": "Phantom Black",
+          "code": "",
+          "asset": "paint_icons/i5_early_phantom_black.webp"
+        },
+        {
+          "id": "i5_early_shooting_star",
+          "name": "Shooting Star Matte",
+          "code": "",
+          "asset": "paint_icons/i5_early_shooting_star.webp"
+        }
+      ]
+    },
+    {
+      "id": "i5_2023_standard",
+      "label": "2023 IONIQ 5",
+      "model": 5,
+      "year": "2023",
+      "variant": "",
+      "source": "https://secure.viewer.zmags.com/publication/ed5bb72b",
+      "colors": [
+        {
+          "id": "i5_early_atlas_white",
+          "name": "Atlas White",
+          "code": "",
+          "asset": "paint_icons/i5_early_atlas_white.webp"
+        },
+        {
+          "id": "i5_early_cyber_gray",
+          "name": "Cyber Gray",
+          "code": "",
+          "asset": "paint_icons/i5_early_cyber_gray.webp"
+        },
+        {
+          "id": "i5_early_digital_teal",
+          "name": "Digital Teal",
+          "code": "",
+          "asset": "paint_icons/i5_early_digital_teal.webp"
+        },
+        {
+          "id": "i5_early_lucid_blue",
+          "name": "Lucid Blue",
+          "code": "",
+          "asset": "paint_icons/i5_early_lucid_blue.webp"
+        },
+        {
+          "id": "i5_early_phantom_black",
+          "name": "Phantom Black",
+          "code": "",
+          "asset": "paint_icons/i5_early_phantom_black.webp"
+        },
+        {
+          "id": "i5_early_abyss_black",
+          "name": "Abyss Black",
+          "code": "",
+          "asset": "paint_icons/i5_early_abyss_black.webp"
+        },
+        {
+          "id": "i5_early_shooting_star",
+          "name": "Shooting Star Matte",
+          "code": "",
+          "asset": "paint_icons/i5_early_shooting_star.webp"
+        },
+        {
+          "id": "i5_early_gravity_gold",
+          "name": "Gravity Gold Matte",
+          "code": "",
+          "asset": "paint_icons/i5_early_gravity_gold.webp"
+        }
+      ]
+    },
+    {
+      "id": "i5_2024_standard",
+      "label": "2024 IONIQ 5",
+      "model": 5,
+      "year": "2024",
+      "variant": "",
+      "source": "https://secure.viewer.zmags.com/publication/5f3be1ec",
+      "colors": [
+        {
+          "id": "i5_early_atlas_white",
+          "name": "Atlas White",
+          "code": "",
+          "asset": "paint_icons/i5_early_atlas_white.webp"
+        },
+        {
+          "id": "i5_early_cyber_gray",
+          "name": "Cyber Gray",
+          "code": "",
+          "asset": "paint_icons/i5_early_cyber_gray.webp"
+        },
+        {
+          "id": "i5_early_digital_teal",
+          "name": "Digital Teal",
+          "code": "",
+          "asset": "paint_icons/i5_early_digital_teal.webp"
+        },
+        {
+          "id": "i5_early_lucid_blue",
+          "name": "Lucid Blue",
+          "code": "",
+          "asset": "paint_icons/i5_early_lucid_blue.webp"
+        },
+        {
+          "id": "i5_early_abyss_black",
+          "name": "Abyss Black",
+          "code": "",
+          "asset": "paint_icons/i5_early_abyss_black.webp"
+        },
+        {
+          "id": "i5_early_shooting_star",
+          "name": "Shooting Star Matte",
+          "code": "",
+          "asset": "paint_icons/i5_early_shooting_star.webp"
+        },
+        {
+          "id": "i5_early_gravity_gold",
+          "name": "Gravity Gold Matte",
+          "code": "",
+          "asset": "paint_icons/i5_early_gravity_gold.webp"
+        }
+      ]
+    },
+    {
+      "id": "i5_2025_standard",
+      "label": "2025 IONIQ 5",
+      "model": 5,
+      "year": "2025",
+      "variant": "",
+      "source": "https://secure.viewer.zmags.com/publication/5f26c1e9",
+      "colors": [
+        {
+          "id": "i5_refresh_saw",
+          "name": "Atlas White",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_saw.webp"
+        },
+        {
+          "id": "i5_refresh_net",
+          "name": "Ecotronic Gray Matte",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_net.webp"
+        },
+        {
+          "id": "i5_refresh_a2b",
+          "name": "Abyss Black",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_a2b.webp"
+        },
+        {
+          "id": "i5_refresh_c5g",
+          "name": "Cyber Gray",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_c5g.webp"
+        },
+        {
+          "id": "i5_refresh_m9u",
+          "name": "Digital Teal",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_m9u.webp"
+        },
+        {
+          "id": "i5_refresh_wam",
+          "name": "Atlas White Matte",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_wam.webp"
+        },
+        {
+          "id": "i5_refresh_celadon",
+          "name": "Celadon Gray Matte",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_celadon.webp"
+        },
+        {
+          "id": "i5_refresh_u3p",
+          "name": "Lucid Blue",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_u3p.webp"
+        },
+        {
+          "id": "i5_refresh_w3t",
+          "name": "Gravity Gold Matte",
+          "code": "",
+          "asset": "paint_icons/i5_refresh_w3t.webp"
+        }
+      ]
+    },
+    {
+      "id": "i5_2025_xrt",
+      "label": "2025 IONIQ 5 XRT",
+      "model": 5,
+      "year": "2025",
+      "variant": "xrt",
+      "source": "https://secure.viewer.zmags.com/publication/5f26c1e9",
+      "colors": [
+        {
+          "id": "i5_xrt_saw",
+          "name": "Atlas White",
+          "code": "",
+          "asset": "paint_icons/i5_xrt_saw.webp"
+        },
+        {
+          "id": "i5_xrt_net",
+          "name": "Ecotronic Gray Matte",
+          "code": "",
+          "asset": "paint_icons/i5_xrt_net.webp"
+        },
+        {
+          "id": "i5_xrt_a2b",
+          "name": "Abyss Black",
+          "code": "",
+          "asset": "paint_icons/i5_xrt_a2b.webp"
+        },
+        {
+          "id": "i5_xrt_c5g",
+          "name": "Cyber Gray",
+          "code": "",
+          "asset": "paint_icons/i5_xrt_c5g.webp"
+        },
+        {
+          "id": "i5_xrt_m9u",
+          "name": "Digital Teal",
+          "code": "",
+          "asset": "paint_icons/i5_xrt_m9u.webp"
+        },
+        {
+          "id": "i5_xrt_wam",
+          "name": "Atlas White Matte",
+          "code": "",
+          "asset": "paint_icons/i5_xrt_wam.webp"
+        },
+        {
+          "id": "i5_xrt_mc5",
+          "name": "Cosmic Blue",
+          "code": "",
+          "asset": "paint_icons/i5_xrt_mc5.webp"
+        },
+        {
+          "id": "i5_xrt_r2p",
+          "name": "Ultimate Red",
+          "code": "",
+          "asset": "paint_icons/i5_xrt_r2p.webp"
+        }
+      ]
+    },
+    {
+      "id": "i5_2025_n",
+      "label": "2025 IONIQ 5 N",
+      "model": 5,
+      "year": "2025",
+      "variant": "n",
+      "source": "https://secure.viewer.zmags.com/publication/5f26c1e9",
+      "colors": [
+        {
+          "id": "i5_n_saw",
+          "name": "Atlas White",
+          "code": "",
+          "asset": "paint_icons/i5_n_saw.webp"
+        },
+        {
+          "id": "i5_n_net",
+          "name": "Ecotronic Gray Matte",
+          "code": "",
+          "asset": "paint_icons/i5_n_net.webp"
+        },
+        {
+          "id": "i5_n_a2b",
+          "name": "Abyss Black",
+          "code": "",
+          "asset": "paint_icons/i5_n_a2b.webp"
+        },
+        {
+          "id": "i5_n_sop",
+          "name": "Soultronic Orange",
+          "code": "",
+          "asset": "paint_icons/i5_n_sop.webp"
+        },
+        {
+          "id": "i5_n_xge",
+          "name": "Performance Blue Matte",
+          "code": "",
+          "asset": "paint_icons/i5_n_xge.webp"
+        }
+      ]
+    },
+    {
+      "id": "i5_2026_standard",
+      "label": "2026 IONIQ 5",
+      "model": 5,
+      "year": "2026",
+      "variant": "",
+      "source": "https://www.hyundaiusa.com/us/en/vehicles/2026-ioniq-5",
+      "colors": [
+        {
+          "id": "i5_refresh_a2b",
+          "name": "Abyss Black",
+          "code": "A2B",
+          "asset": "paint_icons/i5_refresh_a2b.webp"
+        },
+        {
+          "id": "i5_refresh_c5g",
+          "name": "Cyber Gray",
+          "code": "C5G",
+          "asset": "paint_icons/i5_refresh_c5g.webp"
+        },
+        {
+          "id": "i5_refresh_m9u",
+          "name": "Digital Teal",
+          "code": "M9U",
+          "asset": "paint_icons/i5_refresh_m9u.webp"
+        },
+        {
+          "id": "i5_refresh_saw",
+          "name": "Atlas White",
+          "code": "SAW",
+          "asset": "paint_icons/i5_refresh_saw.webp"
+        },
+        {
+          "id": "i5_refresh_u3p",
+          "name": "Lucid Blue",
+          "code": "U3P",
+          "asset": "paint_icons/i5_refresh_u3p.webp"
+        },
+        {
+          "id": "i5_refresh_net",
+          "name": "Ecotronic Gray Matte",
+          "code": "NET",
+          "asset": "paint_icons/i5_refresh_net.webp"
+        },
+        {
+          "id": "i5_refresh_r2p",
+          "name": "Ultimate Red Pearl",
+          "code": "R2P",
+          "asset": "paint_icons/i5_refresh_r2p.webp"
+        },
+        {
+          "id": "i5_refresh_wam",
+          "name": "Atlas White Matte",
+          "code": "WAM",
+          "asset": "paint_icons/i5_refresh_wam.webp"
+        },
+        {
+          "id": "i5_refresh_y3t",
+          "name": "Sage Silver Matte",
+          "code": "Y3T",
+          "asset": "paint_icons/i5_refresh_y3t.webp"
+        },
+        {
+          "id": "i5_refresh_mc5",
+          "name": "Cosmic Blue Pearl",
+          "code": "MC5",
+          "asset": "paint_icons/i5_refresh_mc5.webp"
+        },
+        {
+          "id": "i5_refresh_w3t",
+          "name": "Gravity Gold Matte",
+          "code": "W3T",
+          "asset": "paint_icons/i5_refresh_w3t.webp"
+        }
+      ]
+    },
+    {
+      "id": "i5_2026_xrt",
+      "label": "2026 IONIQ 5 XRT",
+      "model": 5,
+      "year": "2026",
+      "variant": "xrt",
+      "source": "https://www.hyundaiusa.com/us/en/vehicles/2026-ioniq-5",
+      "colors": [
+        {
+          "id": "i5_xrt_a2b",
+          "name": "Abyss Black",
+          "code": "A2B",
+          "asset": "paint_icons/i5_xrt_a2b.webp"
+        },
+        {
+          "id": "i5_xrt_r2p",
+          "name": "Ultimate Red Pearl",
+          "code": "R2P",
+          "asset": "paint_icons/i5_xrt_r2p.webp"
+        },
+        {
+          "id": "i5_xrt_c5g",
+          "name": "Cyber Gray",
+          "code": "C5G",
+          "asset": "paint_icons/i5_xrt_c5g.webp"
+        },
+        {
+          "id": "i5_xrt_m9u",
+          "name": "Digital Teal",
+          "code": "M9U",
+          "asset": "paint_icons/i5_xrt_m9u.webp"
+        },
+        {
+          "id": "i5_xrt_saw",
+          "name": "Atlas White",
+          "code": "SAW",
+          "asset": "paint_icons/i5_xrt_saw.webp"
+        },
+        {
+          "id": "i5_xrt_net",
+          "name": "Ecotronic Gray Matte",
+          "code": "NET",
+          "asset": "paint_icons/i5_xrt_net.webp"
+        },
+        {
+          "id": "i5_xrt_mc5",
+          "name": "Cosmic Blue Pearl",
+          "code": "MC5",
+          "asset": "paint_icons/i5_xrt_mc5.webp"
+        }
+      ]
+    },
+    {
+      "id": "i5_2026_n",
+      "label": "2026 IONIQ 5 N",
+      "model": 5,
+      "year": "2026",
+      "variant": "n",
+      "source": "https://www.hyundaiusa.com/us/en/vehicles/ioniq-5-n",
+      "colors": [
+        {
+          "id": "i5_n_a2b",
+          "name": "Abyss Black",
+          "code": "A2B",
+          "asset": "paint_icons/i5_n_a2b.webp"
+        },
+        {
+          "id": "i5_n_net",
+          "name": "Ecotronic Gray Matte",
+          "code": "NET",
+          "asset": "paint_icons/i5_n_net.webp"
+        },
+        {
+          "id": "i5_n_saw",
+          "name": "Atlas White",
+          "code": "SAW",
+          "asset": "paint_icons/i5_n_saw.webp"
+        },
+        {
+          "id": "i5_n_sfb",
+          "name": "Performance Blue",
+          "code": "SFB",
+          "asset": "paint_icons/i5_n_sfb.webp"
+        },
+        {
+          "id": "i5_n_sop",
+          "name": "Soultronic Orange",
+          "code": "SOP",
+          "asset": "paint_icons/i5_n_sop.webp"
+        },
+        {
+          "id": "i5_n_xge",
+          "name": "Performance Blue Matte",
+          "code": "XGE",
+          "asset": "paint_icons/i5_n_xge.webp"
+        }
+      ]
+    },
+    {
+      "id": "i6_2023_standard",
+      "label": "2023 IONIQ 6",
+      "model": 6,
+      "year": "2023",
+      "variant": "",
+      "source": "https://secure.viewer.zmags.com/publication/f402942b",
+      "colors": [
+        {
+          "id": "i6_a2b",
+          "name": "Onyx Black",
+          "code": "",
+          "asset": "paint_icons/i6_a2b.webp"
+        },
+        {
+          "id": "i6_ny9",
+          "name": "Transmission Blue",
+          "code": "",
+          "asset": "paint_icons/i6_ny9.webp"
+        },
+        {
+          "id": "i6_r2p",
+          "name": "Ultimate Red",
+          "code": "",
+          "asset": "paint_icons/i6_r2p.webp"
+        },
+        {
+          "id": "i6_r9s",
+          "name": "Curated Silver",
+          "code": "",
+          "asset": "paint_icons/i6_r9s.webp"
+        },
+        {
+          "id": "i6_w6h",
+          "name": "Serenity White",
+          "code": "",
+          "asset": "paint_icons/i6_w6h.webp"
+        },
+        {
+          "id": "i6_w3t",
+          "name": "Gravity Gold Matte",
+          "code": "",
+          "asset": "paint_icons/i6_w3t.webp"
+        },
+        {
+          "id": "i6_digital_green",
+          "name": "Digital Green",
+          "code": "",
+          "asset": "paint_icons/i6_digital_green.webp"
+        }
+      ]
+    },
+    {
+      "id": "i6_2024_standard",
+      "label": "2024 IONIQ 6",
+      "model": 6,
+      "year": "2024",
+      "variant": "",
+      "source": "https://secure.viewer.zmags.com/publication/85fa8deb",
+      "colors": [
+        {
+          "id": "i6_a2b",
+          "name": "Onyx Black",
+          "code": "",
+          "asset": "paint_icons/i6_a2b.webp"
+        },
+        {
+          "id": "i6_ny9",
+          "name": "Transmission Blue",
+          "code": "",
+          "asset": "paint_icons/i6_ny9.webp"
+        },
+        {
+          "id": "i6_r2p",
+          "name": "Ultimate Red",
+          "code": "",
+          "asset": "paint_icons/i6_r2p.webp"
+        },
+        {
+          "id": "i6_r9s",
+          "name": "Curated Silver",
+          "code": "",
+          "asset": "paint_icons/i6_r9s.webp"
+        },
+        {
+          "id": "i6_w6h",
+          "name": "Serenity White",
+          "code": "",
+          "asset": "paint_icons/i6_w6h.webp"
+        },
+        {
+          "id": "i6_w3t",
+          "name": "Gravity Gold Matte",
+          "code": "",
+          "asset": "paint_icons/i6_w3t.webp"
+        },
+        {
+          "id": "i6_digital_green",
+          "name": "Digital Green",
+          "code": "",
+          "asset": "paint_icons/i6_digital_green.webp"
+        }
+      ]
+    },
+    {
+      "id": "i6_2025_standard",
+      "label": "2025 IONIQ 6",
+      "model": 6,
+      "year": "2025",
+      "variant": "",
+      "source": "https://www.hyundaiusa.com/us/en/vehicles/ioniq-6",
+      "colors": [
+        {
+          "id": "i6_a2b",
+          "name": "Onyx Black",
+          "code": "A2B",
+          "asset": "paint_icons/i6_a2b.webp"
+        },
+        {
+          "id": "i6_ny9",
+          "name": "Transmission Blue",
+          "code": "NY9",
+          "asset": "paint_icons/i6_ny9.webp"
+        },
+        {
+          "id": "i6_r2p",
+          "name": "Ultimate Red",
+          "code": "R2P",
+          "asset": "paint_icons/i6_r2p.webp"
+        },
+        {
+          "id": "i6_r9s",
+          "name": "Curated Silver",
+          "code": "R9S",
+          "asset": "paint_icons/i6_r9s.webp"
+        },
+        {
+          "id": "i6_w6h",
+          "name": "Serenity White",
+          "code": "W6H",
+          "asset": "paint_icons/i6_w6h.webp"
+        },
+        {
+          "id": "i6_w3t",
+          "name": "Gravity Gold Matte",
+          "code": "W3T",
+          "asset": "paint_icons/i6_w3t.webp"
+        }
+      ]
+    },
+    {
+      "id": "i9_2026_standard",
+      "label": "2026 IONIQ 9",
+      "model": 9,
+      "year": "2026",
+      "variant": "",
+      "source": "https://www.hyundaiusa.com/us/en/vehicles/ioniq-9",
+      "colors": [
+        {
+          "id": "i9_a2b",
+          "name": "Abyss Black Pearl",
+          "code": "A2B",
+          "asset": "paint_icons/i9_a2b.webp"
+        },
+        {
+          "id": "i9_c5g",
+          "name": "Cyber Gray Metallic",
+          "code": "C5G",
+          "asset": "paint_icons/i9_c5g.webp"
+        },
+        {
+          "id": "i9_mc5",
+          "name": "Cosmic Blue Pearl",
+          "code": "MC5",
+          "asset": "paint_icons/i9_mc5.webp"
+        },
+        {
+          "id": "i9_swp",
+          "name": "Snow White Pearl",
+          "code": "SWP",
+          "asset": "paint_icons/i9_swp.webp"
+        },
+        {
+          "id": "i9_nh5",
+          "name": "Ionosphere Green Pearl",
+          "code": "NH5",
+          "asset": "paint_icons/i9_nh5.webp"
+        },
+        {
+          "id": "i9_r2p",
+          "name": "Ultimate Red",
+          "code": "R2P",
+          "asset": "paint_icons/i9_r2p.webp"
+        },
+        {
+          "id": "i9_net",
+          "name": "Ecotronic Gray Matte",
+          "code": "NET",
+          "asset": "paint_icons/i9_net.webp"
+        },
+        {
+          "id": "i9_w3t",
+          "name": "Gravity Gold Matte",
+          "code": "W3T",
+          "asset": "paint_icons/i9_w3t.webp"
+        },
+        {
+          "id": "i9_y3t",
+          "name": "Sage Silver Matte",
+          "code": "Y3T",
+          "asset": "paint_icons/i9_y3t.webp"
+        }
+      ]
+    }
+  ]
+}

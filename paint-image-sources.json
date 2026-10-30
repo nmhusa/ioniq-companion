@@ -1,0 +1,303 @@
+[
+  {
+    "id": "i5_refresh_a2b",
+    "name": "Abyss Black",
+    "file": "paint_icons/i5_refresh_a2b.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-abyss-black-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_c5g",
+    "name": "Cyber Gray",
+    "file": "paint_icons/i5_refresh_c5g.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-cyber-gray-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_m9u",
+    "name": "Digital Teal",
+    "file": "paint_icons/i5_refresh_m9u.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-digital-teal-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_saw",
+    "name": "Atlas White",
+    "file": "paint_icons/i5_refresh_saw.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-atlas-white-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_u3p",
+    "name": "Lucid Blue",
+    "file": "paint_icons/i5_refresh_u3p.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-lucid-blue-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_net",
+    "name": "Ecotronic Gray Matte",
+    "file": "paint_icons/i5_refresh_net.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-ecotronic-gray-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_r2p",
+    "name": "Ultimate Red Pearl",
+    "file": "paint_icons/i5_refresh_r2p.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-ultimate-red-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_wam",
+    "name": "Atlas White Matte",
+    "file": "paint_icons/i5_refresh_wam.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-atlas-white-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_y3t",
+    "name": "Sage Silver Matte",
+    "file": "paint_icons/i5_refresh_y3t.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-sage-silver-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_mc5",
+    "name": "Cosmic Blue Pearl",
+    "file": "paint_icons/i5_refresh_mc5.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-cosmic-blue-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_w3t",
+    "name": "Gravity Gold Matte",
+    "file": "paint_icons/i5_refresh_w3t.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-limited-rwd-gravity-gold-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_xrt_a2b",
+    "name": "Abyss Black",
+    "file": "paint_icons/i5_xrt_a2b.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-xrt-awd-abyss-black-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_xrt_c5g",
+    "name": "Cyber Gray",
+    "file": "paint_icons/i5_xrt_c5g.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-xrt-awd-cyber-gray-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_xrt_m9u",
+    "name": "Digital Teal",
+    "file": "paint_icons/i5_xrt_m9u.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-xrt-awd-digital-teal-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_xrt_saw",
+    "name": "Atlas White",
+    "file": "paint_icons/i5_xrt_saw.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-xrt-awd-atlas-white-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_xrt_net",
+    "name": "Ecotronic Gray Matte",
+    "file": "paint_icons/i5_xrt_net.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-xrt-awd-ecotronic-gray-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_xrt_r2p",
+    "name": "Ultimate Red Pearl",
+    "file": "paint_icons/i5_xrt_r2p.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-xrt-awd-ultimate-red-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_xrt_mc5",
+    "name": "Cosmic Blue Pearl",
+    "file": "paint_icons/i5_xrt_mc5.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-xrt-awd-cosmic-blue-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_n_a2b",
+    "name": "Abyss Black",
+    "file": "paint_icons/i5_n_a2b.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-5-n-abyss-black-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_n_net",
+    "name": "Ecotronic Gray Matte",
+    "file": "paint_icons/i5_n_net.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-5-n-ecotronic-gray-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_n_saw",
+    "name": "Atlas White",
+    "file": "paint_icons/i5_n_saw.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-5-n-atlas-white-solid-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_n_sfb",
+    "name": "Performance Blue",
+    "file": "paint_icons/i5_n_sfb.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-5-n-performance-blue-en-006?wid=960&fmt=png-alpha",
+    "note": "AI-assisted representative glossy paint render using the official matte N image for shape and official glossy Performance Blue image for paint reference. Not a factory render."
+  },
+  {
+    "id": "i5_n_sop",
+    "name": "Soultronic Orange",
+    "file": "paint_icons/i5_n_sop.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-5-n-soultronic-orange-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_n_xge",
+    "name": "Performance Blue Matte",
+    "file": "paint_icons/i5_n_xge.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-5-n-performance-blue-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i6_a2b",
+    "name": "Onyx Black",
+    "file": "paint_icons/i6_a2b.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-6-limited-rwd-onyx-black-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i6_ny9",
+    "name": "Transmission Blue",
+    "file": "paint_icons/i6_ny9.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-6-limited-rwd-transmission-blue-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i6_r2p",
+    "name": "Ultimate Red",
+    "file": "paint_icons/i6_r2p.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-6-limited-rwd-ultimate-red-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i6_r9s",
+    "name": "Curated Silver",
+    "file": "paint_icons/i6_r9s.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-6-limited-rwd-curated-silver-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i6_w6h",
+    "name": "Serenity White",
+    "file": "paint_icons/i6_w6h.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-6-limited-rwd-serenity-white-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i6_w3t",
+    "name": "Gravity Gold Matte",
+    "file": "paint_icons/i6_w3t.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-6-limited-rwd-gravity-gold-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_a2b",
+    "name": "Abyss Black Pearl",
+    "file": "paint_icons/i9_a2b.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-limited-awd-abyss-black-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_c5g",
+    "name": "Cyber Gray Metallic",
+    "file": "paint_icons/i9_c5g.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-limited-awd-cyber-gray-metallic-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_mc5",
+    "name": "Cosmic Blue Pearl",
+    "file": "paint_icons/i9_mc5.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-limited-awd-cosmic-blue-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_swp",
+    "name": "Snow White Pearl",
+    "file": "paint_icons/i9_swp.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-limited-awd-snow-white-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_nh5",
+    "name": "Ionosphere Green Pearl",
+    "file": "paint_icons/i9_nh5.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-limited-awd-ionosphere-green-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_r2p",
+    "name": "Ultimate Red",
+    "file": "paint_icons/i9_r2p.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-limited-awd-ultimate-red-metallic-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_net",
+    "name": "Ecotronic Gray Matte",
+    "file": "paint_icons/i9_net.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-limited-awd-ecotronic-gray-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_w3t",
+    "name": "Gravity Gold Matte",
+    "file": "paint_icons/i9_w3t.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-calligraphy-design-awd-gravity-gold-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i9_y3t",
+    "name": "Sage Silver Matte",
+    "file": "paint_icons/i9_y3t.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2026-ioniq-9-calligraphy-design-awd-sage-silver-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_early_atlas_white",
+    "name": "Atlas White",
+    "file": "paint_icons/i5_early_atlas_white.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2023-ioniq-5-limited-awd-atlas-white-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_early_cyber_gray",
+    "name": "Cyber Gray",
+    "file": "paint_icons/i5_early_cyber_gray.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2023-ioniq-5-limited-awd-cyber-gray-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_early_digital_teal",
+    "name": "Digital Teal",
+    "file": "paint_icons/i5_early_digital_teal.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2023-ioniq-5-limited-awd-digital-teal-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_early_lucid_blue",
+    "name": "Lucid Blue",
+    "file": "paint_icons/i5_early_lucid_blue.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2023-ioniq-5-limited-awd-lucid-blue-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_early_phantom_black",
+    "name": "Phantom Black",
+    "file": "paint_icons/i5_early_phantom_black.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2023-ioniq-5-limited-awd-phantom-black-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_early_abyss_black",
+    "name": "Abyss Black",
+    "file": "paint_icons/i5_early_abyss_black.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2023-ioniq-5-limited-awd-abyss-black-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_early_shooting_star",
+    "name": "Shooting Star Matte",
+    "file": "paint_icons/i5_early_shooting_star.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2023-ioniq-5-limited-awd-shooting-star-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_early_gravity_gold",
+    "name": "Gravity Gold Matte",
+    "file": "paint_icons/i5_early_gravity_gold.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2023-ioniq-5-limited-awd-gravity-gold-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_refresh_celadon",
+    "name": "Celadon Gray Matte",
+    "file": "paint_icons/i5_refresh_celadon.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-5-limited-rwd-celadon-gray-matte-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i6_digital_green",
+    "name": "Digital Green",
+    "file": "paint_icons/i6_digital_green.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2024-ioniq-6-limited-rwd-digital-green-pearl-006?wid=960&fmt=png-alpha"
+  },
+  {
+    "id": "i5_xrt_wam",
+    "name": "Atlas White Matte",
+    "file": "paint_icons/i5_xrt_wam.webp",
+    "url": "https://s7d1.scene7.com/is/image/hyundai/2025-ioniq-5-xrt-awd-atlas-white-matte-006?wid=960&fmt=png-alpha"
+  }
+]

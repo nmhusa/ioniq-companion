@@ -1,6 +1,6 @@
 # Install IONIQ Companion
 
-For version 0.8.9, run the latest `update-existing-windows.ps1`, then `build-release-windows.ps1` with your existing signing key. Install `release-output/0.8.9/ioniq-companion-0.8.9.apk` over the current app. Tap the vehicle name to rename it; use the top-right switch button for another enrolled vehicle. If needed, refresh the list from Settings & help → Switch / refresh vehicles. Switching pauses auto-lock and watch controls until re-enabled for that car. No watch APK update is required.
+For version 0.9.0, run the latest `update-existing-windows.ps1`, then `build-release-windows.ps1` with your existing signing key. Install `release-output/0.9.0/ioniq-companion-0.9.0.apk` over the current app. Tap the vehicle name to rename it; use the top-right switch button for another enrolled vehicle. If needed, refresh the list from Settings & help → Switch / refresh vehicles. Switching pauses auto-lock and watch controls until re-enabled for that car. No watch APK update is required.
 
 Unofficial community preview for Hyundai US. Android 8.0 or later. Use your own Bluelink account and remote-service PIN with applicable active services. US 2023 IONIQ 6 connectivity has been owner-tested; IONIQ 5 display support is not proof of API compatibility with every model. This is not Hyundai Digital Key/NFC.
 
@@ -55,3 +55,6 @@ Open Settings & help → Unlock security to enable fingerprint or phone screen-l
 ## Find my car signals (0.7.12)
 
 Tap ⋯ next to Find my car, then Flash lights or Horn & lights. Confirm with Send, or Cancel to send nothing. The main Find my car button still opens the map directly.
+
+
+Vehicle colors: tap the car image, choose a palette and paint, then Save. See [color catalog](COLOR-CATALOG.md) for verified years and limitations.

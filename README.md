@@ -1,6 +1,6 @@
 # IONIQ Companion
 
-Latest version: **0.8.9** — IONIQ 5/6/9 images, top-of-screen vehicle switching, and per-car nicknames. [Release notes](RELEASE-0.8.9.md). Existing watch and widgets remain compatible.
+Latest version: **0.9.0** — IONIQ 5/6/9 images, top-of-screen vehicle switching, and per-car nicknames. [Release notes](RELEASE-0.9.0.md). Existing watch and widgets remain compatible.
 
 Unofficial Android companion for Hyundai US, with vehicle status and six colorful home-screen controls.
 
@@ -82,3 +82,6 @@ A Wear OS companion provides swipe-up/down pages and large one-tap controls thro
 ## Release obfuscation (0.8.1)
 
 Signed release builds use R8 optimization and name obfuscation. Client credentials are masked at build/update time to deter simple string searches. Both masking halves remain in the APK: this is not encryption or a promise of secrecy. The updater converts an existing quoted credential on your computer without uploading it. Build with your existing signing key; your watch 0.8.0 stays compatible. Private mappings are saved under ignored private-build-maps/, separate from APK distribution folders. See [release notes](RELEASE-0.8.1.md).
+
+
+Vehicle colors: tap the car image, choose a palette and paint, then Save. See [color catalog](COLOR-CATALOG.md) for verified years and limitations.

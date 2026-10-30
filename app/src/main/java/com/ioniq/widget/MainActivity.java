@@ -8,7 +8,7 @@ import android.view.*;
 import android.widget.*;
 import org.json.*;
 public class MainActivity extends Activity {
- private ImageView carImage;private TextView vehicleTitle,vehicleSubtitle;private int shownModel=-1;
+ private ImageView carImage;private TextView vehicleTitle,vehicleSubtitle;private String shownAppearance="";
  private Button vehicleSwitch;private Button walkAway;private TextView parkingStatus;private String reportDetails="",resultDetails="";
  private final android.os.Handler parkingHandler=new android.os.Handler(android.os.Looper.getMainLooper());
  private final Runnable parkingTick=new Runnable(){public void run(){updateParkingControl();parkingHandler.postDelayed(this,1000);}};
@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
  private TextView badge(String value,int size,int color){TextView t=new TextView(this);t.setText(value);t.setTextSize(size);t.setTextColor(color);t.setPadding(dp(12),dp(8),dp(12),dp(8));t.setBackground(surface(0xe6102533,0xff365565));return t;}
  private void carHeader(){
   FrameLayout hero=new FrameLayout(this);hero.setBackground(new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR,new int[]{0xff254958,0xff0e1d2a,0xff122a39}));hero.setPadding(dp(6),dp(6),dp(6),dp(6));page.addView(hero,new LinearLayout.LayoutParams(-1,dp(getResources().getConfiguration().fontScale>1.2f?320:280)));
-  ImageView car=new ImageView(this);carImage=car;car.setImageResource(R.drawable.ic_launcher_car);car.setScaleType(ImageView.ScaleType.FIT_CENTER);car.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);FrameLayout.LayoutParams pic=new FrameLayout.LayoutParams(-1,dp(210),Gravity.CENTER);hero.addView(car,pic);
+  ImageView car=new ImageView(this);carImage=car;car.setImageResource(R.drawable.ic_launcher_car);car.setScaleType(ImageView.ScaleType.FIT_CENTER);car.setContentDescription("Change car color and appearance");car.setFocusable(true);car.setOnClickListener(v->{if(!busy)startActivity(new Intent(this,AppearanceActivity.class));});FrameLayout.LayoutParams pic=new FrameLayout.LayoutParams(-1,dp(210),Gravity.CENTER);hero.addView(car,pic);
   LinearLayout charge=new LinearLayout(this);charge.setOrientation(LinearLayout.VERTICAL);heroBattery=badge("—%",30,0xffb4f4df);charge.addView(heroBattery);heroCharging=badge("Charging unknown",11,0xffbcd6e3);charge.addView(heroCharging);FrameLayout.LayoutParams batteryPos=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.START);batteryPos.setMargins(dp(8),dp(8),0,0);hero.addView(charge,batteryPos);
   heroLock=badge("Lock unknown",14,0xffa4edda);FrameLayout.LayoutParams lockPos=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.END);lockPos.setMargins(0,dp(8),dp(8),0);hero.addView(heroLock,lockPos);
   LinearLayout metrics=new LinearLayout(this);metrics.setOrientation(LinearLayout.HORIZONTAL);heroRange=badge("RANGE\nUnavailable",14,Color.WHITE);heroMileage=badge("ODOMETER\nUnavailable",14,Color.WHITE);LinearLayout.LayoutParams metric=new LinearLayout.LayoutParams(0,-2,1);metric.setMargins(dp(4),0,dp(4),0);metrics.addView(heroRange,metric);LinearLayout.LayoutParams metric2=new LinearLayout.LayoutParams(0,-2,1);metric2.setMargins(dp(4),0,dp(4),0);metrics.addView(heroMileage,metric2);FrameLayout.LayoutParams bottom=new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM);bottom.setMargins(dp(4),0,dp(4),dp(8));hero.addView(metrics,bottom);
@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.8.9",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.9.0",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
   if(vehicleSwitch!=null)vehicleSwitch.setVisibility(VehicleGarage.vehicles(this).length()>1||(!VehicleGarage.vin(this).isEmpty()&&VehicleGarage.vehicles(this).length()==0)?View.VISIBLE:View.GONE);
   String year=profile.optString("year","");
   if(vehicleSubtitle!=null)vehicleSubtitle.setText((year.isEmpty()?"":year+" • ")+"HYUNDAI US");
-  if(carImage!=null&&shownModel!=model){carImage.setImageResource(model==5?R.drawable.car_profile_5:model==6?R.drawable.car_profile:model==9?R.drawable.car_profile_9:R.drawable.ic_launcher_car);shownModel=model;}
+  String asset=VehicleAppearance.asset(this),appearance=VehicleGarage.scope(this)+"|"+model+"|"+asset;if(carImage!=null&&!shownAppearance.equals(appearance)){VehicleAppearance.show(this,carImage,asset,model);shownAppearance=appearance;}
  }
  private void showStatus(){updateVehicleIdentity();try{JSONObject s=new JSONObject(SecurePrefs.get(this,"status").getString("json","{}"));VehicleMileage.attach(this,s);reportDetails=StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable");status.setText(reportLabel(s.optString("dateTime","")));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}}
  private void watchSettings(){

@@ -8,5 +8,6 @@ final class ModelName {
   }
   return 0;
  }
+ static String variant(String raw){if(raw==null)return "";String n=raw.toUpperCase(java.util.Locale.ROOT).replace('_',' ').replace('-',' ');if(n.matches(".*\\bXRT\\b.*"))return "xrt";if(n.matches(".*\\bIONIQ\\s*5\\s*N\\b(?!\\s*LINE).*"))return "n";return "";}
  static String title(int number){return number==5?"IONIQ 5":number==6?"IONIQ 6":number==9?"IONIQ 9":"IONIQ Companion";}
 }
