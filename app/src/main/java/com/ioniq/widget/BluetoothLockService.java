@@ -11,7 +11,7 @@ public final class BluetoothLockService extends Service {
  private boolean registered;private volatile boolean alive;private String device="",scope="",runId="";private int delay;private long eventGeneration;
  static SharedPreferences prefs(Context c){return SecurePrefs.get(c,"parking");}
  static boolean enabled(Context c){return prefs(c).getBoolean("bt_enabled",false);}
- static int delay(Context c){int n=prefs(c).getInt("bt_delay",15);return n==10||n==15||n==30||n==60||n==120?n:15;}
+ static int delay(Context c){int n=prefs(c).getInt("bt_delay",15);return n==10||n==15||n==30?n:15;}
  static String scope(Context c){try{org.json.JSONObject v=Vault.read(c);String vin=v.optString("vin"),email=v.optString("email");return vin.isEmpty()||email.isEmpty()?"":email+"\n"+vin;}catch(Exception e){return "";}}
  static void stop(Context c){prefs(c).edit().putBoolean("bt_enabled",false).putString("bt_status","Off").commit();BluetoothLockService s=instance;if(s!=null){s.alive=false;s.rules.cancel();}c.stopService(new Intent(c,BluetoothLockService.class));}
  static boolean mayRun(Context c,Intent i){BluetoothLockService s=instance;return s!=null&&s.valid(i);}
