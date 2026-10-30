@@ -32,6 +32,8 @@ public final class SecurityInstrumentation extends Instrumentation {
   garageChecks(c);
   appearanceChecks(c);
   AuxBatteryTest.main(new String[0]);
+  SeatOptionsTest.main(new String[0]);
+  seatChecks(c);
   check(Double.isNaN(AuxBattery.percent(new org.json.JSONObject().put("evStatus",new org.json.JSONObject().put("batteryStatus",80)))));
   check(AuxBattery.percent(new org.json.JSONObject().put("battery",new org.json.JSONObject().put("batSoc",65)))==65);
   check(!pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).exported);
@@ -50,6 +52,17 @@ public final class SecurityInstrumentation extends Instrumentation {
   result.putString("security_result","PASS: "+checks+" Android storage and component checks");finish(-1,result);
  }catch(Throwable e){result.putString("security_result","FAIL: "+e.getClass().getSimpleName()+" after "+checks+" checks");finish(0,result);}}
  private android.view.View findText(android.view.View view,String label){if(view instanceof android.widget.TextView&&label.contentEquals(((android.widget.TextView)view).getText()))return view;if(view instanceof android.view.ViewGroup){android.view.ViewGroup group=(android.view.ViewGroup)view;for(int i=0;i<group.getChildCount();i++){android.view.View found=findText(group.getChildAt(i),label);if(found!=null)return found;}}return null;}
+ private void seatChecks(Context c)throws Exception{
+  org.json.JSONObject original=Vault.read(c);try{
+   org.json.JSONObject auth=new org.json.JSONObject().put("email","seats@example.invalid").put("vin","SEAT-A");Vault.save(c,auth);
+   org.json.JSONObject details=new org.json.JSONObject().put("vin","SEAT-A").put("evStatus","E").put("vehicleGeneration",3).put("seatConfigurations",new org.json.JSONObject().put("seatConfigs",new org.json.JSONArray().put(SeatOptionsTest.seat(1,"YES","YES","2,3,4,5,6,7,8")))));
+   VehicleIdentity.save(c,details);check(SeatClimate.generation(c,auth).equals("3"));String key=VehicleGarage.scope(c)+"\n"+NamedClimate.active(c);SecurePrefs.get(c,"seat_presets").edit().putString(key,new org.json.JSONObject().put("enabled",true).put("values",new org.json.JSONArray().put(5).put(0).put(0).put(0)).toString()).commit();
+   check(ClimatePreset.body(c,72).getJSONObject("seatHeaterVentInfo").getInt("drvSeatHeatState")==5);check(ClimatePreset.body(c,72).getInt("igniOnDuration")==5);
+   Vault.save(c,new org.json.JSONObject().put("email","seats@example.invalid").put("vin","SEAT-B"));check(!ClimatePreset.body(c,72).has("seatHeaterVentInfo"));
+   Vault.save(c,new org.json.JSONObject().put("email","different@example.invalid").put("vin","SEAT-A"));check(SeatClimate.saved(c,NamedClimate.active(c)).length()==0);
+   Vault.save(c,auth);details.put("vehicleGeneration",2);VehicleIdentity.save(c,details);check(!ClimatePreset.body(c,72).has("seatHeaterVentInfo"));VehicleGarage.clear(c);check(SecurePrefs.get(c,"seat_presets").getAll().isEmpty());
+  }finally{VehicleGarage.clear(c);SecurePrefs.get(c,"vehicle_identity").edit().clear().commit();Vault.save(c,original);}
+ }
  private void appearanceChecks(Context c)throws Exception{
   org.json.JSONObject saved=Vault.read(c);try{
    org.json.JSONArray groups=PaintCatalog.groups(c);check(groups.length()==13);java.util.HashSet<String> images=new java.util.HashSet<>();

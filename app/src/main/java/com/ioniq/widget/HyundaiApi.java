@@ -27,7 +27,7 @@ final class HyundaiApi {
    h.setRequestProperty("username",auth.optString("email")); h.setRequestProperty("blueLinkServicePin",auth.optString("pin"));
    h.setRequestProperty("brandIndicator","H"); h.setRequestProperty("User-Agent","okhttp/3.14.9");
    if(token)h.setRequestProperty("accessToken",auth.getString("access"));
-   if(car){ h.setRequestProperty("VIN",auth.getString("vin")); h.setRequestProperty("APPCLOUD-VIN",auth.getString("vin")); h.setRequestProperty("registrationId",auth.getString("regid")); h.setRequestProperty("gen",auth.optInt("year",2023)>=2025?"3":"2"); }
+   if(car){ h.setRequestProperty("VIN",auth.getString("vin")); h.setRequestProperty("APPCLOUD-VIN",auth.getString("vin")); h.setRequestProperty("registrationId",auth.getString("regid")); h.setRequestProperty("gen",SeatClimate.generation(context,auth)); }
    for(Map.Entry<String,String> e:extra.entrySet())h.setRequestProperty(e.getKey(),e.getValue());
    if(body!=null){h.setDoOutput(true);try(java.io.OutputStream out=h.getOutputStream()){out.write(body.toString().getBytes(StandardCharsets.UTF_8));}}
    int code=h.getResponseCode();

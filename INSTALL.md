@@ -1,6 +1,6 @@
 # Install IONIQ Companion
 
-For version 0.9.3, run the latest `update-existing-windows.ps1`, then `build-release-windows.ps1` with your existing signing key. Install `release-output/0.9.3/ioniq-companion-0.9.3.apk` over the current app. Tap the vehicle name to rename it; use the top-right switch button for another enrolled vehicle. If needed, refresh the list from Settings & help → Switch / refresh vehicles. Switching pauses auto-lock and watch controls until re-enabled for that car. No watch APK update is required.
+For version 0.9.4, run the latest `update-existing-windows.ps1`, then `build-release-windows.ps1` with your existing signing key. Install `release-output/0.9.4/ioniq-companion-0.9.4.apk` over the current app. Tap the vehicle name to rename it; use the top-right switch button for another enrolled vehicle. If needed, refresh the list from Settings & help → Switch / refresh vehicles. Switching pauses auto-lock and watch controls until re-enabled for that car. No watch APK update is required.
 
 Unofficial community preview for Hyundai US. Android 8.0 or later. Use your own Bluelink account and remote-service PIN with applicable active services. US 2023 IONIQ 6 connectivity has been owner-tested; IONIQ 5 display support is not proof of API compatibility with every model. This is not Hyundai Digital Key/NFC.
 
@@ -59,6 +59,8 @@ Tap ⋯ next to Find my car, then Flash lights or Horn & lights. Confirm with Se
 
 Vehicle colors: tap the car image, choose a palette and paint, then Save. See [color catalog](COLOR-CATALOG.md) for verified years and limitations.
 
-Version 0.9.3 labels the top-right vehicle picker **Change vehicle**, opposite the vehicle name. It stays visible while connected, including when only one car is cached; use Refresh list in the picker to discover another registered car.
+Version 0.9.4 labels the top-right vehicle picker **Change vehicle**, opposite the vehicle name. It stays visible while connected, including when only one car is cached; use Refresh list in the picker to discover another registered car.
 
-0.9.3: tap the 12V badge beside Range and Odometer for the auxiliary battery reading and report age.
+0.9.4: tap the 12V badge beside Range and Odometer for the auxiliary battery reading and report age.
+
+Seat heating/ventilation: after Refresh status, open Climate presets → Edit presets. Controls appear only for compatible reported equipment; see [0.9.4](RELEASE-0.9.4.md).

@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.9.3",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.9.4",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -191,7 +191,8 @@ public class MainActivity extends Activity {
   slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){public void onProgressChanged(SeekBar s,int p,boolean user){label.setText((p+62)+" °F");}public void onStartTrackingTouch(SeekBar s){}public void onStopTrackingTouch(SeekBar s){}});
   String[] keys={"front_defrost","rear_defrost","steering_heat"},labels={"Front defrost","Rear defrost","Steering-wheel heater"};CheckBox[] checks=new CheckBox[3];
   for(int i=0;i<3;i++){checks[i]=new CheckBox(this);checks[i].setText(labels[i]);checks[i].setChecked(NamedClimate.flag(this,name,keys[i]));box.addView(checks[i]);}
-  new AlertDialog.Builder(this).setTitle(name+" preset").setView(box).setNegativeButton("Cancel",null).setPositiveButton("Save & use",(d,w)->{NamedClimate.save(this,name,62+slider.getProgress(),checks[0].isChecked(),checks[1].isChecked(),checks[2].isChecked());presetApplied(button);}).show();
+  SeatClimate.Editor seats=new SeatClimate.Editor(this,box,name);ScrollView presetScroll=new ScrollView(this);presetScroll.addView(box);
+  new AlertDialog.Builder(this).setTitle(name+" preset").setView(presetScroll).setNegativeButton("Cancel",null).setPositiveButton("Save & use",(d,w)->{try{seats.save();}catch(Exception e){showResult(e.getMessage());return;}NamedClimate.save(this,name,62+slider.getProgress(),checks[0].isChecked(),checks[1].isChecked(),checks[2].isChecked());presetApplied(button);}).show();
  }
  private void chargeLimits(){
   JSONObject saved;try{saved=new JSONObject(SecurePrefs.get(this,"status").getString("json","{}"));}catch(Exception e){saved=new JSONObject();}
