@@ -1,6 +1,6 @@
 # IONIQ Companion
 
-Latest version: **0.9.0** — tap the car to choose its paint: 13 US palettes, 50 transparent images, and separate saved colors for each vehicle. [Release notes](RELEASE-0.9.0.md). Existing watch and widgets remain compatible.
+Latest version: **0.9.1** — tap the car to choose its paint: 13 US palettes, 50 transparent images, and separate saved colors for each vehicle. [Release notes](RELEASE-0.9.1.md). Existing watch and widgets remain compatible.
 
 Unofficial Android companion for Hyundai US, with vehicle status and six colorful home-screen controls.
 
@@ -85,3 +85,5 @@ Signed release builds use R8 optimization and name obfuscation. Client credentia
 
 
 Vehicle colors: tap the car image, choose a palette and paint, then Save. See [color catalog](COLOR-CATALOG.md) for verified years and limitations.
+
+Version 0.9.1 labels the top-right vehicle picker **Change vehicle**, opposite the vehicle name. It stays visible while connected, including when only one car is cached; use Refresh list in the picker to discover another registered car.

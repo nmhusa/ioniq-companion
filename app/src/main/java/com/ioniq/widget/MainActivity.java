@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
   buttons.clear();ScrollView scroll=new ScrollView(this);page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(20),dp(16),dp(20),dp(24));page.setBackgroundColor(Color.rgb(11,22,31));scroll.addView(page);setContentView(scroll);
   LinearLayout titleParent=page;LinearLayout titleRow=new LinearLayout(this);titleRow.setOrientation(LinearLayout.HORIZONTAL);titleRow.setGravity(Gravity.CENTER_VERTICAL);page.addView(titleRow);page=titleRow;
   vehicleTitle=text("IONIQ Companion",30,Color.WHITE);vehicleTitle.setLayoutParams(new LinearLayout.LayoutParams(0,-2,1));vehicleTitle.setMinHeight(dp(48));vehicleTitle.setGravity(Gravity.CENTER_VERTICAL);vehicleTitle.setMaxLines(2);vehicleTitle.setEllipsize(android.text.TextUtils.TruncateAt.END);vehicleTitle.setOnClickListener(v->{if(!busy)renameVehicle();});
-  vehicleSwitch=button("⇄",()->openVehicles());vehicleSwitch.setLayoutParams(new LinearLayout.LayoutParams(dp(52),dp(52)));vehicleSwitch.setContentDescription("Switch Bluelink vehicle");page=titleParent;
+  vehicleSwitch=button("Change vehicle ▾",()->openVehicles());vehicleSwitch.setTextSize(12);vehicleSwitch.setMaxLines(2);vehicleSwitch.setMinHeight(dp(52));vehicleSwitch.setPadding(dp(8),dp(8),dp(8),dp(8));vehicleSwitch.setTextColor(0xffb4f4df);vehicleSwitch.setBackground(surface(0xff1b3a45,0xff629b9c));LinearLayout.LayoutParams switchLayout=new LinearLayout.LayoutParams(dp(112),-2);switchLayout.setMarginStart(dp(12));vehicleSwitch.setLayoutParams(switchLayout);vehicleSwitch.setContentDescription("Change vehicle. Choose a registered Bluelink car.");page=titleParent;
   vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
   carHeader();
   LinearLayout summaryParent=page;LinearLayout summary=new LinearLayout(this);summary.setOrientation(LinearLayout.VERTICAL);summary.setGravity(Gravity.CENTER_VERTICAL);summary.setMinimumHeight(dp(48));summary.setPadding(0,dp(2),0,dp(2));summaryParent.addView(summary);page=summary;
@@ -111,14 +111,14 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.9.0",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.9.1",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
  private void updateVehicleIdentity(){
   JSONObject profile=VehicleIdentity.read(this);int model=profile.optInt("model");
   if(vehicleTitle!=null){vehicleTitle.setText(VehicleIdentity.title(this));vehicleTitle.setContentDescription(VehicleIdentity.title(this)+". Tap to rename this vehicle.");}
-  if(vehicleSwitch!=null)vehicleSwitch.setVisibility(VehicleGarage.vehicles(this).length()>1||(!VehicleGarage.vin(this).isEmpty()&&VehicleGarage.vehicles(this).length()==0)?View.VISIBLE:View.GONE);
+  if(vehicleSwitch!=null)vehicleSwitch.setVisibility(!VehicleGarage.account(this).isEmpty()?View.VISIBLE:View.GONE);
   String year=profile.optString("year","");
   if(vehicleSubtitle!=null)vehicleSubtitle.setText((year.isEmpty()?"":year+" • ")+"HYUNDAI US");
   String asset=VehicleAppearance.asset(this),appearance=VehicleGarage.scope(this)+"|"+model+"|"+asset;if(carImage!=null&&!shownAppearance.equals(appearance)){VehicleAppearance.show(this,carImage,asset,model);shownAppearance=appearance;}
