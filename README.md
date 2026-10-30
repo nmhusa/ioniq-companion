@@ -1,6 +1,6 @@
 # IONIQ Companion
 
-Latest phone layout: **0.8.3** — compact raised controls, doors and climate first, expandable charging, and a compact Bluetooth auto-lock status row. [Release notes](RELEASE-0.8.3.md). Existing watch and widgets remain compatible.
+Latest version: **0.8.9** — IONIQ 5/6/9 images, top-of-screen vehicle switching, and per-car nicknames. [Release notes](RELEASE-0.8.9.md). Existing watch and widgets remain compatible.
 
 Unofficial Android companion for Hyundai US, with vehicle status and six colorful home-screen controls.
 

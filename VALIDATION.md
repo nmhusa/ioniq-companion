@@ -129,3 +129,8 @@ Physical-device testing remains necessary for Samsung Bluetooth event delivery, 
 ## 0.8.3 compact phone layout
 
 Source commit `ba389cb11fd71771afe6249d07145d2e9b688ee8`; [CI run 40963391676](https://github.com/nmhusa/ioniq-companion/actions/runs/40963391676) passed all jobs: phone/watch debug and release builds and lint, release obfuscation checks, Windows script parsing and migration checks, pure regression checks, Android instrumentation, and obfuscated release launch smoke tests. Changes affect phone layout and version metadata, not command dispatch or Bluetooth locking rules. No live vehicle commands were sent. Physical Samsung layout and enlarged-text review remain owner checks.
+
+
+## 0.8.9 vehicle identity and switching
+
+Source `a4e238c0ad5df8ed887a2b2220d065bd1588c1c1`; [CI run 41095663899](https://github.com/nmhusa/ioniq-companion/actions/runs/41095663899) passed all three jobs. Phone/watch builds and lint, release obfuscation, PowerShell parsing/migration, model identification (including 9 and rejection of 90), Android encrypted nickname/account isolation and vehicle-selection checks, queued old-vehicle command rejection, existing storage and component checks, watch tests and release launch smoke checks passed. Synthetic accounts only; no live car commands sent. Real multi-car accounts and IONIQ 9 API compatibility remain owner validation.

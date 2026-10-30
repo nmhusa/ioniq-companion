@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 # Pinned source. Known climate payload and charge-limit case are patched in HyundaiApi.java.
 # Credentials and signing configuration are preserved; API source is never uploaded.
 # Vault keeps the same credential key and format; only its cache cleanup changes.
-$revision = 'a94d157136740d1449e1017710d009cccee2bb89'
+$revision = 'a4e238c0ad5df8ed887a2b2220d065bd1588c1c1'
 $project = (Resolve-Path $ProjectPath).Path
 $javaRelative = 'app\src\main\java\com\ioniq\widget'
 if (-not (Test-Path (Join-Path $project "$javaRelative\HyundaiApi.java"))) { throw 'Open PowerShell in your existing working IONIQ app project folder, then run this script again.' }
@@ -92,7 +92,7 @@ try {
  Expand-Archive $archive -DestinationPath $work
  $source = Join-Path $work "ioniq-companion-$revision"
  $obsolete = @("$javaRelative\ParkingService.java","$javaRelative\ParkingStart.java","$javaRelative\ParkingRules.java")
- $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'build-watch-windows.ps1', 'WATCH.md', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.8.8.md', 'PARKING.md', 'release-hardening.gradle', 'release-rules.pro')
+ $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'build-watch-windows.ps1', 'WATCH.md', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.8.9.md', 'PARKING.md', 'release-hardening.gradle', 'release-rules.pro')
  $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\res') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
  foreach ($module in @('shared','wear')) { $files += Get-ChildItem (Join-Path $source $module) -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) } }
@@ -114,15 +114,15 @@ try {
  }
  foreach ($relative in $obsolete) { $target = Join-Path $project $relative; if (Test-Path $target) { Remove-Item $target } }
  [IO.File]::WriteAllText($apiPath, $patchedApi, [Text.UTF8Encoding]::new($false))
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 29'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.8.8'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 30'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.8.9'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  [IO.File]::WriteAllText($settingsPath, $settings, [Text.UTF8Encoding]::new($false))
  [IO.File]::WriteAllText($propertiesPath, $properties, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
  if (-not (Select-String -Path $ignore -SimpleMatch 'private-build-maps/' -Quiet)) { Add-Content $ignore "`nprivate-build-maps/" }
- Write-Host "Updated app source to 0.8.8. Backup: $backup"
+ Write-Host "Updated app source to 0.8.9. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'For the watch APK, also run: powershell -ExecutionPolicy Bypass -File .\build-watch-windows.ps1'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1'
