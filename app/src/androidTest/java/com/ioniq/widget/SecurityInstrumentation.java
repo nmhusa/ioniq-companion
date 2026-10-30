@@ -46,6 +46,7 @@ public final class SecurityInstrumentation extends Instrumentation {
 
   result.putString("security_result","PASS: "+checks+" Android storage and component checks");finish(-1,result);
  }catch(Throwable e){result.putString("security_result","FAIL: "+e.getClass().getSimpleName()+" after "+checks+" checks");finish(0,result);}}
+ private android.view.View findText(android.view.View view,String label){if(view instanceof android.widget.TextView&&label.contentEquals(((android.widget.TextView)view).getText()))return view;if(view instanceof android.view.ViewGroup){android.view.ViewGroup group=(android.view.ViewGroup)view;for(int i=0;i<group.getChildCount();i++){android.view.View found=findText(group.getChildAt(i),label);if(found!=null)return found;}}return null;}
  private void appearanceChecks(Context c)throws Exception{
   org.json.JSONObject saved=Vault.read(c);try{
    org.json.JSONArray groups=PaintCatalog.groups(c);check(groups.length()==13);java.util.HashSet<String> images=new java.util.HashSet<>();
@@ -64,7 +65,10 @@ public final class SecurityInstrumentation extends Instrumentation {
    check(PaintCatalog.match(PaintCatalog.group(c,"i5_2022_standard"),new org.json.JSONArray().put("Digital Teal")).getString("id").equals("i5_early_digital_teal"));
    VehicleAppearance.save(c,scope,"i9_2026_standard","i9_swp");VehicleGarage.clear(c);check(VehicleAppearance.selection(c).length()==0);
    check(!c.getPackageManager().getActivityInfo(new ComponentName(c,AppearanceActivity.class),0).exported);
-   android.app.Activity editor=startActivitySync(new Intent(c,AppearanceActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));waitForIdleSync();runOnMainSync(()->editor.finish());
+   android.app.Activity editor=startActivitySync(new Intent(c,AppearanceActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));waitForIdleSync();java.util.concurrent.atomic.AtomicReference<Throwable> error=new java.util.concurrent.atomic.AtomicReference<>();
+   runOnMainSync(()->{try{
+    android.view.View root=editor.getWindow().getDecorView();android.view.View paint=findText(root,"Snow White Pearl"),save=findText(root,"Save");check(paint!=null&&save!=null);paint.performClick();save.performClick();check(VehicleAppearance.asset(c).equals("paint_icons/i9_swp.webp"));
+   }catch(Throwable e){error.set(e);}finally{editor.finish();}});if(error.get()!=null)throw new AssertionError("Appearance UI selection failed",error.get());
   }finally{VehicleGarage.clear(c);SecurePrefs.get(c,"vehicle_identity").edit().clear().commit();Vault.save(c,saved);}
  }
  private void garageChecks(Context c)throws Exception{
