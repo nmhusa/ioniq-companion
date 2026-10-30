@@ -31,6 +31,9 @@ public final class SecurityInstrumentation extends Instrumentation {
   watchChecks(c);
   garageChecks(c);
   appearanceChecks(c);
+  AuxBatteryTest.main(new String[0]);
+  check(Double.isNaN(AuxBattery.percent(new org.json.JSONObject().put("evStatus",new org.json.JSONObject().put("batteryStatus",80)))));
+  check(AuxBattery.percent(new org.json.JSONObject().put("battery",new org.json.JSONObject().put("batSoc",65)))==65);
   check(!pm.getServiceInfo(new ComponentName(c,BluetoothLockService.class),0).exported);
   check(!pm.getReceiverInfo(new ComponentName(c,BluetoothLockBoot.class),0).exported);
   check(!pm.getActivityInfo(new ComponentName(c,ParkingActivity.class),0).exported);
