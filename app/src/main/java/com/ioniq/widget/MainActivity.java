@@ -19,7 +19,8 @@ public class MainActivity extends Activity {
  private void showResult(String value){
   resultDetails=value==null?"":value;
   String compact=resultDetails;
-  if(compact.contains("Hyundai reports command completed."))compact="Command completed · details";
+  if(compact.contains("Lock not confirmed."))compact="Lock not confirmed · details";
+  else if(compact.contains("Hyundai reports command completed."))compact="Command completed · details";
   message.setText(compact);message.setContentDescription(resultDetails.isEmpty()?"":"Latest result: "+resultDetails+". Tap for details.");message.setVisibility(compact.isEmpty()?View.GONE:View.VISIBLE);
  }
  private void reportDialog(){new AlertDialog.Builder(this).setTitle("Vehicle report").setMessage(reportDetails+"\n\nThis is Hyundai’s vehicle report time, not the time you tapped Refresh. Cached reports can be older than your latest command.").setPositiveButton("Done",null).show();}
@@ -111,7 +112,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.9.5",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.9.6",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -204,7 +205,7 @@ public class MainActivity extends Activity {
   AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Charge limits").setView(box).setNegativeButton("Cancel",null).setNeutralButton("Read latest",(d,w)->run(()->{new HyundaiApi(this).status(false);runOnUiThread(()->{if(!isFinishing()&&!isDestroyed())chargeLimits();});return "Hyundai report refreshed";})).setPositiveButton("Review",null).create();
   dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{int ai=pickers[0].getSelectedItemPosition(),di=pickers[1].getSelectedItemPosition();if(ai==0||di==0){report.setText("Choose both AC and DC limits before continuing.");return;}int ac=40+ai*10,dc=40+di*10;dialog.dismiss();new AlertDialog.Builder(this).setTitle("Set charging limits?").setMessage("AC: "+ac+"%\nDC fast charging: "+dc+"%\n\nSend these limits to your selected Hyundai?").setNegativeButton("Cancel",null).setPositiveButton("Send",(d,w)->run(()->new HyundaiApi(this).command("limits",ChargeLimitValues.pack(ac,dc)))).show();}));dialog.show();
  }
- private void confirm(String a){final String target=VehicleGarage.scope(this);if("unlock".equals(a)&&UnlockGuard.enabled(this)){startActivity(new Intent(this,UnlockActivity.class).putExtra("mode","unlock"));return;}String name=a.equals("climate")?"Start climate at "+temperature+" °F":a.replace('_',' ');new AlertDialog.Builder(this).setTitle(name).setMessage((a.equals("climate")?ClimatePreset.summary(this)+"\n\n":"")+"Send this command to your selected Hyundai? Completion can take a minute.").setPositiveButton("Send",(d,w)->{final int chosen=temperature;run(()->{if(target.isEmpty()||!target.equals(VehicleGarage.scope(this)))return "Vehicle changed. Nothing was sent.";if("unlock".equals(a)&&UnlockGuard.enabled(this))return "Unlock protection is on. Tap Unlock again to authenticate.";return new HyundaiApi(this).command(a,chosen);});}).setNegativeButton("Cancel",null).show();}
+ private void confirm(String a){final String target=VehicleGarage.scope(this);if("unlock".equals(a)&&UnlockGuard.enabled(this)){startActivity(new Intent(this,UnlockActivity.class).putExtra("mode","unlock"));return;}String name=a.equals("climate")?"Start climate at "+temperature+" °F":a.replace('_',' ');new AlertDialog.Builder(this).setTitle(name).setMessage((a.equals("climate")?ClimatePreset.summary(this)+"\n\n":"")+"Send this command to your selected Hyundai? Completion can take a minute.").setPositiveButton("Send",(d,w)->{final int chosen=temperature;run(()->{if(target.isEmpty()||!target.equals(VehicleGarage.scope(this)))return "Vehicle changed. Nothing was sent.";if("unlock".equals(a)&&UnlockGuard.enabled(this))return "Unlock protection is on. Tap Unlock again to authenticate.";try{return LockFeedback.describe(a,new HyundaiApi(this).command(a,chosen));}catch(Exception e){if(!"lock".equals(a))throw e;return LockFeedback.describe(a,ErrorText.message(e));}});}).setNegativeButton("Cancel",null).show();}
  private EditText field(LinearLayout box,String hint,int type){EditText e=new EditText(this);e.setHint(hint);e.setInputType(type);e.setSingleLine(true);e.setSaveEnabled(false);e.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);box.addView(e);return e;}
  private void loginForm(){
   LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(20),0,dp(20),0);
