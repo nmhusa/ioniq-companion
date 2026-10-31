@@ -25,7 +25,11 @@ public final class SecurityInstrumentation extends Instrumentation {
   boolean rejected=false;try{SecurePrefs.get(c,corrupt);}catch(IllegalStateException expected){rejected=true;}check(rejected);
   PackageManager pm=c.getPackageManager();check(!pm.getActivityInfo(new ComponentName(c,MainActivity.class),0).exported);check(!pm.getActivityInfo(new ComponentName(c,UnlockActivity.class),0).exported);check(pm.getActivityInfo(new ComponentName(c,LauncherActivity.class),0).exported);check(!pm.getServiceInfo(new ComponentName(c,CommandService.class),0).exported);
   // A stale widget PendingIntent without a fresh authentication permit must send nothing.
-  SharedPreferences settings=SecurePrefs.get(c,"security"),actions=SecurePrefs.get(c,"actions");settings.edit().putBoolean("protect_unlock",true).commit();
+  SharedPreferences settings=SecurePrefs.get(c,"security"),actions=SecurePrefs.get(c,"actions");check(settings.edit().clear().commit());check(UnlockGuard.enabled(c));
+  check(settings.getInt("unlock_policy",0)==1);
+  check(settings.edit().clear().putBoolean("protect_unlock",false).commit());check(UnlockGuard.enabled(c));
+  check(UnlockGuard.setAuthenticated(c,false));check(!UnlockGuard.enabled(c));check(!UnlockGuard.enabled(c));
+  check(UnlockGuard.setAuthenticated(c,true));check(UnlockGuard.enabled(c));
   Map<String,?> before=actions.getAll();c.startForegroundService(new Intent(c,CommandService.class).setAction("unlock"));android.os.SystemClock.sleep(1000);
   check(!CommandService.running);check(before.equals(actions.getAll()));settings.edit().clear().commit();
   watchChecks(c);

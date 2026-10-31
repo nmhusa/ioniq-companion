@@ -12,7 +12,7 @@ android {
  buildFeatures { buildConfig true }
  namespace 'com.ioniq.widget'
  compileSdk 35
- defaultConfig { testInstrumentationRunner 'com.ioniq.widget.SecurityInstrumentation'; buildConfigField 'int[]', 'CLIENT_MASKED', 'new int[]{' + masked.join(',') + '}'; buildConfigField 'int[]', 'CLIENT_PAD', 'new int[]{' + pad.join(',') + '}'; applicationId 'com.ioniq.widget'; minSdk 26; targetSdk 34; versionCode 35; versionName '0.9.4' }
+ defaultConfig { testInstrumentationRunner 'com.ioniq.widget.SecurityInstrumentation'; buildConfigField 'int[]', 'CLIENT_MASKED', 'new int[]{' + masked.join(',') + '}'; buildConfigField 'int[]', 'CLIENT_PAD', 'new int[]{' + pad.join(',') + '}'; applicationId 'com.ioniq.widget'; minSdk 26; targetSdk 34; versionCode 36; versionName '0.9.5' }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 
