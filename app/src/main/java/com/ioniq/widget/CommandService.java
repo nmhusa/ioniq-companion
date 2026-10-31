@@ -31,7 +31,7 @@ public class CommandService extends Service {
     else{if(watch)WatchRelay.update(this,intent,"sending","Sending to Hyundai…");result=new HyundaiApi(this).command(action,temp);shortResult=result.startsWith("Hyundai reports command completed")?"Confirmed":"Unconfirmed";}
    }
    catch(Exception e){result=ErrorText.message(e);shortResult="Check app";}
-   result=LockFeedback.describe(action,result);
+   if(!"Blocked".equals(shortResult))result=LockFeedback.describe(action,result);
    SecurePrefs.get(this,"actions").edit().putString(action,shortResult).putString(action+"_detail",result).putString("last_result",label+": "+result).putLong(action+"_time",System.currentTimeMillis()).commit();
    if(watch)WatchRelay.update(this,intent,"Confirmed".equals(shortResult)?"confirmed":"Blocked".equals(shortResult)?"blocked":"Unconfirmed".equals(shortResult)?"unknown":"error",result);
    if(bluetooth)BluetoothLockService.result(this,intent,result);
