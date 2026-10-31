@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 # Pinned source. Known climate payload and charge-limit case are patched in HyundaiApi.java.
 # Credentials and signing configuration are preserved; API source is never uploaded.
 # Vault keeps the same credential key and format; only its cache cleanup changes.
-$revision = 'f6a0f1f315857ce9c5364cf5f4625011c5b0001b'
+$revision = '6439e029e7370508b5988a434f7e9ce3f121f43d'
 $project = (Resolve-Path $ProjectPath).Path
 $javaRelative = 'app\src\main\java\com\ioniq\widget'
 if (-not (Test-Path (Join-Path $project "$javaRelative\HyundaiApi.java"))) { throw 'Open PowerShell in your existing working IONIQ app project folder, then run this script again.' }
@@ -136,3 +136,4 @@ try {
  Write-Host 'For the watch APK, also run: powershell -ExecutionPolicy Bypass -File .\build-watch-windows.ps1'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1'
 } finally { Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue }
+
