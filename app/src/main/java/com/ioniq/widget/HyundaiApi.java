@@ -35,9 +35,10 @@ final class HyundaiApi {
     String stage=path.equals("v2/ac/oauth/token")?"Sign-in":path.equals("v2/ac/oauth/token/refresh")?"Session refresh":path.startsWith("ac/v2/enrollment/")?"Vehicle list":path.endsWith("vehicleStatus")?"Vehicle status":path.endsWith("getRunningStatus")?"Command confirmation":"Remote command";
     throw new Exception(stage+" failed (HTTP "+code+"). "+(code==429?"Please wait before trying again.":code==401||code==403?"Hyundai rejected authentication. Reconnect your account.":"Hyundai did not complete this request.")+(stage.startsWith("Remote")||stage.startsWith("Command")?" Outcome may be unknown; check the official app before retrying.":""));
    }
-   String raw; try(java.io.InputStream in=h.getInputStream()){java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream(); byte[] buf=new byte[4096]; int n; while((n=in.read(buf))!=-1){out.write(buf,0,n);if(out.size()>2000000)throw new Exception("Unexpectedly large server response");} raw=out.toString("UTF-8");}
+   String raw; try(java.io.InputStream in=h.getInputStream()){java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream(); byte[] buf=new byte[4096]; int n; while((n=in.read(buf))!=-1){out.write(buf,0,n);if(out.size()>(path.equals("ac/v2/svm/getSVMDetails")?16000000:2000000))throw new Exception("Unexpectedly large server response");} raw=out.toString("UTF-8");}
    JSONObject j=raw.trim().startsWith("{")?new JSONObject(raw):new JSONObject();
    if("ERROR".equalsIgnoreCase(j.optString("status")))throw new Exception("Hyundai reported an error. Check the official app.");
+   if(path.startsWith("ac/v2/svm/")&&j.has("errorCode")&&!"0".equals(j.optString("errorCode"))&&!"200".equals(j.optString("errorCode"))&&!j.optString("errorCode").isEmpty())throw new Exception("Surround-view request rejected by Hyundai. Check vehicle readiness and the official app. No capture was retried.");
    return new Reply(j,h.getHeaderField("tmsTid"));
   } finally {h.disconnect();}
  }
@@ -60,6 +61,10 @@ final class HyundaiApi {
   SecurePrefs.get(context,"status").edit().putString("json",s.toString()).putLong("fetched",System.currentTimeMillis()).remove("error").commit(); return s;
  }
  JSONObject findCar() throws Exception { requireVehicle();ensureToken();return request("ac/v2/rcs/rfc/findMyCar","GET",null,true,true,headers()).json; }
+ // SVM_METHODS_V1: bounded image reads; POST is never retried automatically.
+ JSONObject surroundDetails() throws Exception { requireVehicle();ensureToken();return surroundChecked(request("ac/v2/svm/getSVMDetails","GET",null,true,true,headers()).json); }
+ void surroundCapture() throws Exception { requireVehicle();ensureToken();surroundChecked(request("ac/v2/svm/findMyCarSVM","POST",new JSONObject().put("vin",auth.getString("vin")).put("username",auth.getString("email")).put("gen",SeatClimate.generation(context,auth)).put("blueLinkServicePin",auth.getString("pin")),true,true,headers()).json); }
+ private JSONObject surroundChecked(JSONObject j) throws Exception { String code=j.optString("errorCode","");if(!code.isEmpty()&&!"0".equals(code)&&!"200".equals(code))throw new Exception("Hyundai rejected the surround-view request. Check readiness and the official app. No capture retried.");return j; }
  String command(String action,int temp) throws Exception {
   requireVehicle();
   ensureToken(); String path; JSONObject body=null;

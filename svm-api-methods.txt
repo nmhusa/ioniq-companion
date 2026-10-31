@@ -1,0 +1,4 @@
+ // SVM_METHODS_V1: bounded image reads; POST is never retried automatically.
+ JSONObject surroundDetails() throws Exception { requireVehicle();ensureToken();return surroundChecked(request("ac/v2/svm/getSVMDetails","GET",null,true,true,headers()).json); }
+ void surroundCapture() throws Exception { requireVehicle();ensureToken();surroundChecked(request("ac/v2/svm/findMyCarSVM","POST",new JSONObject().put("vin",auth.getString("vin")).put("username",auth.getString("email")).put("gen",SeatClimate.generation(context,auth)).put("blueLinkServicePin",auth.getString("pin")),true,true,headers()).json); }
+ private JSONObject surroundChecked(JSONObject j) throws Exception { String code=j.optString("errorCode","");if(!code.isEmpty()&&!"0".equals(code)&&!"200".equals(code))throw new Exception("Hyundai rejected the surround-view request. Check readiness and the official app. No capture retried.");return j; }

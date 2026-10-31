@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.9.6",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.9.7",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -133,7 +133,7 @@ public class MainActivity extends Activity {
  private void locationControls(){
   LinearLayout parent=page,row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);parent.addView(row);page=row;
   Button find=button("⌖  Find my car",()->findCar());LinearLayout.LayoutParams wide=new LinearLayout.LayoutParams(0,dp(52),1);wide.setMargins(0,dp(5),dp(6),dp(5));find.setLayoutParams(wide);
-  Button details=button("⋯",()->locationOptions());details.setContentDescription("Find my car options: lights, horn, location details and saved parking");LinearLayout.LayoutParams small=new LinearLayout.LayoutParams(dp(52),dp(52));small.setMargins(0,dp(5),0,dp(5));details.setLayoutParams(small);page=parent;
+  Button details=button("⋯",()->locationOptions());details.setContentDescription("Find my car options: lights, horn, location details and saved parking");LinearLayout.LayoutParams small=new LinearLayout.LayoutParams(dp(52),dp(52));small.setMargins(0,dp(5),0,dp(5));details.setLayoutParams(small);page=parent;button("View surroundings",()->startActivity(new Intent(this,SurroundActivity.class)));
  }
  private void findCar(){if(CarLocations.read(this,CarLocations.VEHICLE)!=null)openCarMap();else fetchCarMap();}
  private void openCarMap(){

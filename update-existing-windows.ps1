@@ -99,8 +99,18 @@ try {
  Invoke-WebRequest "https://github.com/nmhusa/ioniq-companion/archive/$revision.zip" -OutFile $archive
  Expand-Archive $archive -DestinationPath $work
  $source = Join-Path $work "ioniq-companion-$revision"
+ # Add surround-view methods without replacing private local API configuration.
+ $svmMethods = [IO.File]::ReadAllText((Join-Path $source 'svm-api-methods.txt'))
+ if (-not $patchedApi.Contains('// SVM_METHODS_V1')) {
+  if ($patchedApi.Contains('surroundDetails(') -or $patchedApi.Contains('surroundCapture(') -or [regex]::Matches($patchedApi,[regex]::Escape($commandSignature)).Count -ne 1) { throw 'Unrecognized surround-view adapter; no files changed.' }
+  $patchedApi = $patchedApi.Replace($commandSignature,$svmMethods + $commandSignature)
+ }
+ $oldBound = 'out.size()>2000000'
+ $svmBound = 'out.size()>(path.equals("ac/v2/svm/getSVMDetails")?16000000:2000000)'
+ if ($patchedApi.Contains($oldBound)) { $patchedApi = $patchedApi.Replace($oldBound,$svmBound) }
+ elseif (-not $patchedApi.Contains($svmBound)) { throw 'Unrecognized response size limit; no files changed.' }
  $obsolete = @("$javaRelative\ParkingService.java","$javaRelative\ParkingStart.java","$javaRelative\ParkingRules.java")
- $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'build-watch-windows.ps1', 'WATCH.md', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.9.6.md', 'COLOR-CATALOG.md', 'paint-image-sources.json', 'PARKING.md', 'release-hardening.gradle', 'release-rules.pro')
+ $files = @('app\src\main\AndroidManifest.xml', 'build-windows.ps1', 'build-release-windows.ps1', 'build-watch-windows.ps1', 'WATCH.md', 'INSTALL.md', 'PUBLISH.md', 'RELEASE-0.9.7.md', 'COLOR-CATALOG.md', 'paint-image-sources.json', 'PARKING.md', 'release-hardening.gradle', 'release-rules.pro')
  $files += Get-ChildItem (Join-Path $source $javaRelative) -Filter '*.java' | Where-Object { $_.Name -notin @('HyundaiApi.java') } | ForEach-Object { "$javaRelative\$($_.Name)" }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\res') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
  $files += Get-ChildItem (Join-Path $source 'app\src\main\assets') -File -Recurse | ForEach-Object { $_.FullName.Substring($source.Length + 1) }
@@ -123,15 +133,15 @@ try {
  }
  foreach ($relative in $obsolete) { $target = Join-Path $project $relative; if (Test-Path $target) { Remove-Item $target } }
  [IO.File]::WriteAllText($apiPath, $patchedApi, [Text.UTF8Encoding]::new($false))
- $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 37'
- $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.9.6'"
+ $gradle = $gradle -replace 'versionCode\s+\d+', 'versionCode 38'
+ $gradle = $gradle -replace 'versionName\s+[''"][^''"]+[''"]', "versionName '0.9.7'"
  [IO.File]::WriteAllText($gradlePath, $gradle, [Text.UTF8Encoding]::new($false))
  [IO.File]::WriteAllText($settingsPath, $settings, [Text.UTF8Encoding]::new($false))
  [IO.File]::WriteAllText($propertiesPath, $properties, [Text.UTF8Encoding]::new($false))
  $ignore = Join-Path $project '.gitignore'
  if (-not (Test-Path $ignore) -or -not (Select-String -Path $ignore -SimpleMatch '.update-backups/' -Quiet)) { Add-Content $ignore "`n.update-backups/" }
  if (-not (Select-String -Path $ignore -SimpleMatch 'private-build-maps/' -Quiet)) { Add-Content $ignore "`nprivate-build-maps/" }
- Write-Host "Updated app source to 0.9.6. Backup: $backup"
+ Write-Host "Updated app source to 0.9.7. Backup: $backup"
  Write-Host 'Your existing API configuration and signing files were preserved.'
  Write-Host 'For the watch APK, also run: powershell -ExecutionPolicy Bypass -File .\build-watch-windows.ps1'
  Write-Host 'Next, run: powershell -ExecutionPolicy Bypass -File .\build-release-windows.ps1'

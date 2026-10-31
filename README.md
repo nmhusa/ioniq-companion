@@ -1,6 +1,6 @@
 # IONIQ Companion
 
-Latest version: **0.9.6** — phone authentication for unlocking is enabled on upgrade; sign-in and authentication screens are protected from screenshots. Dashboard screenshots remain available. [Release notes](RELEASE-0.9.6.md). Existing watch and widgets remain compatible.
+Latest version: **0.9.7** — phone authentication for unlocking is enabled on upgrade; sign-in and authentication screens are protected from screenshots. Dashboard screenshots remain available. [Release notes](RELEASE-0.9.7.md). Existing watch and widgets remain compatible.
 
 Unofficial Android companion for Hyundai US, with vehicle status and six colorful home-screen controls.
 

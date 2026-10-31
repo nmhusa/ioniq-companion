@@ -1,6 +1,6 @@
 # Install IONIQ Companion
 
-For version 0.9.6, run the latest `update-existing-windows.ps1`, then `build-release-windows.ps1` with your existing signing key. Install `release-output/0.9.6/ioniq-companion-0.9.6.apk` over the current app. Tap the vehicle name to rename it; use the top-right switch button for another enrolled vehicle. If needed, refresh the list from Settings & help → Switch / refresh vehicles. Switching pauses auto-lock and watch controls until re-enabled for that car. No watch APK update is required.
+For version 0.9.7, run the latest `update-existing-windows.ps1`, then `build-release-windows.ps1` with your existing signing key. Install `release-output/0.9.7/ioniq-companion-0.9.7.apk` over the current app. Tap the vehicle name to rename it; use the top-right switch button for another enrolled vehicle. If needed, refresh the list from Settings & help → Switch / refresh vehicles. Switching pauses auto-lock and watch controls until re-enabled for that car. No watch APK update is required.
 
 Unofficial community preview for Hyundai US. Android 8.0 or later. Use your own Bluelink account and remote-service PIN with applicable active services. US 2023 IONIQ 6 connectivity has been owner-tested; IONIQ 5 display support is not proof of API compatibility with every model. This is not Hyundai Digital Key/NFC.
 

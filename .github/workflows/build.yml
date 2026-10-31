@@ -108,6 +108,7 @@ jobs:
           .\tests\UpdateMigrationTest.ps1
           .\tests\WatchBuildMigrationTest.ps1
           .\tests\CredentialMigrationTest.ps1
+          .\tests\SurroundMigrationTest.ps1
 
   android-security:
     runs-on: ubuntu-latest

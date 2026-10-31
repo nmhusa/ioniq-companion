@@ -32,6 +32,7 @@ public final class SecurityInstrumentation extends Instrumentation {
   check(UnlockGuard.setAuthenticated(c,true));check(UnlockGuard.enabled(c));
   Map<String,?> before=actions.getAll();c.startForegroundService(new Intent(c,CommandService.class).setAction("unlock"));android.os.SystemClock.sleep(1000);
   check(!CommandService.running);check(before.equals(actions.getAll()));settings.edit().clear().commit();
+  surroundChecks(c);
   watchChecks(c);
   garageChecks(c);
   appearanceChecks(c);
@@ -55,6 +56,20 @@ public final class SecurityInstrumentation extends Instrumentation {
 
   result.putString("security_result","PASS: "+checks+" Android storage and component checks");finish(-1,result);
  }catch(Throwable e){result.putString("security_result","FAIL: "+e.getClass().getSimpleName()+" after "+checks+" checks");finish(0,result);}}
+ private void surroundChecks(Context c)throws Exception{
+  check(!c.getPackageManager().getActivityInfo(new ComponentName(c,SurroundActivity.class),0).exported);
+  android.graphics.Bitmap b=android.graphics.Bitmap.createBitmap(50,10,android.graphics.Bitmap.Config.ARGB_8888);
+  int[] colors={0xffff0000,0xff00ff00,0xff0000ff,0xffffff00,0xff00ffff};
+  for(int x=0;x<50;x++)for(int y=0;y<10;y++)b.setPixel(x,y,colors[x/10]);
+  java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();b.compress(android.graphics.Bitmap.CompressFormat.PNG,100,bytes);b.recycle();
+  org.json.JSONObject d=new org.json.JSONObject().put("svmImage",android.util.Base64.encodeToString(bytes.toByteArray(),android.util.Base64.NO_WRAP)).put("imageSize",new org.json.JSONArray("[50,10,10,10,10]")).put("gpsDetail",new org.json.JSONObject().put("time","20261031140000"));
+  org.json.JSONObject response=new org.json.JSONObject().put("svmDetails",new org.json.JSONArray().put(new org.json.JSONObject().put("svmDetail",d)));
+  SurroundSnapshot s=SurroundSnapshot.parse(response);check(s.split());check(s.view(0).getPixel(0,0)==colors[4]);for(int i=1;i<5;i++)check(s.view(i).getPixel(0,0)==colors[i-1]);check(s.closure.contains("unavailable"));
+  check(SurroundLayout.rectangle(new int[]{49,10,10,10,10},50,10,0)==null);check(SurroundLayout.rectangle(new int[]{50,10,-10,10,90},50,10,0)==null);check(SurroundLayout.rectangle(null,50,10,0)==null);
+  d.put("svmImage","not an image");boolean rejected=false;try{SurroundSnapshot.parse(response);}catch(Exception expected){rejected=true;}check(rejected);
+  check(SurroundSnapshot.parse(new org.json.JSONObject())==null);
+  android.app.Activity viewer=startActivitySync(new Intent(c,SurroundActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));waitForIdleSync();check(viewer!=null);runOnMainSync(viewer::finish);
+ }
  private android.view.View findText(android.view.View view,String label){if(view instanceof android.widget.TextView&&label.contentEquals(((android.widget.TextView)view).getText()))return view;if(view instanceof android.view.ViewGroup){android.view.ViewGroup group=(android.view.ViewGroup)view;for(int i=0;i<group.getChildCount();i++){android.view.View found=findText(group.getChildAt(i),label);if(found!=null)return found;}}return null;}
  private void seatChecks(Context c)throws Exception{
   org.json.JSONObject original=Vault.read(c);try{

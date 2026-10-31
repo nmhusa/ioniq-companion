@@ -16,6 +16,7 @@
   <receiver android:name=".BluetoothLockBoot" android:exported="false">
    <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED"/><action android:name="android.intent.action.MY_PACKAGE_REPLACED"/></intent-filter>
   </receiver>
+  <activity android:name=".SurroundActivity" android:exported="false" />
   <activity android:name=".AppearanceActivity" android:exported="false" />
   <activity android:name=".MainActivity" android:exported="false"/>
   <activity android:name=".UnlockActivity" android:exported="false"/>
