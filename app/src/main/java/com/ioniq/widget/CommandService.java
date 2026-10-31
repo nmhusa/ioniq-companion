@@ -12,7 +12,8 @@ public class CommandService extends Service {
   if(bluetooth&&!BluetoothLockService.mayRun(this,intent)){BluetoothLockService.result(this,intent,"Cancelled or expired · nothing sent");rejectStart();return START_NOT_STICKY;}
   if(watch&&!WatchRelay.mayRun(this,intent)){WatchRelay.update(this,intent,"blocked","Request expired or watch connection changed. Nothing was sent.");rejectStart();return START_NOT_STICKY;}
   if(running){if(bluetooth)BluetoothLockService.result(this,intent,"Another command is in progress · lock not sent; no retry");if(watch)WatchRelay.update(this,intent,"blocked","Another command is in progress. Nothing else was sent.");android.widget.Toast.makeText(this,"A command is already in progress. Nothing else was sent.",android.widget.Toast.LENGTH_SHORT).show();ActionWidget.renderAll(this);return START_NOT_STICKY;}
-  if("unlock".equals(action)&&UnlockGuard.enabled(this)&&!UnlockGuard.consume(intent.getStringExtra("unlock_permit"))){if(watch)WatchRelay.update(this,intent,"blocked","Unlock protection is on. Authenticate using Unlock doors on the phone.");startForeground(600,notification("Unlock requires phone authentication. Open the app and tap Unlock doors."));stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();return START_NOT_STICKY;}
+  final boolean authenticatedUnlock="unlock".equals(action)&&UnlockGuard.consume(intent.getStringExtra("unlock_permit"));
+  if("unlock".equals(action)&&UnlockGuard.enabled(this)&&!authenticatedUnlock){if(watch)WatchRelay.update(this,intent,"blocked","Unlock protection is on. Authenticate using Unlock doors on the phone.");startForeground(600,notification("Unlock requires phone authentication. Open the app and tap Unlock doors."));stopForeground(STOP_FOREGROUND_REMOVE);stopSelf();return START_NOT_STICKY;}
   if("unlock".equals(action))((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).cancel(711);
   activeAction=action;running=true;startForeground(600,notification("Queued: "+label));
   SecurePrefs.get(this,"actions").edit().putString(action,"Queued…").putString(action+"_detail","Waiting for the app’s current request to finish.").putLong(action+"_time",System.currentTimeMillis()).apply();ActionWidget.renderAll(this);WidgetFeedbackJob.schedule(this);if(watch)WatchRelay.update(this,intent,"queued","Queued on phone…");
@@ -24,6 +25,7 @@ public class CommandService extends Service {
    String result;String shortResult;
    try{
     if(commandScope.isEmpty()||!commandScope.equals(VehicleGarage.scope(this))){result="Vehicle changed. Nothing was sent.";shortResult="Blocked";}
+    else if("unlock".equals(action)&&UnlockGuard.enabled(this)&&!authenticatedUnlock){result="Unlock protection is on. Authenticate on the phone. Nothing was sent.";shortResult="Blocked";}
     else if(bluetooth&&!BluetoothLockService.consume(this,intent)){result="Bluetooth lock cancelled or expired. Nothing was sent.";shortResult="Blocked";}
     else if(watch&&(!WatchRelay.mayRun(this,intent)||("unlock".equals(action)&&UnlockGuard.enabled(this)))){result="Watch request expired, connection changed, or unlock protection was enabled. Nothing was sent.";shortResult="Blocked";}
     else{if(watch)WatchRelay.update(this,intent,"sending","Sending to Hyundai…");result=new HyundaiApi(this).command(action,temp);shortResult=result.startsWith("Hyundai reports command completed")?"Confirmed":"Unconfirmed";}
