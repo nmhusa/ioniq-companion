@@ -9,6 +9,7 @@ import android.widget.*;
 import org.json.*;
 public class MainActivity extends Activity {
  private ImageView carImage;private TextView vehicleTitle,vehicleSubtitle;private String shownAppearance="";
+ private Button checkToggle;private TextView checkDetails;private boolean checkOpen;
  private Button vehicleSwitch;private Button walkAway;private TextView parkingStatus;private String reportDetails="",resultDetails="";
  private final android.os.Handler parkingHandler=new android.os.Handler(android.os.Looper.getMainLooper());
  private final Runnable parkingTick=new Runnable(){public void run(){updateParkingControl();parkingHandler.postDelayed(this,1000);}};
@@ -36,7 +37,7 @@ public class MainActivity extends Activity {
  private TextView text(String s,int size,int color){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);t.setPadding(0,dp(8),0,dp(8));page.addView(t);return t;}
  private android.graphics.drawable.GradientDrawable surface(int fill,int stroke){android.graphics.drawable.GradientDrawable d=new android.graphics.drawable.GradientDrawable();d.setColor(fill);d.setCornerRadius(dp(20));d.setStroke(dp(1),stroke);return d;}
  private Button button(String label,Runnable action){Button b=new Button(this);b.setText(label);b.setTextColor(Color.WHITE);b.setTextSize(14);b.setAllCaps(false);b.setBackground(surface(0xff172939,0xff294253));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(52));lp.setMargins(0,dp(5),0,dp(5));page.addView(b,lp);b.setOnClickListener(v->{if(!busy)action.run();});buttons.add(b);return b;}
- private void controlRow(int left,int right){LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);page.addView(row);for(int i:new int[]{left,right}){Button b=new Button(this);b.setText(new String[]{"Lock","Unlock","Climate on","Climate off","Start charge","Stop charge"}[i]);b.setContentDescription(ActionWidget.LABELS[i]);b.setAllCaps(false);b.setTextSize(15);b.setTextColor(Color.WHITE);android.graphics.drawable.Drawable icon=getDrawable(ActionWidget.ICONS[i]);icon.setBounds(0,0,dp(42),dp(42));b.setCompoundDrawables(null,icon,null,null);b.setCompoundDrawablePadding(dp(6));b.setPadding(dp(8),dp(10),dp(8),dp(10));b.setMinHeight(dp(104));b.setGravity(Gravity.CENTER);b.setBackground(getDrawable(ActionWidget.BACKGROUNDS[i]));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(4),dp(6),dp(4),dp(6));row.addView(b,lp);buttons.add(b);final String a=ActionWidget.ACTIONS[i];b.setOnClickListener(v->{if(!busy)confirm(a);});}}
+ private void controlRow(int left,int right){LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);page.addView(row);for(int i:new int[]{left,right}){Button b=new Button(this);b.setText(new String[]{"Lock","Unlock","Climate on","Climate off","Start charge","Stop charge"}[i]);b.setContentDescription(ActionWidget.LABELS[i]);b.setAllCaps(false);b.setTextSize(15);b.setTextColor(Color.WHITE);android.graphics.drawable.Drawable icon=getDrawable(ActionWidget.ICONS[i]);icon.setBounds(0,0,dp(30),dp(30));b.setCompoundDrawablesRelative(icon,null,null,null);b.setCompoundDrawablePadding(dp(6));b.setPadding(dp(12),dp(8),dp(12),dp(12));b.setMinHeight(dp(68));b.setGravity(Gravity.CENTER);b.setBackground(getDrawable(ActionWidget.BACKGROUNDS[i]));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(4),dp(6),dp(4),dp(6));row.addView(b,lp);buttons.add(b);final String a=ActionWidget.ACTIONS[i];b.setOnClickListener(v->{if(!busy)confirm(a);});}}
  private TextView badge(String value,int size,int color){TextView t=new TextView(this);t.setText(value);t.setTextSize(size);t.setTextColor(color);t.setPadding(dp(12),dp(8),dp(12),dp(8));t.setBackground(surface(0xe6102533,0xff365565));return t;}
  private void carHeader(){
   FrameLayout hero=new FrameLayout(this);hero.setBackground(new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR,new int[]{0xff254958,0xff0e1d2a,0xff122a39}));hero.setPadding(dp(6),dp(6),dp(6),dp(6));page.addView(hero,new LinearLayout.LayoutParams(-1,dp(getResources().getConfiguration().fontScale>1.2f?320:280)));
@@ -76,7 +77,9 @@ public class MainActivity extends Activity {
   status=text("No vehicle data yet",12,0xffAFC5D4);status.setPadding(0,dp(2),0,dp(2));
   message=text("",13,0xffAFC5D4);message.setPadding(0,dp(2),0,dp(2));message.setMaxLines(1);message.setEllipsize(android.text.TextUtils.TruncateAt.END);
   summary.setFocusable(true);summary.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Vehicle & command details").setMessage(reportDetails+"\n\nThis is Hyundai’s vehicle report time, not the time you tapped Refresh."+(resultDetails.isEmpty()?"":"\n\nLatest result:\n"+resultDetails)).setPositiveButton("Done",null).setNeutralButton("Dismiss result",(d,w)->{showResult("");SecurePrefs.get(this,"actions").edit().remove("last_result").apply();}).show());
-  page=summaryParent;showResult("");showStatus();
+  page=summaryParent;showResult("");
+  checkToggle=button("Vehicle check",()->{checkOpen=!checkOpen;updateVehicleCheck();});checkToggle.setTextSize(13);
+  checkDetails=text("",12,0xffAFC5D4);checkDetails.setVisibility(View.GONE);showStatus();
   text("DOORS",12,0xff53D8B0).setPadding(0,dp(2),0,dp(2));controlRow(0,1);
   text("CLIMATE",12,Color.rgb(141,227,207)).setPadding(0,dp(4),0,dp(2));controlRow(2,3);
   Button presets=button("Climate presets · "+NamedClimate.active(this)+" · "+temperature+" °F",()->{});
@@ -112,7 +115,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.9.7",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.9.8",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -124,7 +127,15 @@ public class MainActivity extends Activity {
   if(vehicleSubtitle!=null)vehicleSubtitle.setText((year.isEmpty()?"":year+" • ")+"HYUNDAI US");
   String asset=VehicleAppearance.asset(this),appearance=VehicleGarage.scope(this)+"|"+model+"|"+asset;if(carImage!=null&&!shownAppearance.equals(appearance)){VehicleAppearance.show(this,carImage,asset,model);shownAppearance=appearance;}
  }
- private void showStatus(){updateVehicleIdentity();auxStatus=new JSONObject();if(heroAuxBattery!=null){heroAuxBattery.show(auxStatus,System.currentTimeMillis());}try{JSONObject s=new JSONObject(SecurePrefs.get(this,"status").getString("json","{}"));VehicleMileage.attach(this,s);auxStatus=s;if(heroAuxBattery!=null){heroAuxBattery.show(s,System.currentTimeMillis());}reportDetails=StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable");status.setText(reportLabel(s.optString("dateTime","")));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}}
+ private void updateVehicleCheck(){
+  if(checkToggle==null)return;VehicleCheck check=VehicleCheck.read(auxStatus);boolean recent=VehicleCheck.recent(auxStatus);
+  checkToggle.setText("Vehicle check · "+check.summary()+(!recent&&check.known>0?" · Older report":"")+(checkOpen?" ▴":" ▾"));
+  checkToggle.setTextColor(check.alerts>0?0xffffcf72:recent&&check.unknown==0?0xffa4edda:0xffAFC5D4);
+  checkToggle.setSelected(checkOpen);checkToggle.setContentDescription(checkToggle.getText()+". Tap to "+(checkOpen?"collapse":"expand")+" reported checks.");
+  checkDetails.setText(StatusText.time(auxStatus)+"\nSaved report, not live. Unavailable checks are not confirmed clear.\n\n"+check.detail);
+  checkDetails.setVisibility(checkOpen?View.VISIBLE:View.GONE);
+ }
+ private void showStatus(){updateVehicleIdentity();auxStatus=new JSONObject();if(heroAuxBattery!=null){heroAuxBattery.show(auxStatus,System.currentTimeMillis());}try{JSONObject s=new JSONObject(SecurePrefs.get(this,"status").getString("json","{}"));VehicleMileage.attach(this,s);auxStatus=s;if(heroAuxBattery!=null){heroAuxBattery.show(s,System.currentTimeMillis());}reportDetails=StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable");status.setText(reportLabel(s.optString("dateTime","")));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}updateVehicleCheck();}
  private void watchSettings(){
   boolean on=WatchRelay.enabled(this);new AlertDialog.Builder(this).setTitle("Galaxy Watch controls · "+(on?"ON":"OFF"))
    .setMessage("Allow the matching, signed watch app to send one-tap commands through this phone. Bluelink credentials stay here. Unlock protection, if enabled, requires unlocking from the phone. Turning this off does not cancel a command already sent.")

@@ -33,6 +33,12 @@ public final class SecurityInstrumentation extends Instrumentation {
   Map<String,?> before=actions.getAll();c.startForegroundService(new Intent(c,CommandService.class).setAction("unlock"));android.os.SystemClock.sleep(1000);
   check(!CommandService.running);check(before.equals(actions.getAll()));settings.edit().clear().commit();
   surroundChecks(c);
+  VehicleCheck empty=VehicleCheck.read(new org.json.JSONObject());check(empty.known==0);check(empty.unknown==16);check(empty.alerts==0);
+  org.json.JSONObject sample=new org.json.JSONObject("{\"doorOpen\":{\"frontLeft\":true,\"frontRight\":false},\"hoodOpen\":\"unknown\",\"washerFluidStatus\":1}");
+  VehicleCheck partial=VehicleCheck.read(sample);check(partial.alerts==2);check(partial.known==3);check(partial.unknown==13);check(!VehicleCheck.recent(sample));
+  check(VehicleCheck.flag(2)==null);check(VehicleCheck.flag(org.json.JSONObject.NULL)==null);check(Boolean.FALSE.equals(VehicleCheck.flag("0")));
+  sample.put("dateTime",java.time.OffsetDateTime.now().toString());check(VehicleCheck.recent(sample));
+  sample.put("dateTime",java.time.OffsetDateTime.now().minusHours(1).toString());check(!VehicleCheck.recent(sample));
   watchChecks(c);
   garageChecks(c);
   appearanceChecks(c);
