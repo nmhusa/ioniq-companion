@@ -7,3 +7,5 @@ Sign-in and unlock authentication windows prevent screenshots and recent-app pre
 The Hyundai shared client credential remains recoverable from an APK despite obfuscation. This release does not claim to make embedded credentials secret. Existing Android Keystore encryption, HTTPS validation, command guards and signed-update requirements remain in place.
 
 Build with your existing signing key using build-release-windows.ps1. Output: release-output/0.9.5/ioniq-companion-0.9.5.apk. No watch APK update is required.
+
+Validation: [GitHub Actions run 41149975325](https://github.com/nmhusa/ioniq-companion/actions/runs/41149975325) passed Android phone/watch debug and release builds, lint, obfuscation checks, Windows updater tests, and Android emulator security instrumentation. No live Hyundai commands were tested.

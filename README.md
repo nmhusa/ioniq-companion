@@ -1,6 +1,6 @@
 # IONIQ Companion
 
-Latest version: **0.9.5** — tap the car to choose its paint: 13 US palettes, 50 transparent images, and separate saved colors for each vehicle. [Release notes](RELEASE-0.9.5.md). Existing watch and widgets remain compatible.
+Latest version: **0.9.5** — phone authentication for unlocking is enabled on upgrade; sign-in and authentication screens are protected from screenshots. Dashboard screenshots remain available. [Release notes](RELEASE-0.9.5.md). Existing watch and widgets remain compatible.
 
 Unofficial Android companion for Hyundai US, with vehicle status and six colorful home-screen controls.
 
@@ -86,8 +86,8 @@ Signed release builds use R8 optimization and name obfuscation. Client credentia
 
 Vehicle colors: tap the car image, choose a palette and paint, then Save. See [color catalog](COLOR-CATALOG.md) for verified years and limitations.
 
-Version 0.9.5 labels the top-right vehicle picker **Change vehicle**, opposite the vehicle name. It stays visible while connected, including when only one car is cached; use Refresh list in the picker to discover another registered car.
+Version 0.9.4 labels the top-right vehicle picker **Change vehicle**, opposite the vehicle name. It stays visible while connected, including when only one car is cached; use Refresh list in the picker to discover another registered car.
 
-0.9.5: tap the 12V badge beside Range and Odometer for the auxiliary battery reading and report age.
+0.9.4: tap the 12V badge beside Range and Odometer for the auxiliary battery reading and report age.
 
-Seat heating/ventilation: after Refresh status, open Climate presets → Edit presets. Controls appear only for compatible reported equipment; see [0.9.5](RELEASE-0.9.5.md).
+Seat heating/ventilation: after Refresh status, open Climate presets → Edit presets. Controls appear only for compatible reported equipment; see [0.9.4](RELEASE-0.9.4.md).
