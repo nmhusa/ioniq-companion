@@ -73,18 +73,18 @@ public class MainActivity extends Activity {
   vehicleSwitch=button("Change vehicle ▾",()->openVehicles());vehicleSwitch.setTextSize(12);vehicleSwitch.setMaxLines(2);vehicleSwitch.setMinHeight(dp(52));vehicleSwitch.setPadding(dp(8),dp(8),dp(8),dp(8));vehicleSwitch.setTextColor(0xffb4f4df);vehicleSwitch.setBackground(surface(0xff1b3a45,0xff629b9c));LinearLayout.LayoutParams switchLayout=new LinearLayout.LayoutParams(dp(112),-2);switchLayout.setMarginStart(dp(12));vehicleSwitch.setLayoutParams(switchLayout);vehicleSwitch.setContentDescription("Change vehicle. Choose a registered Bluelink car.");page=titleParent;
   vehicleSubtitle=text("HYUNDAI US",12,Color.rgb(141,227,207));
   carHeader();
+  quickVehicleControls();
   LinearLayout summaryParent=page;LinearLayout summary=new LinearLayout(this);summary.setOrientation(LinearLayout.VERTICAL);summary.setGravity(Gravity.CENTER_VERTICAL);summary.setMinimumHeight(dp(48));summary.setPadding(0,dp(2),0,dp(2));summaryParent.addView(summary);page=summary;
   status=text("No vehicle data yet",12,0xffAFC5D4);status.setPadding(0,dp(2),0,dp(2));
   message=text("",13,0xffAFC5D4);message.setPadding(0,dp(2),0,dp(2));message.setMaxLines(1);message.setEllipsize(android.text.TextUtils.TruncateAt.END);
   summary.setFocusable(true);summary.setOnClickListener(v->new AlertDialog.Builder(this).setTitle("Vehicle & command details").setMessage(reportDetails+"\n\nThis is Hyundai’s vehicle report time, not the time you tapped Refresh."+(resultDetails.isEmpty()?"":"\n\nLatest result:\n"+resultDetails)).setPositiveButton("Done",null).setNeutralButton("Dismiss result",(d,w)->{showResult("");SecurePrefs.get(this,"actions").edit().remove("last_result").apply();}).show());
   page=summaryParent;showResult("");
-  checkToggle=button("Vehicle check",()->{checkOpen=!checkOpen;updateVehicleCheck();});checkToggle.setTextSize(13);
-  checkDetails=text("",12,0xffAFC5D4);checkDetails.setVisibility(View.GONE);showStatus();
+  showStatus();
   text("DOORS",12,0xff53D8B0).setPadding(0,dp(2),0,dp(2));controlRow(0,1);
   text("CLIMATE",12,Color.rgb(141,227,207)).setPadding(0,dp(4),0,dp(2));controlRow(2,3);
   Button presets=button("Climate presets · "+NamedClimate.active(this)+" · "+temperature+" °F",()->{});
   presets.setOnClickListener(v->{if(!busy)chooseClimate(presets);});
-  locationControls();
+
   walkAway=button("Auto-lock",()->startActivity(new Intent(this,ParkingActivity.class)));
   walkAway.setTextColor(0xff8fe4cb);walkAway.setTextSize(13);walkAway.setBackgroundColor(Color.TRANSPARENT);
   walkAway.setContentDescription("Bluetooth automatic locking status and settings");parkingStatus=null;updateParkingControl();
@@ -101,6 +101,7 @@ public class MainActivity extends Activity {
   settingsToggle.setBackground(getDrawable(R.drawable.settings_bar));settingsToggle.setTextColor(0xffF5EEFF);settingsToggle.setTypeface(null,android.graphics.Typeface.BOLD);settingsToggle.setPadding(dp(12),0,dp(12),dp(5));
   settingsToggle.setOnClickListener(v->{boolean open=settings.getVisibility()!=View.VISIBLE;settings.setVisibility(open?View.VISIBLE:View.GONE);settingsToggle.setSelected(open);settingsToggle.setText(open?"Settings & help ▴":"Settings & help ▾");});
   dashboard.addView(settings);page=settings;
+  button("Lights, horn & location options",()->locationOptions());
   button("Switch / refresh vehicles",()->openVehicles());
   button("Bluetooth auto-lock settings",()->startActivity(new Intent(this,ParkingActivity.class)));
   button("＋  Add a home-screen widget",()->pinWidgets());
@@ -115,7 +116,7 @@ public class MainActivity extends Activity {
   erase.setTextColor(0xffffd54f);
   cautionStrip();
   text("Credentials are encrypted with Android Keystore. Requests go directly to Hyundai. Background refresh reads Hyundai’s cached report about hourly when Android allows; the car’s timestamp shows its actual age. Action widgets send commands with one tap, except unlocking when unlock protection is enabled. Climate on uses your saved temperature. A confirmed command is not a live sensor reading.",12,Color.LTGRAY);
-  text("IONIQ Companion · 0.9.8",12,0xffAFC5D4);page=dashboard;
+  text("IONIQ Companion · 0.9.9",12,0xffAFC5D4);page=dashboard;
  }
  @Override protected void onPause(){super.onPause();parkingHandler.removeCallbacks(parkingTick);}
  @Override protected void onResume(){super.onResume();parkingHandler.removeCallbacks(parkingTick);parkingHandler.post(parkingTick);if(status!=null)showStatus();ActionWidget.renderAll(this);String last=SecurePrefs.get(this,"actions").getString("last_result","");if(message!=null&&!last.isEmpty()&&!busy)showResult(last);}
@@ -129,10 +130,10 @@ public class MainActivity extends Activity {
  }
  private void updateVehicleCheck(){
   if(checkToggle==null)return;VehicleCheck check=VehicleCheck.read(auxStatus);boolean recent=VehicleCheck.recent(auxStatus);
-  checkToggle.setText("Vehicle check · "+check.summary()+(!recent&&check.known>0?" · Older report":"")+(checkOpen?" ▴":" ▾"));
+  checkToggle.setText("Vehicle check"+(check.alerts>0?" · "+check.alerts:"")+(checkOpen?" ▴":" ▾"));
   checkToggle.setTextColor(check.alerts>0?0xffffcf72:recent&&check.unknown==0?0xffa4edda:0xffAFC5D4);
-  checkToggle.setSelected(checkOpen);checkToggle.setContentDescription(checkToggle.getText()+". Tap to "+(checkOpen?"collapse":"expand")+" reported checks.");
-  checkDetails.setText(StatusText.time(auxStatus)+"\nSaved report, not live. Unavailable checks are not confirmed clear.\n\n"+check.detail);
+  checkToggle.setSelected(checkOpen);checkToggle.setContentDescription(checkToggle.getText()+". "+check.summary()+(!recent?". Report freshness unconfirmed or older than 15 minutes":"")+". Tap to "+(checkOpen?"collapse":"expand")+" reported checks.");
+  checkDetails.setText(check.summary()+(!recent?" · Older or undated report":"")+"\n"+StatusText.time(auxStatus)+"\nSaved report, not live. Unavailable checks are not confirmed clear.\n\n"+check.detail);
   checkDetails.setVisibility(checkOpen?View.VISIBLE:View.GONE);
  }
  private void showStatus(){updateVehicleIdentity();auxStatus=new JSONObject();if(heroAuxBattery!=null){heroAuxBattery.show(auxStatus,System.currentTimeMillis());}try{JSONObject s=new JSONObject(SecurePrefs.get(this,"status").getString("json","{}"));VehicleMileage.attach(this,s);auxStatus=s;if(heroAuxBattery!=null){heroAuxBattery.show(s,System.currentTimeMillis());}reportDetails=StatusText.time(s)+"\nOdometer report: "+s.optString("mileageReport","unavailable");status.setText(reportLabel(s.optString("dateTime","")));if(heroBattery!=null){heroBattery.setText(StatusText.battery(s));heroLock.setText(StatusText.lock(s));heroCharging.setText(StatusText.charging(s));heroRange.setText("RANGE\n"+StatusText.range(s));heroMileage.setText("ODOMETER\n"+StatusText.odometer(s));heroLock.setTextColor("Unlocked".equals(StatusText.lock(s))?0xffffcf72:0xffa4edda);}}catch(Exception ignored){}updateVehicleCheck();}
@@ -141,10 +142,20 @@ public class MainActivity extends Activity {
    .setMessage("Allow the matching, signed watch app to send one-tap commands through this phone. Bluelink credentials stay here. Unlock protection, if enabled, requires unlocking from the phone. Turning this off does not cancel a command already sent.")
    .setNegativeButton("Cancel",null).setPositiveButton(on?"Disable":"Enable",(d,w)->{if(on){WatchRelay.disable(this);showResult("Watch controls disabled.");}else showResult(WatchRelay.enable(this)?"Watch controls enabled. Open IONIQ Companion on your watch.":"Connect and select your vehicle first.");}).show();
  }
- private void locationControls(){
+ private void quickVehicleControls(){
   LinearLayout parent=page,row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);parent.addView(row);page=row;
-  Button find=button("⌖  Find my car",()->findCar());LinearLayout.LayoutParams wide=new LinearLayout.LayoutParams(0,dp(52),1);wide.setMargins(0,dp(5),dp(6),dp(5));find.setLayoutParams(wide);
-  Button details=button("⋯",()->locationOptions());details.setContentDescription("Find my car options: lights, horn, location details and saved parking");LinearLayout.LayoutParams small=new LinearLayout.LayoutParams(dp(52),dp(52));small.setMargins(0,dp(5),0,dp(5));details.setLayoutParams(small);page=parent;button("View surroundings",()->startActivity(new Intent(this,SurroundActivity.class)));
+  checkToggle=button("Vehicle check ▾",()->{checkOpen=!checkOpen;updateVehicleCheck();});
+  Button find=button("Find my car",()->findCar());
+  find.setOnLongClickListener(v->{if(!busy)locationOptions();return true;});
+  find.setContentDescription("Find my car. Touch and hold for lights, horn and location options.");
+  Button surroundings=button("View surroundings",()->startActivity(new Intent(this,SurroundActivity.class)));
+  int index=0;for(Button control:new Button[]{checkToggle,find,surroundings}){
+   control.setTextSize(12);control.setMinWidth(0);control.setMinimumWidth(0);control.setMinHeight(dp(56));control.setMinimumHeight(dp(56));
+   control.setPadding(dp(6),dp(8),dp(6),dp(12));control.setGravity(Gravity.CENTER);control.setTypeface(null,android.graphics.Typeface.BOLD);
+   control.setBackground(getDrawable(R.drawable.vehicle_quick_bar));
+   LinearLayout.LayoutParams item=new LinearLayout.LayoutParams(0,-1,1);item.setMargins(index==0?0:dp(3),dp(5),index==2?0:dp(3),dp(5));control.setLayoutParams(item);index++;
+  }
+  page=parent;checkDetails=text("",12,0xffAFC5D4);checkDetails.setVisibility(View.GONE);
  }
  private void findCar(){if(CarLocations.read(this,CarLocations.VEHICLE)!=null)openCarMap();else fetchCarMap();}
  private void openCarMap(){
